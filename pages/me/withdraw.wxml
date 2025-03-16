@@ -1,0 +1,42 @@
+<view class="withdraw-container">
+  <!-- 余额卡片 -->
+  <view class="balance-card">
+    <view class="balance-info">
+      <view class="balance-label">我的受益余额(元)</view>
+      <view class="balance-value">{{balance}}</view>
+      <view class="balance-total">累计已提现金额: ¥{{totalWithdrawn}}</view>
+    </view>
+    <view class="currency-icon">
+      <view class="icon-placeholder"></view>
+    </view>
+  </view>
+  
+  <!-- 账单明细 -->
+  <view class="bill-section">
+    <view class="bill-header">
+      <view class="bill-title">账单明细</view>
+      <picker mode="date" fields="month" value="{{currentPeriod}}" start="2022-01" end="2024-12" bindchange="onDateChange">
+        <view class="period-selector">
+          <text>当前明细: {{currentPeriod}}</text>
+          <view class="arrow-down"></view>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 账单列表 -->
+    <view class="bill-list">
+      <block wx:for="{{records}}" wx:key="id">
+        <view class="bill-item">
+          <view class="bill-left">
+            <view class="bill-type">{{item.type}}</view>
+            <view class="bill-time">{{item.date}} {{item.time}}</view>
+          </view>
+          <view class="bill-amount">{{item.amount}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- 提现按钮 -->
+  <view class="withdraw-button" bindtap="handleWithdraw">提现</view>
+</view> 

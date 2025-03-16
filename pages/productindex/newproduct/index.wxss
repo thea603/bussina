@@ -1,0 +1,536 @@
+/* 页面容器 */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  padding-bottom: 120rpx; /* 为底部按钮留出空间 */
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: 0; /* 移除顶部内边距 */
+}
+
+/* 页面内容 */
+.page-content {
+  flex: 1;
+  padding: 10rpx 20rpx; /* 进一步减小内边距 */
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0; /* 移除顶部间距 */
+}
+
+/* 卡片样式 */
+.card {
+  background-color: #FFFFFF;
+  border-radius: 12rpx; /* 减小圆角 */
+  padding: 20rpx; /* 减小内边距 */
+  margin-bottom: 15rpx; /* 减小底部间距 */
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  width: 100%; /* 确保卡片宽度为100% */
+  box-sizing: border-box;
+}
+
+.first-card {
+  margin-top: 0; /* 移除第一个卡片的顶部间距 */
+}
+
+/* 表单项样式 */
+.form-item {
+  margin-bottom: 25rpx; /* 减小表单项间距 */
+  width: 100%; /* 确保表单项宽度为100% */
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+/* 标题表单项 */
+.title-form-item {
+  position: relative;
+  width: 100%;
+}
+
+.title-form-label, .form-label, .inline-form-label {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 10rpx; /* 减小标签底部间距 */
+  font-weight: 500;
+}
+
+.required {
+  color: #FF6600;
+  margin-left: 4rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background-color: #F8F8F8;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #333333;
+  box-sizing: border-box;
+}
+
+.title-form-input {
+  padding-right: 80rpx; /* 为计数器留出空间 */
+}
+
+.input-counter {
+  position: absolute;
+  right: 20rpx;
+  bottom: 20rpx;
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.input-placeholder {
+  color: #CCCCCC;
+}
+
+.form-textarea {
+  width: 100%;
+  height: 160rpx;
+  background-color: #F8F8F8;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #333333;
+  box-sizing: border-box;
+}
+
+/* 内联表单项 */
+.inline-form-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+  width: 100%;
+}
+
+.inline-form-item:last-child {
+  border-bottom: none;
+}
+
+.inline-form-label {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.inline-form-input {
+  flex: 2;
+  text-align: right;
+  background-color: transparent;
+  height: 60rpx;
+  padding-right: 0;
+}
+
+/* 图片上传器 */
+.image-uploader {
+  width: 100%;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10rpx;
+}
+
+.image-item {
+  width: 160rpx;
+  height: 160rpx;
+  margin: 10rpx;
+  position: relative;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.image-item image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.delete-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom-left-radius: 8rpx;
+}
+
+.upload-button {
+  width: 160rpx;
+  height: 160rpx;
+  margin: 10rpx;
+  background-color: #F8F8F8;
+  border-radius: 8rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999999;
+}
+
+.upload-icon {
+  font-size: 48rpx;
+  line-height: 1;
+  margin-bottom: 10rpx;
+}
+
+.upload-text {
+  font-size: 24rpx;
+}
+
+.upload-tip {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 20rpx;
+}
+
+/* 底部按钮 */
+.bottom-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  padding: 20rpx 30rpx;
+  background-color: #FFFFFF;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  justify-content: center; /* 确保按钮居中 */
+  align-items: center;
+}
+
+.draft-button {
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #FFFFFF;
+  color: #666666;
+  font-size: 28rpx;
+  border: 1rpx solid #DDDDDD;
+  border-radius: 40rpx;
+  margin-right: 20rpx;
+  text-align: center; /* 确保文本居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.submit-button {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #CCCCCC;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  border-radius: 40rpx;
+  text-align: center; /* 确保文本居中 */
+  max-width: 60%; /* 限制按钮最大宽度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.submit-button.active {
+  background-color: #FF6600;
+}
+
+/* 分类选择器 */
+.category-picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.category-picker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  z-index: 1001;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-picker-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.category-picker-header text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.category-picker-close {
+  font-size: 40rpx;
+  color: #999999;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-picker-content {
+  max-height: calc(70vh - 90rpx);
+}
+
+.category-picker-item {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.category-picker-item text {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.category-picker-item-selected {
+  color: #FF6600;
+  font-size: 32rpx;
+}
+
+/* 占位符样式 */
+.placeholder {
+  color: #CCCCCC;
+}
+
+/* 日期范围选择器 */
+.date-range-picker {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 2;
+}
+
+.date-range-display {
+  flex: 1;
+  text-align: right;
+  background-color: transparent;
+  height: 60rpx;
+  padding: 0 10rpx;
+  font-size: 26rpx;
+}
+
+/* 日期选择器弹窗 */
+.date-picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.date-picker-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+.date-picker-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.date-picker-header text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.date-picker-close {
+  font-size: 40rpx;
+  color: #999999;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-picker-body {
+  padding: 20rpx 30rpx;
+}
+
+.date-picker-tabs {
+  display: flex;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.date-picker-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666666;
+  position: relative;
+}
+
+.date-picker-tab.active {
+  color: #FF6600;
+}
+
+.date-picker-tab.active:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 4rpx;
+  background-color: #FF6600;
+}
+
+.date-picker-footer {
+  display: flex;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.date-picker-cancel, .date-picker-confirm {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  margin: 0 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.date-picker-cancel {
+  background-color: #F5F5F5;
+  color: #666666;
+}
+
+.date-picker-confirm {
+  background-color: #FF6600;
+  color: #FFFFFF;
+}
+
+/* 添加网络状态提示栏样式 */
+.network-status-bar {
+  display: flex;
+  align-items: center;
+  background-color: #fff8e1;
+  padding: 10rpx 30rpx;
+  margin-bottom: 20rpx;
+  border-radius: 8rpx;
+}
+
+.network-status-icon {
+  width: 40rpx;
+  height: 40rpx;
+  background-color: #ff9800;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin-right: 20rpx;
+}
+
+.network-status-text {
+  font-size: 26rpx;
+  color: #ff9800;
+}
+
+/* 本地图片样式 */
+.local-image {
+  position: relative;
+  border: 2rpx solid #ff9800;
+}
+
+.local-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 0 0 8rpx 0;
+}
+
+/* 预设图片标记 */
+.preset-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 102, 0, 0.8);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 0 0 8rpx 0;
+}
+
+/* 上传进度条样式 */
+.upload-progress {
+  margin-top: 20rpx;
+}
+
+.progress-bar {
+  height: 10rpx;
+  background-color: #f1f1f1;
+  border-radius: 10rpx;
+  overflow: hidden;
+  margin-bottom: 10rpx;
+}
+
+.progress-inner {
+  height: 100%;
+  background-color: #07c160;
+  border-radius: 10rpx;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+} 

@@ -1,0 +1,65 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/productindex/newproduct/index",
+    "pages/orderlist/index",
+    "pages/productindex/index",
+    "pages/shop/index",
+    "pages/shop/open",
+    "pages/login/register",
+    "pages/shop/goods",
+    "pages/shop/order",
+    "pages/me/index",
+    "pages/me/withdraw",
+    "pages/me/withdraw-confirm",
+    "pages/productindex/verify/digital",
+    "pages/productindex/verify/scan",
+    "pages/productindex/verify/success",
+    "pages/productindex/newproduct/success",
+    "pages/productlist/index",
+    "pages/orderlist/detail"
+  ],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "",
+    "navigationBarBackgroundColor": "#FF6600",
+    "navigationStyle": "default",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#FF6600",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/productindex/index",
+        "text": "首页",
+        "iconPath": "pages/images/home.png",
+        "selectedIconPath":"pages/images/home.png"
+      },
+      {
+        "pagePath": "pages/productlist/index",
+        "text": "商品",
+        "iconPath": "pages/images/product.png",
+        "selectedIconPath":"pages/images/product.png"
+      },
+      {
+        "pagePath": "pages/orderlist/index",
+        "text": "订单",
+        "iconPath": "pages/images/list.png",
+        "selectedIconPath":"pages/images/list.png"
+      },
+      {
+        "pagePath": "pages/me/index",
+        "text": "我的",
+        "iconPath": "pages/images/userhome.png",
+        "selectedIconPath":"pages/images/userhome.png"
+      }
+    ]
+  }
+}

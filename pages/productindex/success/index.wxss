@@ -1,0 +1,81 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  padding: 0 60rpx;
+}
+
+/* 成功图标 */
+.success-icon {
+  margin-bottom: 30rpx;
+}
+
+.success-icon image {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+/* 成功提示 */
+.success-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 20rpx;
+  text-align: center;
+}
+
+.success-desc {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 100rpx;
+  text-align: center;
+}
+
+/* 按钮区域 */
+.button-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.primary-button {
+  width: 100%;
+  height: 90rpx;
+  background-color: #FF6600;
+  color: #FFFFFF;
+  font-size: 32rpx;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 8rpx rgba(255, 102, 0, 0.2);
+}
+
+.secondary-button {
+  width: 100%;
+  height: 90rpx;
+  background-color: #FFFFFF;
+  color: #333333;
+  font-size: 32rpx;
+  border: 1rpx solid #CCCCCC;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 覆盖微信按钮的默认样式 */
+button {
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+
+button::after {
+  border: none;
+} 

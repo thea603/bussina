@@ -1,0 +1,64 @@
+<view class="withdraw-confirm-container">
+  <!-- 提现金额输入区域 -->
+  <view class="withdraw-card">
+    <view class="withdraw-title">提现金额</view>
+    <view class="amount-input-area">
+      <text class="currency-symbol">¥</text>
+      <input class="amount-input" type="digit" value="{{withdrawAmount}}" bindinput="onAmountInput" placeholder="0.00" />
+    </view>
+    <view class="withdraw-info">
+      <view class="withdraw-limit">可提现金额¥100</view>
+      <view class="withdraw-all" bindtap="withdrawAll">全部提现</view>
+    </view>
+    
+    <!-- 错误提示 -->
+    <view class="error-message" wx:if="{{showError}}">{{errorMsg}}</view>
+    
+    <!-- 手续费信息 -->
+    <view class="fee-info">手续费: {{feeRate * 100}}%</view>
+  </view>
+  
+  <!-- 提现到哪里 -->
+  <view class="payment-method">
+    <view class="method-content">
+      <view class="method-title">提现至</view>
+      <view class="method-right">
+        <view class="method-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="method-name">{{paymentMethod}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 提现按钮 -->
+  <view class="confirm-button {{buttonActive ? 'active' : 'inactive'}}" bindtap="confirmWithdraw">确认提现</view>
+  
+  <!-- 提现说明 -->
+  <view class="withdraw-note">温馨提示: 提现申请提交后，预计在3个工作日内到账。</view>
+  
+  <!-- 成功提示弹窗 -->
+  <view class="success-popup" wx:if="{{showSuccessPopup}}">
+    <view class="success-content">
+      <view class="success-icon">
+        <icon type="success" size="60" color="#07C160"/>
+      </view>
+      <view class="success-title">恭喜你，提现成功</view>
+      <view class="success-details">
+        <view class="detail-item">
+          <text class="detail-label">提现金额:</text>
+          <text class="detail-value">{{withdrawAmount}}元</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">手续费:</text>
+          <text class="detail-value">{{feeRate * 100}}%</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">预计到账时间:</text>
+          <text class="detail-value">申请成功后1-3个工作日</text>
+        </view>
+      </view>
+      <view class="back-button" bindtap="navigateBack">返回首页</view>
+    </view>
+  </view>
+</view> 

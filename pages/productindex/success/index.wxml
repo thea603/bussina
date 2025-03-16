@@ -1,0 +1,16 @@
+<view class="container">
+  <!-- 成功图标 -->
+  <view class="success-icon">
+    <image src="/assets/images/success-icon.png" mode="aspectFit"></image>
+  </view>
+  
+  <!-- 成功提示 -->
+  <view class="success-title">提交成功！</view>
+  <view class="success-desc">审核中，请耐心等待~</view>
+  
+  <!-- 按钮区域 -->
+  <view class="button-area">
+    <button class="primary-button" bindtap="continueAdd">继续新增</button>
+    <button class="secondary-button" bindtap="backToHome">返回首页</button>
+  </view>
+</view> 

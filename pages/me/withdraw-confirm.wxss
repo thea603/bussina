@@ -1,0 +1,209 @@
+.withdraw-confirm-container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  padding: 20rpx;
+}
+
+/* 提现金额输入区域 */
+.withdraw-card {
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.withdraw-title {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 30rpx;
+}
+
+.amount-input-area {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx solid #EEEEEE;
+  padding-bottom: 20rpx;
+}
+
+.currency-symbol {
+  font-size: 40rpx;
+  color: #333333;
+  margin-right: 10rpx;
+}
+
+.amount-input {
+  flex: 1;
+  font-size: 60rpx;
+  font-weight: bold;
+  color: #333333;
+  height: 80rpx;
+}
+
+.withdraw-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.withdraw-limit {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.withdraw-all {
+  font-size: 24rpx;
+  color: #FF6600;
+}
+
+.error-message {
+  font-size: 24rpx;
+  color: #FF3B30;
+  margin-bottom: 20rpx;
+}
+
+.fee-info {
+  font-size: 24rpx;
+  color: #999999;
+  text-align: right;
+}
+
+/* 提现到哪里 */
+.payment-method {
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 40rpx;
+}
+
+.method-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.method-title {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 0;
+}
+
+.method-right {
+  display: flex;
+  align-items: center;
+}
+
+.method-icon {
+  margin-right: 10rpx;
+}
+
+.icon-placeholder {
+  width: 40rpx;
+  height: 40rpx;
+  background-color: #EEEEEE;
+  border-radius: 8rpx;
+}
+
+.method-name {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+/* 提现按钮 */
+.confirm-button {
+  height: 90rpx;
+  line-height: 90rpx;
+  font-size: 32rpx;
+  text-align: center;
+  border-radius: 45rpx;
+  margin-bottom: 30rpx;
+}
+
+.confirm-button.active {
+  background: linear-gradient(to right, #FF6600, #FF9500);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(255, 102, 0, 0.3);
+}
+
+.confirm-button.inactive {
+  background: #CCCCCC;
+  color: #FFFFFF;
+}
+
+/* 提现说明 */
+.withdraw-note {
+  font-size: 24rpx;
+  color: #999999;
+  text-align: center;
+  padding: 0 40rpx;
+  line-height: 1.5;
+}
+
+/* 成功提示弹窗 */
+.success-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.success-content {
+  width: 80%;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 40rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.success-icon {
+  margin-bottom: 20rpx;
+}
+
+.success-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 30rpx;
+}
+
+.success-details {
+  width: 100%;
+  margin-bottom: 40rpx;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15rpx;
+}
+
+.detail-label {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.detail-value {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+.back-button {
+  width: 100%;
+  height: 90rpx;
+  line-height: 90rpx;
+  background: linear-gradient(to right, #FF6600, #FF9500);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  text-align: center;
+  border-radius: 45rpx;
+} 

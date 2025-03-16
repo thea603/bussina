@@ -1,0 +1,306 @@
+/* 页面容器 */
+.container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+/* 订单详情 */
+.order-detail {
+  padding: 0 0 120rpx 0;
+  margin: 0;
+}
+
+/* 顶部提示 */
+.top-tip {
+  display: flex;
+  align-items: center;
+  background-color: #FFF7E6;
+  padding: 20rpx 30rpx;
+  color: #FF9900;
+  font-size: 26rpx;
+  margin: 20rpx 0;
+}
+
+.top-tip icon {
+  margin-right: 10rpx;
+}
+
+/* 客户信息 */
+.customer-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #FFFFFF;
+  padding: 30rpx;
+  margin-top: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+}
+
+.icon-image {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+}
+
+.customer-phone {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+.call-button {
+  width: 50rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-button .icon-image {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+/* 商品信息 */
+.product-section {
+  background-color: #FFFFFF;
+  margin-top: 20rpx;
+  padding: 30rpx;
+}
+
+.shop-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.product-info {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #EEEEEE;
+}
+
+.product-image-container {
+  width: 160rpx;
+  height: 160rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #EEEEEE;
+  border-radius: 8rpx;
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-name {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.product-spec {
+  display: flex;
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.spec-item {
+  margin-right: 20rpx;
+}
+
+.product-price {
+  font-size: 30rpx;
+  color: #FF0000;
+  font-weight: 500;
+  align-self: flex-end;
+}
+
+/* 订单金额信息 */
+.order-amount-info {
+  padding: 20rpx 0;
+}
+
+.amount-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.amount-label {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.amount-value {
+  font-size: 26rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+/* 订单信息 */
+.order-info-section {
+  background-color: #FFFFFF;
+  margin-top: 20rpx;
+  padding: 30rpx;
+}
+
+.info-item {
+  display: flex;
+  margin-bottom: 20rpx;
+  justify-content: space-between;
+}
+
+.info-label {
+  width: 180rpx;
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333333;
+  text-align: right;
+}
+
+.copy-btn {
+  font-size: 26rpx;
+  color: #FF6600;
+  margin-left: 10rpx;
+  width: 60rpx;
+  text-align: center;
+}
+
+/* 底部操作按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  background-color: #FFFFFF;
+  padding: 20rpx 30rpx;
+  box-sizing: border-box;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.action-button {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  margin: 0 10rpx;
+}
+
+.action-button icon {
+  margin-right: 10rpx;
+}
+
+.action-button.reject {
+  background-color: #FFFFFF;
+  color: #FF6600;
+  border: 1rpx solid #FF6600;
+}
+
+.action-button.agree {
+  background-color: #FF6600;
+  color: #FFFFFF;
+}
+
+.action-button.verify {
+  background-color: #FF6600;
+  color: #FFFFFF;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 80%;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 40rpx 30rpx;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.modal-message {
+  font-size: 28rpx;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.reject-reason {
+  width: 100%;
+  height: 200rpx;
+  border: 1rpx solid #EEEEEE;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  margin-bottom: 30rpx;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-button {
+  width: 45%;
+  height: 80rpx;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.modal-button.cancel {
+  background-color: #F5F5F5;
+  color: #666666;
+}
+
+.modal-button.confirm {
+  background-color: #FF6600;
+  color: #FFFFFF;
+} 

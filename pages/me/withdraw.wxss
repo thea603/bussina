@@ -1,0 +1,144 @@
+.withdraw-container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  padding-bottom: 40rpx;
+}
+
+/* 余额卡片 */
+.balance-card {
+  margin: 30rpx 20rpx;
+  padding: 30rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(to right, #FF5252, #FFAB40);
+  color: #FFFFFF;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(255, 82, 82, 0.3);
+}
+
+.balance-info {
+  flex: 1;
+}
+
+.balance-label {
+  font-size: 28rpx;
+  opacity: 0.9;
+  margin-bottom: 20rpx;
+}
+
+.balance-value {
+  font-size: 60rpx;
+  font-weight: bold;
+  margin-bottom: 30rpx;
+}
+
+.balance-total {
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+.currency-icon {
+  display: flex;
+  align-items: center;
+}
+
+.icon-placeholder {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 40rpx;
+}
+
+/* 账单明细 */
+.bill-section {
+  margin: 20rpx;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.bill-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.period-selector {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 10rpx solid transparent;
+  border-right: 10rpx solid transparent;
+  border-top: 10rpx solid #999999;
+  margin-left: 10rpx;
+}
+
+.bill-list {
+  padding: 0 20rpx;
+}
+
+.bill-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.bill-item:last-child {
+  border-bottom: none;
+}
+
+.bill-left {
+  flex: 1;
+}
+
+.bill-type {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 10rpx;
+}
+
+.bill-time {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.bill-amount {
+  font-size: 32rpx;
+  color: #FF6600;
+  font-weight: 500;
+}
+
+/* 提现按钮 */
+.withdraw-button {
+  position: fixed;
+  bottom: 40rpx;
+  left: 20rpx;
+  right: 20rpx;
+  height: 90rpx;
+  line-height: 90rpx;
+  background: linear-gradient(to right, #FF6600, #FF9500);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  text-align: center;
+  border-radius: 45rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255, 102, 0, 0.3);
+} 

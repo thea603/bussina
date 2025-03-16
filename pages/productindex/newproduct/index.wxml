@@ -1,0 +1,234 @@
+<view class="container">
+  <!-- 自定义导航栏 -->
+
+  <!-- 网络状态提示 -->
+  <view class="network-status-bar" wx:if="{{isOfflineMode}}">
+    <view class="network-status-icon">!</view>
+    <view class="network-status-text">当前处于离线模式，图片将暂存在本地</view>
+  </view>
+  
+  <!-- 页面内容 -->
+  <view class="page-content"  >
+    <!-- 基本信息卡片 -->
+    <view class="card first-card">
+      <!-- 商品标题 -->
+      <view class="form-item title-form-item">
+        <view class="title-form-label">商品标题 <text class="required">*</text></view>
+        <input 
+          class="form-input title-form-input"
+          placeholder="添加商品名称" 
+          placeholder-class="input-placeholder" 
+          maxlength="15"
+          bindinput="onInputChange"
+          data-field="name"
+          value="{{product.name}}"
+        />
+        <view class="input-counter">{{product.name.length}}/15</view>
+      </view>
+      
+      <!-- 商品描述 -->
+      <view class="form-item">
+        <view class="form-label">商品描述</view>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请用一句话简单描述你的商品卖点" 
+          placeholder-class="input-placeholder"
+          bindinput="onInputChange"
+          data-field="description"
+          value="{{product.description}}"
+        ></textarea>
+      </view>
+      
+      <!-- 商品图片 -->
+      <view class="form-item">
+        <view class="form-label">商品图片 <text class="required">*</text></view>
+        <view class="image-uploader">
+          <view class="image-list">
+            <block wx:for="{{product.images}}" wx:key="index">
+              <view class="image-item {{item.isLocalImage ? 'local-image' : ''}}">
+                <image src="{{item.imageUrl || item}}" mode="aspectFill" bindtap="previewImage" data-src="{{item.imageUrl || item}}"></image>
+                <view class="delete-icon" bindtap="deleteImage" data-index="{{index}}">×</view>
+                <view class="local-tag" wx:if="{{item.isLocalImage}}">本地</view>
+                <view class="preset-tag" wx:if="{{!item.isLocalImage && item.imageUrl && item.imageUrl.indexOf('alicdn.com') !== -1}}">预设</view>
+              </view>
+            </block>
+            
+            <view class="upload-button" bindtap="chooseImage" wx:if="{{product.images.length < maxImageCount}}">
+              <view class="upload-icon">+</view>
+              <view class="upload-text">上传图片</view>
+            </view>
+          </view>
+          <view class="upload-tip">最多上传{{maxImageCount}}张图片</view>
+        </view>
+      </view>
+      
+      <!-- 上传进度提示 -->
+      <view class="upload-progress" wx:if="{{isUploading}}">
+        <view class="progress-bar">
+          <view class="progress-inner" style="width: {{uploadProgress}}%;"></view>
+        </view>
+        <view class="progress-text">{{isOfflineMode ? '本地处理中' : '上传中'}} {{uploadProgress}}%</view>
+      </view>
+    </view>
+    
+    <!-- 商品详情卡片 -->
+    <view class="card">
+      <!-- 奖励金 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">奖励金 <text class="required">*</text></view>
+        <input 
+          class="form-input inline-form-input"
+          type="digit" 
+          placeholder="请输入" 
+          placeholder-class="input-placeholder"
+          bindinput="onInputChange"
+          data-field="rewardAmount"
+          data-type="money"
+          value="{{product.rewardAmount}}"
+        />
+      </view>
+      
+      <!-- 商品分类 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">商品分类 <text class="required">*</text></view>
+        <view 
+          class="form-input inline-form-input {{!product.categoryName ? 'placeholder' : ''}}" 
+          bindtap="showCategoryPicker"
+        >
+          {{product.categoryName || '请选择'}}
+        </view>
+      </view>
+      
+      <!-- 商品规格 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">商品规格 <text class="required">*</text></view>
+        <input 
+          class="form-input inline-form-input" 
+          placeholder="请输入" 
+          placeholder-class="input-placeholder"
+          bindinput="onInputChange"
+          data-field="specification"
+          value="{{product.specification}}"
+        />
+      </view>
+      
+      <!-- 售价 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">售价 <text class="required">*</text></view>
+        <input 
+          class="form-input inline-form-input" 
+          type="digit" 
+          placeholder="请输入" 
+          placeholder-class="input-placeholder"
+          bindinput="onInputChange"
+          data-field="sellingPrice"
+          data-type="money"
+          value="{{product.sellingPrice}}"
+        />
+      </view>
+      
+      <!-- 原价 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">原价 <text class="required">*</text></view>
+        <input 
+          class="form-input inline-form-input" 
+          type="digit" 
+          placeholder="请输入" 
+          placeholder-class="input-placeholder"
+          bindinput="onInputChange"
+          data-field="originalPrice"
+          data-type="money"
+          value="{{product.originalPrice}}"
+        />
+      </view>
+      
+      <!-- 活动日期 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">活动日期 <text class="required">*</text></view>
+        <view class="date-range-picker" bindtap="showDatePicker">
+          <view class="form-input date-range-display {{product.promotionStart && product.promotionEnd ? '' : 'placeholder'}}">
+            {{(product.promotionStart && product.promotionEnd) ? (product.promotionStart + ' 至 ' + product.promotionEnd) : '请选择活动时间'}}
+          </view>
+        </view>
+      </view>
+      
+      <!-- 库存 -->
+      <view class="form-item inline-form-item">
+        <view class="inline-form-label">现场库存 <text class="required">*</text></view>
+        <input 
+          class="form-input inline-form-input" 
+          type="number" 
+          placeholder="请输入" 
+          placeholder-class="input-placeholder"
+          bindinput="onInputChange"
+          data-field="stock"
+          value="{{product.stock}}"
+        />
+      </view>
+    </view>
+  </view>
+  
+  <!-- 分类选择器弹窗 -->
+  <view class="category-picker-mask" wx:if="{{showCategoryPicker}}" bindtap="hideCategoryPicker"></view>
+  <view class="category-picker" wx:if="{{showCategoryPicker}}">
+    <view class="category-picker-header">
+      <text>选择商品分类</text>
+      <view class="category-picker-close" bindtap="hideCategoryPicker">×</view>
+    </view>
+    <scroll-view scroll-y class="category-picker-content">
+      <view 
+        class="category-picker-item" 
+        wx:for="{{categories}}" 
+        wx:key="id" 
+        bindtap="selectCategory" 
+        data-index="{{index}}"
+      >
+        <text>{{item.name}}</text>
+        <view class="category-picker-item-selected" wx:if="{{product.categoryId === item.id}}">✓</view>
+      </view>
+    </scroll-view>
+  </view>
+  
+  <!-- 日期选择器弹窗 -->
+  <view class="date-picker-mask" wx:if="{{showDatePicker}}" bindtap="hideDatePicker"></view>
+  <view class="date-picker-container" wx:if="{{showDatePicker}}">
+    <view class="date-picker-header">
+      <text>选择活动时间</text>
+      <view class="date-picker-close" bindtap="hideDatePicker">×</view>
+    </view>
+    <view class="date-picker-body">
+      <view class="date-picker-tabs">
+        <view class="date-picker-tab {{datePickerTab === 'start' ? 'active' : ''}}" bindtap="switchDatePickerTab" data-tab="start">开始日期</view>
+        <view class="date-picker-tab {{datePickerTab === 'end' ? 'active' : ''}}" bindtap="switchDatePickerTab" data-tab="end">结束日期</view>
+      </view>
+      <picker-view 
+        indicator-style="height: 50px;" 
+        style="width: 100%; height: 250px;" 
+        value="{{datePickerValue}}" 
+        bindchange="onDatePickerChange"
+      >
+        <picker-view-column>
+          <view wx:for="{{years}}" wx:key="*this" style="line-height: 50px; text-align: center;">{{item}}年</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{months}}" wx:key="*this" style="line-height: 50px; text-align: center;">{{item}}月</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{days}}" wx:key="*this" style="line-height: 50px; text-align: center;">{{item}}日</view>
+        </picker-view-column>
+      </picker-view>
+    </view>
+    <view class="date-picker-footer">
+      <button class="date-picker-cancel" bindtap="hideDatePicker">取消</button>
+      <button class="date-picker-confirm" bindtap="confirmDatePicker">确定</button>
+    </view>
+  </view>
+  
+  <!-- 底部按钮 -->
+  <view class="bottom-buttons">
+    <button class="draft-button" style='width:30%' bindtap="saveDraft">保存草稿</button>
+    <button class="submit-button {{isSubmitActive ? 'active' : ''}}" bindtap="submitForm">
+      {{isOfflineMode ? '保存到本地' : '提交审核'}}
+    </button>
+  </view>
+</view> 

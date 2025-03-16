@@ -1,0 +1,116 @@
+<view class="container">
+  <view class="order-detail">
+    <!-- 顶部提示 -->
+    <view class="top-tip" wx:if="{{order.status === 2}}">
+      <icon type="warn" size="14" color="#FF9900"></icon>
+      <text>用户已发起退款申请，请尽快处理</text>
+    </view>
+    
+    <!-- 客户信息 -->
+    <view class="customer-section">
+      <view class="section-header">
+        <image class="icon-image" src="./images/user.png"></image>
+        <text class="customer-phone">{{order.customerPhone}}</text>
+      </view>
+      <view class="call-button" bindtap="callCustomer" data-phone="{{order.customerPhone}}">
+        <image class="icon-image" src="./images/telephone-out.png"></image>
+      </view>
+    </view>
+    
+    <!-- 商品信息 -->
+    <view class="product-section">
+      <view class="shop-name">{{order.shopName || '大娃四川味(温湖)'}}</view>
+      
+      <view class="product-info">
+        <!-- 商品图片 -->
+        <view class="product-image-container">
+          <view class="product-image-placeholder"></view>
+        </view>
+        
+        <view class="product-details">
+          <text class="product-name">{{order.productName}}</text>
+          <view class="product-spec">
+            <text class="spec-item">数量: {{order.quantity || 'x1'}}</text>
+            <text class="spec-item">规格: {{order.spec || '300g'}}</text>
+          </view>
+          <view class="product-price">¥{{order.amount}}</view>
+        </view>
+      </view>
+      
+      <!-- 订单金额信息 -->
+      <view class="order-amount-info">
+        <view class="amount-item">
+          <text class="amount-label">共计商品</text>
+          <text class="amount-value">实付¥{{order.amount}}</text>
+        </view>
+        <view class="amount-item">
+          <text class="amount-label">等待退款</text>
+          <text class="amount-value">等待退款金额¥{{order.amount}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 订单信息 -->
+    <view class="order-info-section">
+      <view class="info-item">
+        <text class="info-label">下单时间</text>
+        <text class="info-value">{{order.orderTime || '2024-07-07 16:08:08'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">订单编号</text>
+        <text class="info-value">{{order.id}}</text>
+        <text class="copy-btn" bindtap="copyOrderId">复制</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">支付方式</text>
+        <text class="info-value">{{order.payMethod || '微信'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">交易流水号</text>
+        <text class="info-value">{{order.transactionId || '123456789012345678901234567890'}}</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部操作按钮 -->
+  <view class="bottom-actions">
+    <!-- 待退款状态 -->
+    <block wx:if="{{order.status === 2}}">
+      <view class="action-button reject" bindtap="showRejectModal">拒绝退款</view>
+      <view class="action-button agree" bindtap="agreeRefund">同意退款</view>
+    </block>
+    
+    <!-- 待核销状态 -->
+    <block wx:if="{{order.status === 1}}">
+      <view class="action-button verify" bindtap="verifyOrder">
+        <icon type="scan" size="16" color="#FFFFFF"></icon>
+        <text>扫码核销</text>
+      </view>
+    </block>
+  </view>
+  
+  <!-- 拒绝退款弹窗 -->
+  <view class="modal-mask" wx:if="{{showRejectModal}}">
+    <view class="modal-content">
+      <view class="modal-title">拒绝退款</view>
+      <view class="modal-message">请填写拒绝退款的理由：</view>
+      <textarea class="reject-reason" placeholder="请输入拒绝理由" bindinput="onReasonInput" value="{{rejectReason}}"></textarea>
+      <view class="modal-buttons">
+        <button class="modal-button cancel" bindtap="cancelReject">取消</button>
+        <button class="modal-button confirm" bindtap="confirmReject">确认</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 确认退款弹窗 -->
+  <view class="modal-mask" wx:if="{{showConfirmModal}}">
+    <view class="modal-content">
+      <view class="modal-title">{{modalTitle}}</view>
+      <view class="modal-message">{{modalMessage}}</view>
+      <view class="modal-buttons">
+        <button class="modal-button cancel" bindtap="cancelAction">取消</button>
+        <button class="modal-button confirm" bindtap="confirmAction">确认</button>
+      </view>
+    </view>
+  </view>
+</view> 

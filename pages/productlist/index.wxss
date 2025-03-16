@@ -1,0 +1,673 @@
+/* 页面容器 */
+.container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  padding-bottom: 120rpx; /* 为底部按钮留出空间 */
+  position: relative;
+}
+
+/* 自定义导航栏 */
+.custom-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FF6600; /* 修改为橙色，与首页 tab 颜色一致 */
+  z-index: 1003;
+  border-bottom: none; /* 移除底部边框 */
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 44px;
+  padding: 0 15px;
+}
+
+.nav-left, .nav-right {
+  width: 60rpx;
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: #FFFFFF; /* 修改标题颜色为白色，以便在橙色背景上更清晰 */
+  text-align: center;
+  flex: 1;
+}
+
+/* 固定区域：搜索栏、标签页和排序选项 */
+.fixed-header {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  z-index: 1002;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 搜索栏 */
+.search-bar {
+  padding: 10rpx 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #F5F5F5;
+  border-radius: 30rpx;
+  padding: 10rpx 20rpx;
+  margin: 0 30rpx;
+  flex: 1;
+}
+
+.search-input {
+  flex: 1;
+  height: 60rpx;
+  font-size: 28rpx;
+  margin-left: 10rpx;
+}
+
+.search-placeholder {
+  color: #999999;
+}
+
+/* 标签页 */
+.tabs {
+  display: flex;
+  background-color: #FFFFFF;
+  width: 100%;
+}
+
+.tab {
+  flex: 1;
+  height: 60rpx; /* 进一步减小高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #333333;
+  position: relative;
+}
+
+.tab.active {
+  color: #FF6600;
+  font-weight: 500;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #FF6600;
+  border-radius: 2rpx;
+}
+
+/* 排序选项 */
+.sort-options {
+  padding: 15rpx 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #EEEEEE;
+}
+
+/* 单选项模式下的样式 */
+.sort-options.single-option {
+  justify-content: center;
+}
+
+.sort-option {
+  width: 50%; /* 每个选项占据50%的宽度 */
+  text-align: center; /* 文本居中 */
+  display: flex;
+  justify-content: center; /* 内容居中 */
+  align-items: center;
+  font-size: 26rpx;
+  color: #666666;
+  position: relative; /* 为添加分隔线做准备 */
+  box-sizing: border-box; /* 确保宽度包含边框 */
+  height: 60rpx; /* 调整高度 */
+}
+
+/* 全宽模式下的样式 */
+.sort-option.full-width {
+  width: 100%;
+  border-right: none !important;
+}
+
+/* 添加分隔线 */
+.sort-option:first-child {
+  border-right: 1rpx solid #EEEEEE;
+}
+
+.sort-option.active {
+  color: #FF6600;
+  position: relative;
+}
+
+/* 在已下架和审核中标签页下，商品排序占据全宽 */
+.sort-option-placeholder {
+  width: 50%;
+  height: 60rpx;
+}
+
+/* 当只有一个排序选项时，让它占据全宽 */
+.sort-options:has(.sort-option-placeholder) .sort-option {
+  width: 100%;
+  border-right: none;
+}
+
+.sort-arrow {
+  font-size: 20rpx;
+  margin-left: 6rpx;
+  color: #CCCCCC; /* 默认颜色为灰色 */
+}
+
+.sort-arrow.up-active {
+  color: #FF6600; /* 升序时箭头为橙色 */
+  font-weight: bold;
+}
+
+.sort-arrow.down-active {
+  color: #FF6600; /* 降序时箭头为橙色 */
+  font-weight: bold;
+}
+
+.sort-option text {
+  margin: 0 6rpx;
+}
+
+/* 商品列表 */
+.product-list {
+  padding: 20rpx;
+  width: calc(100% - 40rpx); /* 确保列表容器宽度一致 */
+  box-sizing: border-box;
+}
+
+/* 全选栏 */
+.select-all-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15rpx 30rpx;
+  background-color: #FFFFFF;
+  margin-bottom: 0;
+  border-top: 1rpx solid #EEEEEE;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.select-all-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 0; /* 增加点击区域 */
+}
+
+.select-all-checkbox text {
+  margin-left: 10rpx;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+/* 已选择商品数量 */
+.selected-count {
+  font-size: 26rpx;
+  color: #FF6600;
+  font-weight: 500;
+}
+
+/* 商品选择框 */
+.product-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  min-width: 40rpx; /* 确保勾选框有足够的宽度 */
+  padding: 10rpx; /* 增加点击区域 */
+}
+
+/* 自定义checkbox样式 */
+checkbox .wx-checkbox-input {
+  width: 40rpx; /* 设置checkbox的大小 */
+  height: 40rpx;
+  border-radius: 50%; /* 设置圆形 */
+  border: 2rpx solid #DDDDDD; /* 默认边框颜色 */
+  background-color: #FFFFFF; /* 默认背景色 */
+}
+
+checkbox .wx-checkbox-input.wx-checkbox-input-checked {
+  background: #FF6600; /* 选中后的背景色 */
+  border-color: #FF6600; /* 选中后的边框色 */
+}
+
+checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
+  font-size: 30rpx; /* 对勾大小 */
+  color: #FFFFFF; /* 对勾颜色 */
+  line-height: 40rpx; /* 确保对勾垂直居中 */
+  text-align: center; /* 确保对勾水平居中 */
+}
+
+.product-item {
+  display: flex;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  width: 100%; /* 使用100%宽度 */
+  box-sizing: border-box; /* 确保padding不会增加元素的总宽度 */
+}
+
+.product-image-container {
+  width: 160rpx;
+  height: 160rpx;
+  margin-right: 20rpx;
+  background-color: #EEEEEE;
+  border-radius: 8rpx;
+  overflow: hidden;
+  position: relative; /* 为审核中标识添加定位 */
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 审核中标识 */
+.review-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  z-index: 1; /* 确保标识在图片上方 */
+}
+
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: calc(100% - 180rpx); /* 减去图片宽度和右边距 */
+}
+
+.product-name {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+  white-space: nowrap;        /* 防止文本换行 */
+  overflow: hidden;           /* 隐藏超出部分 */
+  text-overflow: ellipsis;    /* 显示省略号 */
+  max-width: 450rpx;          /* 设置最大宽度，根据实际需要调整 */
+}
+
+/* 商品价格 */
+.product-price {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10rpx;
+}
+
+.price-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: #666666;
+  margin-right: 8rpx;
+}
+
+.price-symbol {
+  font-size: 24rpx;
+  color: #FF6600;
+  font-weight: 500;
+}
+
+.price-value {
+  font-size: 32rpx;
+  color: #FF6600;
+  font-weight: 500;
+}
+
+.price-tag {
+  font-size: 20rpx;
+  color: #FFFFFF;
+  background-color: #FF6600;
+  padding: 2rpx 8rpx;
+  border-radius: 4rpx;
+  margin-left: 10rpx;
+  white-space: nowrap; /* 防止文本换行 */
+}
+
+.original-price {
+  font-size: 24rpx;
+  color: #999999;
+  text-decoration: line-through;
+}
+
+/* 商品库存和销量 */
+.product-stats {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  margin-right: 30rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999999;
+  margin-right: 8rpx;
+}
+
+.stat-value {
+  font-size: 24rpx;
+  color: #333333; /* 默认为黑色 */
+  font-weight: 500;
+}
+
+/* 库存数值特殊样式 */
+.stat-item:first-child .stat-value {
+  color: #0066CC; /* 将库存数量显示为蓝色 */
+}
+
+.product-status {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.product-status.warning {
+  color: #FF9900;
+}
+
+.product-status.error {
+  color: #FF0000;
+}
+
+.product-status text {
+  margin-left: 6rpx;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10rpx;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rpx 16rpx;
+  border: 1rpx solid #DDDDDD;
+  border-radius: 30rpx;
+  margin-left: 20rpx;
+}
+
+.action-button text {
+  font-size: 24rpx;
+  color: #333333;
+  margin-left: 6rpx;
+}
+
+/* 无商品提示 */
+.empty-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+  color: #999999;
+  font-size: 28rpx;
+}
+
+.empty-tip icon {
+  margin-bottom: 20rpx;
+}
+
+/* 加载中提示 */
+.loading-tip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 0;
+  color: #999999;
+  font-size: 24rpx;
+}
+
+.loading-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+  border: 2rpx solid #e6e6e6;
+  border-top: 2rpx solid #FF6600;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 加载完毕提示 */
+.load-all-tip {
+  text-align: center;
+  padding: 20rpx 0;
+  color: #999999;
+  font-size: 24rpx;
+}
+
+/* 新增商品按钮 */
+.add-product-button {
+  position: fixed;
+  bottom: 30rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 90rpx;
+  background-color: #FF6600;
+  color: #FFFFFF;
+  font-size: 32rpx;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 8rpx rgba(255, 102, 0, 0.2);
+}
+
+/* 禁用状态的按钮 */
+.add-product-button.disabled {
+  background-color: #CCCCCC;
+  box-shadow: none;
+  opacity: 0.8;
+}
+
+/* 确认弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 80%;
+  background-color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 40rpx 30rpx;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.modal-message {
+  font-size: 28rpx;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-button {
+  width: 45%;
+  height: 80rpx;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.modal-button.cancel {
+  background-color: #F5F5F5;
+  color: #666666;
+}
+
+.modal-button.confirm {
+  background-color: #FF6600;
+  color: #FFFFFF;
+}
+
+/* 修改库存输入框 */
+.stock-input-area {
+  margin: 30rpx 0;
+}
+
+.stock-input {
+  width: 100%;
+  height: 80rpx;
+  background-color: #F5F5F5;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* 排序按钮 */
+.sort-button {
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+  height: 60rpx;
+  background-color: #FFFFFF;
+  border-radius: 30rpx;
+  margin-right: 15rpx;
+  border: 1rpx solid #EEEEEE;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  min-width: 120rpx;
+  justify-content: center;
+}
+
+.sort-button:active {
+  background-color: #F5F5F5;
+  opacity: 0.9;
+}
+
+.button-hover {
+  background-color: #F5F5F5 !important;
+  opacity: 0.9;
+}
+
+.sort-button text {
+  font-size: 24rpx;
+  color: #666666;
+  margin-right: 8rpx;
+  font-weight: 500;
+}
+
+.sort-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 30rpx;
+  margin-left: 4rpx;
+}
+
+.sort-arrow {
+  font-size: 16rpx;
+  line-height: 14rpx;
+  color: #CCCCCC;
+}
+
+.sort-arrow.up-active {
+  color: #FF6600;
+  font-weight: bold;
+}
+
+.sort-arrow.down-active {
+  color: #FF6600;
+  font-weight: bold;
+}
+
+/* 批量下架按钮 */
+.batch-mode-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20rpx;
+  height: 60rpx;
+  background-color: #FFFFFF;
+  border-radius: 30rpx;
+  margin-right: 30rpx;
+  border: 1rpx solid #EEEEEE;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  font-size: 24rpx;
+  color: #666666;
+  font-weight: 500;
+  min-width: 120rpx;
+}
+
+.batch-mode-button.active {
+  color: #FFFFFF;
+  background-color: #FF6600;
+  border-color: #FF6600;
+} 

@@ -1,0 +1,36 @@
+<!--pages/productindex/verify/success.wxml-->
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="back-icon" bindtap="navigateBack">
+        <view class="back-arrow"></view>
+      </view>
+      <view class="nav-title"></view>
+      <view class="nav-right">
+        <view class="more-icon">
+          <view class="more-dots"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 页面内容 -->
+  <view class="page-content" style="margin-top: {{statusBarHeight + 44}}px;">
+    <!-- 成功图标 -->
+    <view class="success-icon-container">
+      <view class="success-icon-circle">
+        <view class="success-icon-check"></view>
+      </view>
+    </view>
+    
+    <!-- 成功文本 -->
+    <view class="success-text">核销成功!</view>
+    
+    <!-- 按钮区域 -->
+    <view class="button-area">
+      <button class="primary-button" bindtap="continueVerify">继续核销</button>
+      <button class="secondary-button" bindtap="backToHome">返回首页</button>
+    </view>
+  </view>
+</view> 

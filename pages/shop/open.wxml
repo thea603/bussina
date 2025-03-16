@@ -1,0 +1,240 @@
+<view class="shop-open-container">
+  <!-- 步骤条 -->
+  <view class="steps-container">
+    <view class="steps">
+      <!-- 背景线 -->
+      <view class="step-bg-line"></view>
+      
+      <!-- 激活线 -->
+      <view class="step-active-line" style="width: {{currentStep == 0 ? '0' : currentStep == 1 ? '40%' : '80%'}}"></view>
+      
+      <!-- 步骤点 -->
+      <view class="step {{currentStep >= 0 ? 'active' : ''}}" bindtap="setStep" data-step="0">
+        <view class="step-dot"></view>
+        <view class="step-text">法人信息</view>
+      </view>
+      
+      <view class="step {{currentStep >= 1 ? 'active' : ''}}" bindtap="setStep" data-step="1">
+        <view class="step-dot"></view>
+        <view class="step-text">店铺信息</view>
+      </view>
+      
+      <view class="step {{currentStep >= 2 ? 'active' : ''}}" bindtap="setStep" data-step="2">
+        <view class="step-dot"></view>
+        <view class="step-text">资质信息</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 内容区域 - 添加一个包装器，用于设置顶部边距 -->
+  <view class="content-wrapper">
+    <!-- 提示信息 - 始终显示 -->
+    <view class="form-tip">
+      <text class="tip-icon">!</text>
+      <text class="tip-text">请如实填写以下资料，谢谢您的配合！</text>
+    </view>
+    
+    <!-- 表单内容 -->
+    <view class="form-container">
+      <!-- 法人信息 -->
+      <view class="card-container" wx:if="{{currentStep === 0}}">
+        <view class="card-title">法人信息</view>
+        <view class="form-section">
+          <!-- 法人姓名 -->
+          <view class="form-item">
+            <view class="form-label required">法人姓名</view>
+            <input class="form-input" placeholder="请输入法人姓名" value="{{form.legalName}}" bindinput="inputLegalName" placeholder-style="color: #999999;" />
+          </view>
+          
+          <!-- 法人身份证号 -->
+          <view class="form-item">
+            <view class="form-label required">法人身份证号</view>
+            <input class="form-input" placeholder="请输入身份证号" value="{{form.idCardNo}}" bindinput="inputIdCardNo" placeholder-style="color: #999999;" />
+          </view>
+          
+          <!-- 微信二维码 -->
+          <view class="form-item">
+            <view class="form-label required">微信二维码</view>
+            <view class="upload-btn" wx:if="{{!form.wechatQrcode}}" bindtap="uploadWxQrCode">上传二维码</view>
+            <view class="image-preview" wx:else>
+              <image class="preview-image" src="{{form.wechatQrcode}}" mode="aspectFit" bindtap="previewImage" data-url="{{form.wechatQrcode}}"></image>
+            </view>
+            <view class="delete-btn" wx:if="{{form.wechatQrcode}}" bindtap="deleteWxQrCode">×</view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 身份证区域 - 完全独立的容器 -->
+      <view class="card-container id-card-container" wx:if="{{currentStep === 0}}">
+        <!-- 身份证上传 -->
+        <view class="id-card-section">
+          <view class="id-card-header">
+            <view class="id-card-tip">请扫描身份证正反面</view>
+            <view class="id-card-desc">正面为国徽面 反面为头像面</view>
+          </view>
+        </view>
+        
+        <!-- 身份证头像面 -->
+        <view class="id-card-upload-item">
+          <view class="id-card-label-container">
+            <view class="form-label">头像面</view>
+            <view class="upload-text-single">上传您的证件头像面</view>
+          </view>
+          <view class="id-card-upload-container">
+            <view class="id-card-upload" wx:if="{{!form.idCardFront}}" bindtap="uploadIdCard" data-type="front">
+              <image class="example-image" src="/images/id_card_front.png" mode="aspectFit"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="id-card-text-center" wx:if="{{!form.idCardFront}}">点击上传</view>
+            <view class="id-card-preview" wx:else bindtap="previewImage" data-url="{{form.idCardFront}}">
+              <image class="preview-image" src="{{form.idCardFront}}" mode="aspectFill"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="delete-btn" wx:if="{{form.idCardFront}}" catchtap="deleteIdCard" data-type="front">×</view>
+          </view>
+        </view>
+        
+        <!-- 身份证国徽面 -->
+        <view class="id-card-upload-item">
+          <view class="id-card-label-container">
+            <view class="form-label">国徽面</view>
+            <view class="upload-text-single">上传您的证件国徽面</view>
+          </view>
+          <view class="id-card-upload-container">
+            <view class="id-card-upload" wx:if="{{!form.idCardBack}}" bindtap="uploadIdCard" data-type="back">
+              <image class="example-image" src="/images/id_card_back.png" mode="aspectFit"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="id-card-text-center" wx:if="{{!form.idCardBack}}">点击上传</view>
+            <view class="id-card-preview" wx:else bindtap="previewImage" data-url="{{form.idCardBack}}">
+              <image class="preview-image" src="{{form.idCardBack}}" mode="aspectFill"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="delete-btn" wx:if="{{form.idCardBack}}" catchtap="deleteIdCard" data-type="back">×</view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 店铺信息 -->
+      <view class="card-container" wx:if="{{currentStep === 1}}">
+        <view class="card-title">店铺信息</view>
+        <view class="form-section">
+          <!-- 联系人 -->
+          <view class="form-item">
+            <view class="form-label required">联系人</view>
+            <input class="form-input" placeholder="请输入联系人姓名" value="{{form.contactName}}" bindinput="inputContactName" />
+          </view>
+          
+          <!-- 联系电话 -->
+          <view class="form-item">
+            <view class="form-label required">联系手机</view>
+            <input class="form-input" type="number" maxlength="11" placeholder="便于后续联系" value="{{form.contactPhone}}" bindinput="inputContactPhone" />
+          </view>
+          
+          <!-- 店铺名称 -->
+          <view class="form-item">
+            <view class="form-label required">店铺名称</view>
+            <input class="form-input" placeholder="请输入店铺名称" value="{{form.name}}" bindinput="inputShopName" />
+          </view>
+          
+          <!-- 店铺地址 -->
+          <view class="form-item">
+            <view class="form-label required">店铺地址</view>
+            <picker mode="region" bindchange="regionChange" value="{{form.region || ['', '', '']}}" custom-item="{{customItem}}">
+              <view class="region-picker">
+                <text wx:if="{{!form.region[0]}}">请选择省市区</text>
+                <text wx:else>{{form.region[0]}} {{form.region[1]}} {{form.region[2]}}</text>
+              </view>
+            </picker>
+          </view>
+          
+          <!-- 详细地址 -->
+          <view class="form-item">
+            <view class="form-label required">详细地址</view>
+            <input class="form-input" placeholder="请输入详细地址" value="{{form.addressDetail}}" bindinput="inputAddress" />
+          </view>
+          
+          <!-- 店铺门脸照片 -->
+          <view class="form-item">
+            <view class="form-label-container">
+              <view class="form-label required">店铺门脸照</view>
+              <view class="form-sublabel">需包含完整牌匾</view>
+            </view>
+            <view class="shop-upload-container shop-upload-wrapper" wx:if="{{!form.storefront}}" bindtap="uploadStorefront">
+              <view class="shop-upload-btn">
+                <view class="corner-marks"></view>
+              </view>
+              <view class="upload-text-center">点击上传</view>
+            </view>
+            <view class="shop-preview-container" wx:else>
+              <image class="shop-preview-image" src="{{form.storefront}}" mode="aspectFill" bindtap="previewImage" data-url="{{form.storefront}}"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="delete-btn" wx:if="{{form.storefront}}" catchtap="deleteStorefront">×</view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 资质信息 -->
+      <view class="card-container" wx:if="{{currentStep === 2}}">
+        <view class="card-title">资质信息</view>
+        <view class="form-section">
+          <!-- 营业执照 -->
+          <view class="form-item">
+            <view class="form-label-container">
+              <view class="form-label required">营业执照</view>
+              <view class="form-sublabel">需清晰可见证件信息</view>
+            </view>
+            <view class="shop-upload-container shop-upload-wrapper" wx:if="{{!form.businessLicense}}" bindtap="uploadLicenseImage">
+              <view class="shop-upload-btn">
+                <view class="corner-marks"></view>
+              </view>
+              <view class="upload-text-center">点击上传</view>
+            </view>
+            <view class="shop-preview-container" wx:else>
+              <image class="shop-preview-image" src="{{form.businessLicense}}" mode="aspectFill" bindtap="previewImage" data-url="{{form.businessLicense}}"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="delete-btn" wx:if="{{form.businessLicense}}" catchtap="deleteLicenseImage">×</view>
+          </view>
+          
+          <!-- 经营许可证 -->
+          <view class="form-item">
+            <view class="form-label-container">
+              <view class="form-label required">经营许可证</view>
+              <view class="form-sublabel">需清晰可见证件信息</view>
+            </view>
+            <view class="shop-upload-container shop-upload-wrapper" wx:if="{{!form.businessPermit}}" bindtap="uploadPermitImage">
+              <view class="shop-upload-btn">
+                <view class="corner-marks"></view>
+              </view>
+              <view class="upload-text-center">点击上传</view>
+            </view>
+            <view class="shop-preview-container" wx:else>
+              <image class="shop-preview-image" src="{{form.businessPermit}}" mode="aspectFill" bindtap="previewImage" data-url="{{form.businessPermit}}"></image>
+              <view class="corner-marks"></view>
+            </view>
+            <view class="delete-btn" wx:if="{{form.businessPermit}}" catchtap="deletePermitImage">×</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部按钮 -->
+  <view class="bottom-btn">
+    <button class="next-btn" bindtap="nextStep">
+      {{currentStep < 2 ? '下一步' : '提交审核'}}
+    </button>
+  </view>
+  
+  <!-- 图片预览弹窗 -->
+  <view class="preview-modal" wx:if="{{previewVisible}}" bindtap="closePreview">
+    <image class="modal-image" src="{{previewImage}}" mode="aspectFit"></image>
+  </view>
+  
+  <!-- 地区选择器 -->
+  <picker mode="region" bindchange="regionChange" value="{{region}}" wx:if="{{regionVisible}}">
+    <view class="picker-mask"></view>
+  </picker>
+</view> 

@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav-title">产品中心</view>
+      <view class="nav-buttons">
+        <image class="nav-button" src="/images/icon_search.png" mode="aspectFit" bindtap="showSearch"></image>
+        <image class="nav-button" src="/images/icon_filter.png" mode="aspectFit" bindtap="showFilter"></image>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 页面内容 -->
+  <view class="page-content" style="margin-top: {{statusBarHeight + 44}}px;">
+    <!-- 产品分类 -->
+    <view class="category-section">
+      <view class="category-title">产品分类</view>
+      <view class="category-grid">
+        <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="navigateToCategory" data-id="{{item.id}}">
+          <view class="category-icon-placeholder"></view>
+          <view class="category-name">{{item.name}}</view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 热门产品 -->
+    <view class="hot-products-section">
+      <view class="section-header">
+        <view class="section-title">热门产品</view>
+        <view class="section-more" bindtap="navigateToMore" data-type="hot">查看更多</view>
+      </view>
+      <scroll-view scroll-x="true" class="products-scroll">
+        <view class="products-row">
+          <view class="product-card" wx:for="{{hotProducts}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}">
+            <view class="product-image-placeholder"></view>
+            <view class="product-info">
+              <view class="product-name">{{item.name}}</view>
+              <view class="product-price">¥{{item.price}}</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+    
+    <!-- 新品上市 -->
+    <view class="new-products-section">
+      <view class="section-header">
+        <view class="section-title">新品上市</view>
+        <view class="section-more" bindtap="navigateToMore" data-type="new">查看更多</view>
+      </view>
+      <view class="products-grid">
+        <view class="product-card" wx:for="{{newProducts}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}">
+          <view class="product-image-placeholder"></view>
+          <view class="product-info">
+            <view class="product-name">{{item.name}}</view>
+            <view class="product-price">¥{{item.price}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,202 @@
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav-left">
+        <!-- 可以添加返回按钮或其他操作 -->
+      </view>
+      <view class="nav-title">商品管理</view>
+      <view class="nav-right">
+        <!-- 可以添加其他操作按钮 -->
+      </view>
+    </view>
+  </view>
+  
+  <!-- 固定区域：搜索栏、标签页和排序选项 -->
+  <view class="fixed-header" style="top: {{statusBarHeight + 44}}px;">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrapper">
+        <icon type="search" size="14" color="#999999"></icon>
+        <input 
+          class="search-input" 
+          placeholder="搜索商品名称/编码" 
+          placeholder-class="search-placeholder"
+          value="{{searchValue}}"
+          bindinput="onSearchInput"
+          bindconfirm="onSearchConfirm"
+        />
+      </view>
+      <!-- 添加排序按钮 -->
+      <view class="sort-button" bindtap="toggleSortOrder" hover-class="button-hover">
+        <text>商品{{sortOrder === 'asc' ? '升序' : '降序'}}</text>
+        <view class="sort-icon">
+          <view class="sort-arrow {{sortOrder === 'asc' ? 'up-active' : ''}}">▲</view>
+          <view class="sort-arrow {{sortOrder === 'desc' ? 'down-active' : ''}}">▼</view>
+        </view>
+      </view>
+      
+      <!-- 批量下架按钮 (仅在非已下架和审核中标签页显示) -->
+      <view wx:if="{{activeTab !== 2 && activeTab !== 3}}" class="batch-mode-button {{sortType === 1 ? 'active' : ''}}" bindtap="switchSortType" data-type="1">
+        {{sortType === 1 ? '退出批量' : '批量下架'}}
+      </view>
+    </view>
+    
+    <!-- 标签页 -->
+    <view class="tabs">
+      <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+        出售中({{tabCounts.onSale}})
+      </view>
+      <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+        已售罄({{tabCounts.soldOut}})
+      </view>
+      <view class="tab {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
+        已下架({{tabCounts.offShelf}})
+      </view>
+      <view class="tab {{activeTab === 3 ? 'active' : ''}}" bindtap="switchTab" data-index="3">
+        审核中({{tabCounts.reviewing}})
+      </view>
+    </view>
+    
+    <!-- 全选栏 (仅在批量下架模式下显示) -->
+    <view class="select-all-bar" wx:if="{{sortType === 1}}">
+      <view class="select-all-checkbox" bindtap="toggleSelectAll">
+        <checkbox checked="{{isAllSelected}}" color="#FF6600" />
+        <text>全选</text>
+      </view>
+      <view class="selected-count" wx:if="{{selectedProducts.length > 0}}">
+        已选择 {{selectedProducts.length}} 个商品
+      </view>
+    </view>
+  </view>
+  
+  <!-- 商品列表 -->
+  <view class="product-list" style="margin-top: {{(activeTab === 2 || activeTab === 3) ? '180rpx' : (sortType === 1 ? '240rpx' : '180rpx')}};">
+    <block wx:for="{{displayProducts}}" wx:key="id">
+      <view class="product-item">
+        <!-- 商品选择框 (仅在批量下架模式下显示) -->
+        <view class="product-checkbox" wx:if="{{sortType === 1}}" catchtap="toggleSelectProduct" data-id="{{item.id}}">
+          <checkbox checked="{{selectedProducts.includes(item.id)}}" color="#FF6600" />
+        </view>
+        
+        <!-- 商品图片 -->
+        <view class="product-image-container">
+          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <!-- 审核中标识 -->
+          <view class="review-badge" wx:if="{{item.status === 4}}">审核中</view>
+        </view>
+        
+        <!-- 商品信息 -->
+        <view class="product-info">
+          <!-- 商品名称 -->
+          <view class="product-name">{{item.name}}</view>
+          
+          <!-- 商品价格 -->
+          <view class="product-price">
+            <view class="price-container">
+              <text class="price-label">售价</text>
+              <text class="price-symbol">¥</text>
+              <text class="price-value">{{item.price}}</text>
+              <text class="price-tag">奖励金 ¥{{item.price * 0.1}}</text>
+            </view>
+          </view>
+          
+          <!-- 商品库存和销量 -->
+          <view class="product-stats">
+            <view class="stat-item">
+              <text class="stat-label">库存</text>
+              <text class="stat-value">{{item.stock}}</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-label">销量</text>
+              <text class="stat-value">{{item.sales}}</text>
+            </view>
+          </view>
+          
+          <!-- 商品状态提示 -->
+          <block wx:if="{{item.status === 1}}">
+            <view class="product-status warning">
+              <icon type="warn" size="14" color="#FF9900"></icon>
+              <text>该商品即将售罄，请及时上货</text>
+            </view>
+          </block>
+          <block wx:if="{{item.status === 2}}">
+            <view class="product-status error">
+              <icon type="cancel" size="14" color="#FF0000"></icon>
+              <text>该商品已售罄</text>
+            </view>
+          </block>
+          
+          <!-- 商品操作按钮 -->
+          <view class="product-actions">
+            <!-- 审核中的商品不显示操作按钮 -->
+            <block wx:if="{{item.status !== 4}}">
+              <view class="action-button" bindtap="changeProductStatus" data-id="{{item.id}}" data-action="{{item.status === 3 ? 'upload' : 'remove'}}">
+                <text>{{item.status === 3 ? '上架' : '下架'}}</text>
+              </view>
+              <view class="action-button" bindtap="editProduct" data-id="{{item.id}}">
+                <text>编辑</text>
+              </view>
+              <view class="action-button" bindtap="changeStock" data-id="{{item.id}}">
+                <text>修改库存</text>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 无商品提示 -->
+    <view class="empty-tip" wx:if="{{!isLoading && (!displayProducts || displayProducts.length === 0)}}">
+      <icon type="info" size="40" color="#CCCCCC"></icon>
+      <text>暂无相关商品</text>
+    </view>
+    
+    <!-- 加载中提示 -->
+    <view class="loading-tip" wx:if="{{isLoading}}">
+      <view class="loading-icon"></view>
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 加载完毕提示 -->
+    <view class="load-all-tip" wx:if="{{!hasMoreData && displayProducts.length > 0}}">已加载全部商品</view>
+  </view>
+  
+  <!-- 底部按钮 -->
+  <view class="add-product-button {{(sortType === 1 && selectedProducts.length === 0) ? 'disabled' : ''}}" bindtap="{{(activeTab !== 2 && activeTab !== 3 && sortType === 1) ? 'batchRemoveProducts' : 'addNewProduct'}}">
+    {{(activeTab !== 2 && activeTab !== 3 && sortType === 1) ? '确认下架所选商品' : '新增商品'}}
+    <text wx:if="{{sortType === 1 && selectedProducts.length > 0}}">({{selectedProducts.length}})</text>
+  </view>
+  
+  <!-- 确认弹窗 -->
+  <view class="modal-mask" wx:if="{{showConfirmModal}}">
+    <view class="modal-content">
+      <view class="modal-title">{{modalTitle}}</view>
+      <view class="modal-message">{{modalMessage}}</view>
+      <view class="modal-buttons">
+        <button class="modal-button cancel" bindtap="cancelChangeStatus">取消</button>
+        <button class="modal-button confirm" bindtap="confirmChangeStatus">确认</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 修改库存弹窗 -->
+  <view class="modal-mask" wx:if="{{showStockModal}}">
+    <view class="modal-content">
+      <view class="modal-title">修改库存</view>
+      <view class="stock-input-area">
+        <input 
+          type="number" 
+          class="stock-input" 
+          placeholder="请输入库存数量" 
+          value="{{stockValue}}"
+          bindinput="onStockInput"
+        />
+      </view>
+      <view class="modal-buttons">
+        <button class="modal-button cancel" bindtap="cancelChangeStock">取消</button>
+        <button class="modal-button confirm" bindtap="confirmChangeStock">确认</button>
+      </view>
+    </view>
+  </view>
+</view> 

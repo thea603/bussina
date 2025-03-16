@@ -1,0 +1,92 @@
+<!--pages/productindex/index.wxml-->
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav-title">物流 · 科汇园店</view>
+      <view class="nav-buttons">
+        <image class="nav-button" src="/images/icon_more.png" mode="aspectFit" bindtap="showMoreOptions"></image>
+        <image class="nav-button" src="/images/icon_scan.png" mode="aspectFit" bindtap="scanCode"></image>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 固定区域 -->
+  <view class="fixed-content" style="top: {{statusBarHeight + 44}}px;">
+    <!-- 功能卡片区域 -->
+    <view class="function-area">
+      <view class="function-cards">
+        <view class="function-card" bindtap="navigateToDigitalVerify">
+          <image class="function-icon" src="/images/icon_digital.png" mode="aspectFit"></image>
+          <view class="function-name">数字核销</view>
+        </view>
+        <view class="function-card" bindtap="navigateToScanVerify">
+          <image class="function-icon" src="/images/icon_scan_code.png" mode="aspectFit"></image>
+          <view class="function-name">扫码核销</view>
+        </view>
+      </view>
+    </view>
+  
+    <!-- 商品管理区域 -->
+    <view class="goods-management">
+      <view class="goods-management-title">商品管理</view>
+      
+      <view class="goods-management-content">
+        <view class="add-goods-area" bindtap="navigateToAddGoods">
+          <view class="add-goods-icon-wrapper">
+            <!-- 使用灰色方框替代图片，后续可替换为实际图片 -->
+            <view class="add-goods-icon-placeholder"></view>
+          </view>
+          <view class="add-goods-info">
+            <view class="add-goods-text">新建商品</view>
+            <view class="add-goods-desc">去这里更多商品信息吧</view>
+          </view>
+        </view>
+        
+        <view class="add-goods-btn" bindtap="navigateToAddGoods">
+          <!-- 使用灰色方框替代图片，后续可替换为实际图片 -->
+          <view class="add-goods-btn-icon-placeholder"></view>
+          <view class="add-goods-btn-text">新建商品</view>
+        </view>
+      </view>
+    </view>
+  
+    <!-- 最新发布商品标题和表头 -->
+    <view class="latest-goods-header">
+      <view class="latest-goods-title">最新发布商品</view>
+    
+      <!-- 商品列表表头 -->
+      <view class="goods-list-header">
+        <view class="goods-header-item goods-name-header">商品</view>
+        <view class="goods-header-item goods-stock-header">库存</view>
+        <view class="goods-header-item goods-price-header">实付金</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 使用scroll-view作为可滚动区域 -->
+  <scroll-view 
+    scroll-y="true" 
+    class="goods-scroll-view" 
+    style="top: {{fixedContentHeight + 5}}px; height: {{scrollHeight}}px;"
+  >
+    <!-- 商品列表 -->
+    <view class="goods-list">
+      <block wx:for="{{latestGoods}}" wx:key="id">
+        <view class="goods-item">
+          <view class="goods-info">
+            <image class="goods-image" src="{{item.image}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
+            <view class="goods-detail">
+              <view class="goods-name">{{item.name}}</view>
+              <view class="goods-price-small">{{item.priceDesc}}</view>
+            </view>
+          </view>
+          <view class="goods-stock">{{item.stock}}</view>
+          <view class="goods-price">¥{{item.price}}</view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+  
+  <!-- 底部导航由tabBar提供 -->
+</view>

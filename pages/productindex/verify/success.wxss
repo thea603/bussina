@@ -1,0 +1,185 @@
+/* pages/productindex/verify/success.wxss */
+.container {
+  min-height: 100vh;
+  background-color: #FFFFFF;
+  position: relative;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+/* 自定义导航栏 */
+.custom-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  z-index: 1000;
+  border-bottom: 1rpx solid #EEEEEE;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 44px;
+  padding: 0 15px;
+}
+
+.back-icon {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-arrow {
+  width: 20rpx;
+  height: 20rpx;
+  border-top: 3rpx solid #333333;
+  border-left: 3rpx solid #333333;
+  transform: rotate(-45deg);
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: #333333;
+  text-align: center;
+  flex: 1;
+}
+
+.nav-right {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.more-icon {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.more-dots {
+  width: 6rpx;
+  height: 6rpx;
+  background-color: #333333;
+  border-radius: 50%;
+  position: relative;
+}
+
+.more-dots::before,
+.more-dots::after {
+  content: '';
+  position: absolute;
+  width: 6rpx;
+  height: 6rpx;
+  background-color: #333333;
+  border-radius: 50%;
+}
+
+.more-dots::before {
+  top: -10rpx;
+}
+
+.more-dots::after {
+  top: 10rpx;
+}
+
+/* 页面内容 */
+.page-content {
+  padding: 60rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 成功图标 */
+.success-icon-container {
+  margin: 80rpx 0 40rpx;
+}
+
+.success-icon-circle {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #FF6600;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.success-icon-check {
+  width: 40rpx;
+  height: 70rpx;
+  border-right: 6rpx solid #FFFFFF;
+  border-bottom: 6rpx solid #FFFFFF;
+  transform: rotate(45deg) translate(-5rpx, -15rpx);
+}
+
+/* 成功文本 */
+.success-text {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 80rpx;
+}
+
+/* 按钮区域 */
+.button-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 60rpx;
+}
+
+.primary-button {
+  width: 100%;
+  height: 90rpx;
+  background-color: #FF6600;
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255, 102, 0, 0.2);
+}
+
+.secondary-button {
+  width: 100%;
+  height: 90rpx;
+  background-color: #FFFFFF;
+  color: #333333;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #DDDDDD;
+}
+
+/* 覆盖微信按钮的默认样式 */
+button {
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+
+button::after {
+  border: none;
+} 

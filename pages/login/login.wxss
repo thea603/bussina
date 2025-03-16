@@ -1,0 +1,94 @@
+/* pages/login/login.wxss */
+
+/* 登录页面容器，使用flex布局，垂直排列 */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* 占满整个屏幕高度 */
+  background-color: #ffffff; /* 白色背景 */
+  padding: 0 30rpx; /* 左右内边距 */
+  box-sizing: border-box; /* 盒模型计算方式 */
+  justify-content: space-between; /* 主轴上的对齐方式，使主体内容和底部操作区域分别位于顶部和底部 */
+}
+
+/* 中间主体部分，使用flex布局，垂直排列，居中对齐 */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平居中 */
+  justify-content: center; /* 垂直居中 */
+  flex: 1; /* 占据剩余空间 */
+  margin-top: 100rpx; /* 顶部外边距，调整整体位置 */
+}
+
+/* Logo图片容器 */
+.logo-box {
+  width: 200rpx; /* 100px */
+  height: 200rpx; /* 100px */
+  background-color: #f5f5f5; /* 临时背景色，实际应该是logo图片 */
+  margin-bottom: 40rpx; /* 底部外边距 */
+}
+
+/* 商铺名称样式 */
+.shop-name {
+  font-size: 48rpx; /* 24px */
+  font-weight: 700; /* 字体粗细 */
+  color: #000000; /* 字体颜色 */
+  margin-bottom: 20rpx; /* 底部外边距 */
+}
+
+/* 商铺描述样式 */
+.shop-desc {
+  font-size: 28rpx; /* 14px */
+  color: #666666; /* 字体颜色 */
+}
+
+/* 底部操作区域，包含按钮和提示文字 */
+.bottom-area {
+  margin-bottom: 100rpx; /* 底部外边距，确保在安全区域内 */
+  width: 100%;
+}
+
+/* 按钮容器，使用flex布局，水平排列 */
+.btn-container {
+  display: flex;
+  justify-content: space-around; /* 均匀分布 */
+  margin-bottom: 20rpx; /* 底部外边距 */
+}
+
+/* 按钮基础样式 */
+.btn {
+  width: 300rpx; /* 按钮宽度 */
+  height: 80rpx; /* 40px */
+  border-radius: 10rpx; /* 5px圆角 */
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+  font-size: 28rpx; /* 14px */
+}
+
+/* 登录按钮样式 */
+.login-btn {
+  background-color: #ffffff; /* 白色背景 */
+  color: #ff6600; /* 橙色文字 */
+  border: 1px solid #ff6600; /* 橙色边框 */
+}
+
+/* 注册开店按钮样式 */
+.register-btn {
+  background-color: #ff6600; /* 橙色背景 */
+  color: #ffffff; /* 白色文字 */
+}
+
+/* 提示文字容器，使用flex布局，水平排列 */
+.tips-container {
+  display: flex;
+  justify-content: space-around; /* 均匀分布 */
+  padding: 0 20rpx; /* 左右内边距 */
+}
+
+/* 提示文字样式 */
+.tip-text {
+  font-size: 24rpx; /* 12px */
+  color: #666666; /* 灰色文字 */
+}

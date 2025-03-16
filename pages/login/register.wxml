@@ -1,0 +1,65 @@
+<!--pages/login/register.wxml-->
+<view class="register-container">
+  <!-- 页面标题 -->
+  <view class="page-title">
+    <text>{{pageType === 'login' ? '手机号登录' : '手机号注册'}}</text>
+  </view>
+  
+  <!-- 手机号输入区域 -->
+  <view class="input-group">
+    <input 
+      class="input-field" 
+      type="number" 
+      maxlength="11" 
+      placeholder="输入手机号" 
+      bindinput="inputPhone" 
+      value="{{phone}}"
+    />
+    <!-- 错误提示 -->
+    <view class="error-msg" wx:if="{{phoneErrorMsg}}">
+      <text class="error-text">{{phoneErrorMsg}}</text>
+    </view>
+  </view>
+  
+  <!-- 验证码输入区域 -->
+  <view class="input-group verify-code-group">
+    <input 
+      class="input-field verify-code-input" 
+      type="number" 
+      maxlength="6" 
+      placeholder="请输入验证码" 
+      bindinput="inputVerifyCode" 
+      value="{{verifyCode}}"
+    />
+    <!-- 发送验证码按钮 -->
+    <view 
+      class="verify-code-btn {{countdown > 0 || !isPhoneValid ? 'disabled' : ''}}" 
+      bindtap="sendVerifyCode"
+    >
+      {{countdown > 0 ? countdown + 's后重发' : '发送验证码'}}
+    </view>
+    <!-- 错误提示 -->
+    <view class="error-msg" wx:if="{{verifyCodeErrorMsg}}">
+      <text class="error-text">{{verifyCodeErrorMsg}}</text>
+    </view>
+  </view>
+  
+  <!-- 协议同意区域 -->
+  <view class="protocol-container">
+    <view class="protocol-checkbox {{isAgreeProtocol ? 'checked' : ''}}" bindtap="toggleAgreeProtocol">
+      <view class="checkbox-inner" wx:if="{{isAgreeProtocol}}"></view>
+    </view>
+    <text class="protocol-text">已阅读并同意《服务协议》和《隐私政策》</text>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <button class="confirm-btn" bindtap="submitForm">
+    确定
+  </button>
+  
+  <!-- 底部提示 -->
+  <view class="bottom-tips" wx:if="{{pageType === 'login'}}">
+    <text class="tip-text">没有账号？</text>
+    <text class="login-link" bindtap="goToLogin">去注册</text>
+  </view>
+</view>

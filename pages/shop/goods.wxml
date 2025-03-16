@@ -1,0 +1,43 @@
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav-title">商品管理</view>
+      <view class="nav-buttons">
+        <view class="add-button" bindtap="addGoods">添加商品</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 页面内容 -->
+  <view class="page-content" style="margin-top: {{statusBarHeight + 44}}px;">
+    <!-- 分类选择 -->
+    <scroll-view scroll-x="true" class="category-scroll">
+      <view class="category-list">
+        <block wx:for="{{categories}}" wx:key="*this">
+          <view class="category-item {{currentCategory === item ? 'active' : ''}}" 
+                bindtap="switchCategory" 
+                data-category="{{item}}">
+            {{item}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+    
+    <!-- 商品列表 -->
+    <view class="goods-list">
+      <block wx:for="{{goodsList}}" wx:key="id">
+        <view class="goods-item" bindtap="navigateToDetail" data-id="{{item.id}}" 
+              wx:if="{{currentCategory === '全部' || currentCategory === item.category}}">
+          <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="goods-info">
+            <view class="goods-name">{{item.name}}</view>
+            <view class="goods-price">¥{{item.price}}</view>
+            <view class="goods-sales">销量: {{item.sales}}</view>
+            <view class="goods-category">{{item.category}}</view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,145 @@
+.container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  position: relative;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+/* 自定义导航栏 */
+.container .custom-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to right, #FF6600, #FFAA00);
+  color: #FFFFFF;
+  z-index: 1000;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 44px;
+  padding: 0 15px;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  text-align: left;
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.add-button {
+  font-size: 28rpx;
+  background-color: #FFFFFF;
+  color: #FF6600;
+  padding: 6rpx 20rpx;
+  border-radius: 30rpx;
+}
+
+/* 页面内容 */
+.page-content {
+  padding: 20rpx;
+}
+
+/* 分类选择 */
+.category-scroll {
+  width: 100%;
+  white-space: nowrap;
+  background-color: #FFFFFF;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+  border-radius: 12rpx;
+}
+
+.category-list {
+  display: inline-block;
+  padding: 0 20rpx;
+}
+
+.category-item {
+  display: inline-block;
+  padding: 10rpx 30rpx;
+  margin-right: 20rpx;
+  font-size: 28rpx;
+  color: #666666;
+  border-radius: 30rpx;
+  background-color: #F5F5F5;
+}
+
+.category-item.active {
+  color: #FFFFFF;
+  background-color: #FF6600;
+}
+
+/* 商品列表 */
+.goods-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.goods-item {
+  display: flex;
+  background-color: #FFFFFF;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  border-radius: 12rpx;
+}
+
+.goods-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+  background-color: #EEEEEE; /* 默认灰色背景，作为占位符 */
+}
+
+.goods-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.goods-name {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.goods-price {
+  font-size: 32rpx;
+  color: #FF6600;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.goods-sales {
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 10rpx;
+}
+
+.goods-category {
+  font-size: 24rpx;
+  color: #666666;
+  background-color: #F5F5F5;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+  display: inline-block;
+}
+
+.placeholder {
+  font-size: 32rpx;
+  color: #999999;
+} 

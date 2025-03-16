@@ -1,0 +1,152 @@
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav-left">
+        <!-- 可以添加返回按钮或其他操作 -->
+      </view>
+      <view class="nav-title">订单管理</view>
+      <view class="nav-right">
+        <!-- 可以添加其他操作按钮 -->
+      </view>
+    </view>
+  </view>
+  
+  <!-- 固定区域：搜索栏和标签页 -->
+  <view class="fixed-header" style="top: {{statusBarHeight + 44}}px;">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrapper">
+        <icon type="search" size="14" color="#999999"></icon>
+        <input 
+          class="search-input" 
+          placeholder="搜索商品名称/订单号" 
+          placeholder-class="search-placeholder"
+          value="{{searchValue}}"
+          bindinput="onSearchInput"
+          bindconfirm="onSearchConfirm"
+        />
+      </view>
+      <!-- 添加排序按钮 -->
+      <view class="sort-button" bindtap="toggleSortOrder" hover-class="button-hover">
+        <text>订单{{isAscending ? '升序' : '降序'}}</text>
+        <view class="sort-icon">
+          <view class="sort-arrow {{isAscending ? 'up-active' : ''}}">▲</view>
+          <view class="sort-arrow {{!isAscending ? 'down-active' : ''}}">▼</view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 标签页 -->
+    <view class="tabs">
+      <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+        全部
+      </view>
+      <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+        待核销
+      </view>
+      <view class="tab {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
+        待退款
+      </view>
+      <view class="tab {{activeTab === 3 ? 'active' : ''}}" bindtap="switchTab" data-index="3">
+        已完成
+      </view>
+    </view>
+  </view>
+  
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block wx:for="{{displayOrders}}" wx:key="id">
+      <view class="order-item">
+        <!-- 订单头部：客户信息 -->
+        <view class="order-header">
+          <view class="customer-info">
+            <image class="icon-image" src="./images/user.png"></image>
+            <text class="customer-phone">{{item.customerPhone}}</text>
+          </view>
+          <view class="call-button" bindtap="callCustomer" data-phone="{{item.customerPhone}}">
+            <image class="icon-image" src="./images/telephone-out.png"></image>
+          </view>
+        </view>
+        
+        <!-- 订单内容 -->
+        <view class="order-content" bindtap="goToOrderDetail" data-id="{{item.id}}" data-status="{{item.status}}">
+          <!-- 商品信息 -->
+          <view class="product-info">
+            <!-- 商品图片 -->
+            <view class="product-image-container">
+              <view class="product-image-placeholder"></view>
+            </view>
+            
+            <view class="product-details">
+              <view class="product-name-row">
+                <text class="product-name">{{item.productName}}</text>
+                <!-- 订单状态标签 -->
+                <view class="inline-status {{item.status === 0 ? 'completed' : (item.status === 1 ? 'pending' : 'refunding')}}">
+                  <text>{{item.status === 0 ? '已完成' : (item.status === 1 ? '待核销' : '待退款')}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 订单金额 -->
+          <view class="order-amount">
+            <text class="amount-label">本单预计收入</text>
+            <text class="amount-value">¥ {{item.amount}}</text>
+          </view>
+          
+          <!-- 订单信息 -->
+          <view class="order-info">
+            <text class="order-id">订单编号：{{item.id}}</text>
+            <text class="order-time">下单时间：{{item.orderTime}}</text>
+          </view>
+        </view>
+        
+        <!-- 订单操作按钮 -->
+        <view class="order-actions" wx:if="{{item.status === 2}}">
+          <view class="action-button reject" bindtap="rejectRefund" data-id="{{item.id}}" catchtap="rejectRefund">
+            <text>拒绝退款</text>
+          </view>
+          <view class="action-button agree" bindtap="agreeRefund" data-id="{{item.id}}">
+            <text>同意退款</text>
+          </view>
+        </view>
+        
+        <!-- 核销按钮 (仅在待核销状态下显示) -->
+        <view class="order-actions" wx:if="{{item.status === 1}}">
+          <view class="action-button verify" bindtap="verifyOrder" data-id="{{item.id}}">
+            <icon type="scan" size="16" color="#FFFFFF"></icon>
+            <text>扫码核销</text>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 无订单提示 -->
+    <view class="empty-tip" wx:if="{{!displayOrders || displayOrders.length === 0}}">
+      <icon type="info" size="40" color="#CCCCCC"></icon>
+      <text>暂无相关订单</text>
+    </view>
+    
+    <!-- 加载中提示 -->
+    <view class="loading-tip" wx:if="{{isLoading && displayOrders.length > 0}}">
+      <view class="loading-icon"></view>
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 加载完毕提示 -->
+    <view class="load-all-tip" wx:if="{{!hasMoreData && displayOrders.length > 0}}">已加载全部订单</view>
+  </view>
+  
+  <!-- 确认弹窗 -->
+  <view class="modal-mask" wx:if="{{showConfirmModal}}">
+    <view class="modal-content">
+      <view class="modal-title">{{modalTitle}}</view>
+      <view class="modal-message">{{modalMessage}}</view>
+      <view class="modal-buttons">
+        <button class="modal-button cancel" bindtap="cancelAction">取消</button>
+        <button class="modal-button confirm" bindtap="confirmAction">确认</button>
+      </view>
+    </view>
+  </view>
+</view> 

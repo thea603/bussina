@@ -1,0 +1,44 @@
+<!--pages/productindex/verify/digital.wxml-->
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
+    <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
+      <view class="back-icon" bindtap="navigateBack">
+        <view class="back-arrow"></view>
+      </view>
+      <view class="nav-title"></view>
+      <view class="nav-right">
+        <view class="more-icon">
+          <view class="more-dots"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 页面内容 -->
+  <view class="page-content" style="margin-top: {{statusBarHeight + 44}}px;">
+    <!-- 标题 -->
+    <view class="page-title">输入核销码</view>
+    
+    <!-- 输入框区域 -->
+    <view class="input-area">
+      <input 
+        class="verify-input" 
+        type="text" 
+        placeholder="请输入核销码" 
+        placeholder-class="input-placeholder"
+        bindinput="onInputChange"
+        value="{{verifyCode}}"
+      />
+    </view>
+    
+    <!-- 提交按钮 -->
+    <view class="button-area">
+      <button 
+        style="width:100%"
+        class="submit-button {{isSubmitActive ? 'active' : ''}}" 
+        bindtap="submitVerifyCode"
+      >完成</button>
+    </view>
+  </view>
+</view>

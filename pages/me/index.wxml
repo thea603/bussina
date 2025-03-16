@@ -1,0 +1,135 @@
+<!--pages/me/index.wxml-->
+<view class="profile-container">
+  <!-- 店铺名称信息 -->
+  <view class="shop-info">
+    <view class="shop-avatar">
+      <view class="avatar-placeholder"></view>
+    </view>
+    <view class="shop-name-container">
+      <view class="shop-name">数林石磨脑粉餐馆(凤凰广场店)</view>
+      <view class="shop-status">
+        <view class="status-tag">
+          <view class="status-dot"></view>
+          营业中
+        </view>
+      </view>
+    </view>
+    <view class="qrcode-icon" bindtap="showShopQrcode">
+      <view class="qrcode-placeholder"></view>
+    </view>
+  </view>
+
+  <!-- 顶部用户信息区域 -->
+  <view class="user-header">
+    <view class="user-info">
+      <view class="user-details">
+        <view class="balance-label">当前余额</view>
+        <view class="balance-value">980.567</view>
+      </view>
+    </view>
+    <view class="setting-icon" bindtap="navigateToSetting">
+      <view class="setting-text">去提现</view>
+    </view>
+  </view>
+  
+  <!-- 店铺数据统计 -->
+  <view class="stats-section">
+    <view class="stats-row">
+      <view class="stat-item">
+        <view class="stat-label">今日营业额</view>
+        <view class="stat-value red">1212</view>
+        <view class="stat-icon up"></view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-label">今日订单量</view>
+        <view class="stat-value red">225</view>
+        <view class="stat-icon down"></view>
+      </view>
+    </view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <view class="stat-label">昨日营业额</view>
+        <view class="stat-value">12</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-label">昨日订单量</view>
+        <view class="stat-value">45</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <!-- 店铺管理 -->
+    <view class="menu-group">
+      <view class="menu-item" bindtap="navigateToShopInfo">
+        <view class="menu-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="menu-name">店铺信息</view>
+        <view class="menu-arrow">
+          <view class="arrow-placeholder"></view>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="navigateToStaff">
+        <view class="menu-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="menu-name">员工管理</view>
+        <view class="menu-arrow">
+          <view class="arrow-placeholder"></view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 数据统计 -->
+    <view class="menu-group">
+      <view class="menu-item" bindtap="navigateToSales">
+        <view class="menu-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="menu-name">销售统计</view>
+        <view class="menu-arrow">
+          <view class="arrow-placeholder"></view>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="navigateToFinance">
+        <view class="menu-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="menu-name">财务管理</view>
+        <view class="menu-arrow">
+          <view class="arrow-placeholder"></view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 帮助与反馈 -->
+    <view class="menu-group">
+      <view class="menu-item" bindtap="navigateToHelp">
+        <view class="menu-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="menu-name">帮助中心</view>
+        <view class="menu-arrow">
+          <view class="arrow-placeholder"></view>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="navigateToFeedback">
+        <view class="menu-icon">
+          <view class="icon-placeholder"></view>
+        </view>
+        <view class="menu-name">意见反馈</view>
+        <view class="menu-arrow">
+          <view class="arrow-placeholder"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 退出登录按钮 -->
+  <view class="logout-button" bindtap="logout">退出登录</view>
+  
+  <!-- 版本信息 -->
+  <view class="version-info">当前版本: v1.0.0</view>
+</view> 
