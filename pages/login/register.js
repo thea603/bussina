@@ -272,10 +272,9 @@ Page({
       // 登录操作
       api.user.login({
         phone: this.data.phone,
-        verifyCode: this.data.verifyCode
+        verifyCode: this.data.verifyCode,
+        userType: 2
       }).then(res => {
-        util.hideLoading();
-        
         // 保存token和用户信息到本地存储
         wx.setStorageSync('token', res.data.token);
         wx.setStorageSync('userId', res.data.user.id);
@@ -283,12 +282,37 @@ Page({
         
         util.showSuccess('登录成功');
         
-        // 跳转到首页
-        setTimeout(() => {
-          wx.switchTab({
-            url: '/pages/productindex/index'
-          });
-        }, 1500);
+        // 调用检查店铺接口
+        api.user.checkShop().then(shopRes => {
+          util.hideLoading();
+          
+          // 根据返回结果决定跳转路径
+          if (shopRes.data && shopRes.data.hasShop) {
+            // 如果有店铺，跳转到首页
+            setTimeout(() => {
+              wx.switchTab({
+                url: '/pages/productindex/index'
+              });
+            }, 1500);
+          } else {
+            // 如果没有店铺，跳转到开店页面
+            setTimeout(() => {
+              wx.redirectTo({
+                url: '/pages/shop/open'
+              });
+            }, 1500);
+          }
+        }).catch(err => {
+          util.hideLoading();
+          console.error('检查店铺失败:', err);
+          
+          // 如果检查店铺失败，默认跳转到首页
+          setTimeout(() => {
+            wx.switchTab({
+              url: '/pages/productindex/index'
+            });
+          }, 1500);
+        });
       }).catch(err => {
         util.hideLoading();
         util.showError(err.message || '登录失败');
@@ -302,7 +326,8 @@ Page({
       
       api.user.register({
         phone: this.data.phone,
-        verifyCode: this.data.verifyCode
+        verifyCode: this.data.verifyCode,
+        userType: 2
       }).then(res => {
         console.log('注册成功，响应:', res);
         util.hideLoading();
@@ -319,7 +344,7 @@ Page({
           duration: 1500,
           mask: true,
           complete: () => {
-            // 在Toast完成后直接跳转，不再使用setTimeout
+            // 注册成功后直接跳转到开店页面
             wx.redirectTo({
               url: '/pages/shop/open'
             });

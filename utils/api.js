@@ -203,7 +203,7 @@ const api = {
       const params = {
         phone: data.phone,
         code: data.verifyCode,
-          
+        userType: data.userType
       };
       return request('/v1/users/login', 'POST', params);
     },
@@ -212,7 +212,8 @@ const api = {
       // 转换参数格式，将verifyCode改为code
       const params = {
         phone: data.phone,
-        code: data.verifyCode
+        code: data.verifyCode,
+        userType: data.userType
       };
       return request('/v1/users/login', 'POST', params);
     },
@@ -227,6 +228,10 @@ const api = {
     // 获取用户信息
     getUserInfo: () => {
       return request('/v1/users/info', 'GET');
+    },
+    // 检查用户是否有店铺
+    checkShop: () => {
+      return request('/v1/users/check-shop', 'GET');
     }
   },
   
