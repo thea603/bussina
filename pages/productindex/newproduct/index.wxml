@@ -1,12 +1,6 @@
 <view class="container">
   <!-- 自定义导航栏 -->
 
-  <!-- 网络状态提示 -->
-  <view class="network-status-bar" wx:if="{{isOfflineMode}}">
-    <view class="network-status-icon">!</view>
-    <view class="network-status-text">当前处于离线模式，图片将暂存在本地</view>
-  </view>
-  
   <!-- 页面内容 -->
   <view class="page-content"  >
     <!-- 基本信息卡片 -->
@@ -45,11 +39,9 @@
         <view class="image-uploader">
           <view class="image-list">
             <block wx:for="{{product.images}}" wx:key="index">
-              <view class="image-item {{item.isLocalImage ? 'local-image' : ''}}">
+              <view class="image-item">
                 <image src="{{item.imageUrl || item}}" mode="aspectFill" bindtap="previewImage" data-src="{{item.imageUrl || item}}"></image>
                 <view class="delete-icon" bindtap="deleteImage" data-index="{{index}}">×</view>
-                <view class="local-tag" wx:if="{{item.isLocalImage}}">本地</view>
-                <view class="preset-tag" wx:if="{{!item.isLocalImage && item.imageUrl && item.imageUrl.indexOf('alicdn.com') !== -1}}">预设</view>
               </view>
             </block>
             
@@ -67,7 +59,7 @@
         <view class="progress-bar">
           <view class="progress-inner" style="width: {{uploadProgress}}%;"></view>
         </view>
-        <view class="progress-text">{{isOfflineMode ? '本地处理中' : '上传中'}} {{uploadProgress}}%</view>
+        <view class="progress-text">上传中 {{uploadProgress}}%</view>
       </view>
     </view>
     
@@ -228,7 +220,7 @@
   <view class="bottom-buttons">
     <button class="draft-button" style='width:30%' bindtap="saveDraft">保存草稿</button>
     <button class="submit-button {{isSubmitActive ? 'active' : ''}}" bindtap="submitForm">
-      {{isOfflineMode ? '保存到本地' : '提交审核'}}
+      提交审核
     </button>
   </view>
 </view> 

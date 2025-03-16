@@ -35,16 +35,7 @@ Page({
     isUploading: false, // 是否正在上传图片
     uploadProgress: 0, // 上传进度
     isOfflineMode: false, // 是否为离线模式
-    networkType: 'unknown', // 网络状态
-    
-    // 预设图片URL列表
-    presetImages: [
-      { imageUrl: 'https://img.alicdn.com/imgextra/i1/O1CN01xA4P9B1d3sY5xUOPk_!!6000000003683-0-tps-1080-1080.jpg' },
-      { imageUrl: 'https://img.alicdn.com/imgextra/i2/O1CN018v4k441uD0IKPEFNi_!!6000000006007-0-tps-1080-1080.jpg' },
-      { imageUrl: 'https://img.alicdn.com/imgextra/i3/O1CN01WRz3Xy1OcCnYVBnUl_!!6000000001728-0-tps-1080-1080.jpg' },
-      { imageUrl: 'https://img.alicdn.com/imgextra/i3/O1CN01LLqGHJ1OkJYi8CtpZ_!!6000000001747-0-tps-1080-1080.jpg' },
-      { imageUrl: 'https://img.alicdn.com/imgextra/i2/O1CN01Uo5nHJ1ZVVBRKcJBl_!!6000000003198-0-tps-1080-1080.jpg' }
-    ]
+    networkType: 'unknown' // 网络状态
   },
 
   onLoad: function(options) {
@@ -54,6 +45,15 @@ Page({
       statusBarHeight: systemInfo.statusBarHeight
     });
     
+    // 检查API配置
+    console.log('API配置:', api);
+    if (!api.baseUrl) {
+      console.warn('API baseUrl未定义，将使用默认URL');
+      // 设置一个默认的API基础URL
+      api.baseUrl = 'http://shindou.icu:4000/api'; // 使用实际的API地址
+      console.log('已设置API baseUrl:', api.baseUrl);
+    }
+    
     // 检查网络状态
     this.checkNetworkStatus();
     
@@ -62,9 +62,6 @@ Page({
     
     // 初始化日期选择器数据
     this.initDatePicker();
-    
-    // 自动添加一张预设图片
-    this.addInitialPresetImage();
     
     // 判断是否是编辑模式
     if (options.type === 'edit') {
@@ -86,25 +83,6 @@ Page({
         title: '新增商品'
       });
     }
-  },
-
-  // 自动添加一张预设图片
-  addInitialPresetImage: function() {
-    // 如果已经有图片，则不添加
-    if (this.data.product.images && this.data.product.images.length > 0) {
-      return;
-    }
-    
-    // 随机选择一张预设图片
-    const randomIndex = Math.floor(Math.random() * this.data.presetImages.length);
-    const randomImage = this.data.presetImages[randomIndex];
-    
-    // 添加到商品图片列表
-    this.setData({
-      'product.images': [randomImage]
-    });
-    
-    console.log('已自动添加预设图片:', randomImage);
   },
 
   // 检查网络状态
@@ -561,194 +539,65 @@ Page({
       return;
     }
     
-    // 显示操作菜单，让用户选择使用预设图片还是上传新图片
+    // 显示操作菜单，让用户选择上传方式
     wx.showActionSheet({
-      itemList: ['从相册选择', '拍照', '使用预设图片'],
+      itemList: ['从相册选择', '拍照'],
       success: (res) => {
-        if (res.tapIndex === 2) {
-          // 用户选择使用预设图片
-          this.usePresetImages();
-        } else {
-          // 用户选择从相册或拍照上传
-          const sourceType = res.tapIndex === 0 ? ['album'] : ['camera'];
-          
-          wx.chooseMedia({
-            count: remainCount,
-            mediaType: ['image'],
-            sourceType: sourceType,
-            success: (res) => {
-              // 显示上传中状态
+        // 用户选择从相册或拍照上传
+        const sourceType = res.tapIndex === 0 ? ['album'] : ['camera'];
+        
+        wx.chooseMedia({
+          count: remainCount, // 可以选择的图片数量上限
+          mediaType: ['image'],
+          sourceType: sourceType,
+          sizeType: ['compressed'], // 压缩图片以提高上传速度
+          success: (res) => {
+            // 显示上传中状态
+            this.setData({
+              isUploading: true,
+              uploadProgress: 0
+            });
+            
+            // 获取已有的图片
+            const oldImages = this.data.product.images;
+            // 添加新选择的图片
+            const newImages = res.tempFiles.map(file => file.tempFilePath);
+            
+            // 根据网络状态决定是上传图片还是本地模拟
+            if (this.data.isOfflineMode || this.data.networkType === '2g') {
+              // 离线模式或网络信号很差，提示用户
+              wx.showToast({
+                title: '网络状态不佳，请稍后再试',
+                icon: 'none',
+                duration: 2000
+              });
               this.setData({
-                isUploading: true,
-                uploadProgress: 0
+                isUploading: false
+              });
+            } else {
+              // 正常模式，上传到服务器
+              wx.showLoading({
+                title: '准备上传...',
+                mask: true
               });
               
-              // 获取已有的图片
-              const oldImages = this.data.product.images;
-              // 添加新选择的图片
-              const newImages = res.tempFiles.map(file => file.tempFilePath);
+              // 显示选择的图片数量
+              wx.showToast({
+                title: `已选择${newImages.length}张图片`,
+                icon: 'none',
+                duration: 1500
+              });
               
-              // 根据网络状态决定是上传图片还是本地模拟
-              if (this.data.isOfflineMode || this.data.networkType === '2g') {
-                // 离线模式或网络信号很差，使用本地模拟
-                this.mockUploadImages(newImages, oldImages);
-              } else {
-                // 正常模式，上传到服务器
+              setTimeout(() => {
                 this.uploadImages(newImages, oldImages);
-              }
+              }, 1000);
             }
-          });
-        }
+          }
+        });
       }
     });
   },
   
-  // 本地模拟上传图片
-  mockUploadImages: function(newImages, oldImages) {
-    if (newImages.length === 0) {
-      this.setData({
-        isUploading: false
-      });
-      return;
-    }
-    
-    const totalCount = newImages.length;
-    let completedCount = 0;
-    const uploadedImages = [];
-    
-    // 模拟上传进度
-    const timer = setInterval(() => {
-      const progress = Math.min(100, Math.floor((completedCount / totalCount) * 100) + 5);
-      this.setData({
-        uploadProgress: progress
-      });
-      
-      if (progress >= 100) {
-        clearInterval(timer);
-      }
-    }, 200);
-    
-    // 模拟网络延迟
-    setTimeout(() => {
-      newImages.forEach((path, index) => {
-        // 模拟上传成功，直接使用本地路径
-        uploadedImages.push({ 
-          imageUrl: path,
-          isLocalImage: true // 标记为本地图片
-        });
-        
-        completedCount++;
-        
-        // 所有图片处理完成
-        if (completedCount === totalCount) {
-          clearInterval(timer);
-          
-          // 合并图片数组，确保格式正确
-          const formattedOldImages = oldImages.map(img => {
-            if (typeof img === 'string') {
-              return { imageUrl: img };
-            }
-            return img;
-          });
-          
-          const images = formattedOldImages.concat(uploadedImages);
-          
-          this.setData({
-            'product.images': images,
-            isUploading: false,
-            uploadProgress: 100
-          });
-          
-          // 检查表单有效性
-          this.checkFormValidity();
-          
-          wx.showToast({
-            title: '图片已暂存在本地',
-            icon: 'success'
-          });
-        }
-      });
-    }, 1500); // 模拟1.5秒的处理时间
-  },
-
-  // 使用预设图片
-  usePresetImages: function() {
-    // 显示加载中
-    wx.showLoading({
-      title: '加载预设图片...',
-    });
-    
-    // 获取当前已有的图片
-    const currentImages = this.data.product.images;
-    const currentCount = currentImages.length;
-    const remainCount = this.data.maxImageCount - currentCount;
-    
-    // 如果没有剩余空间，直接返回
-    if (remainCount <= 0) {
-      wx.hideLoading();
-      wx.showToast({
-        title: `最多上传${this.data.maxImageCount}张图片`,
-        icon: 'none'
-      });
-      return;
-    }
-    
-    // 从预设图片中选择未使用的图片
-    const unusedPresetImages = this.data.presetImages.filter(presetImg => {
-      // 检查预设图片是否已经在当前图片列表中
-      return !currentImages.some(currentImg => {
-        const currentUrl = currentImg.imageUrl || currentImg;
-        return currentUrl === presetImg.imageUrl;
-      });
-    });
-    
-    // 如果没有未使用的预设图片，提示用户
-    if (unusedPresetImages.length === 0) {
-      wx.hideLoading();
-      wx.showToast({
-        title: '所有预设图片已使用',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    // 计算要添加的图片数量（不超过剩余空间）
-    const addCount = Math.min(remainCount, unusedPresetImages.length);
-    // 选择要添加的图片
-    const imagesToAdd = unusedPresetImages.slice(0, addCount);
-    
-    // 模拟上传进度
-    let progress = 0;
-    const timer = setInterval(() => {
-      progress += 10;
-      this.setData({
-        isUploading: true,
-        uploadProgress: progress
-      });
-      
-      if (progress >= 100) {
-        clearInterval(timer);
-        
-        // 添加预设图片到当前图片列表
-        const newImages = [...currentImages, ...imagesToAdd];
-        
-        this.setData({
-          'product.images': newImages,
-          isUploading: false
-        });
-        
-        wx.hideLoading();
-        wx.showToast({
-          title: `已添加${addCount}张预设图片`,
-          icon: 'success'
-        });
-        
-        // 检查表单有效性
-        this.checkFormValidity();
-      }
-    }, 100);
-  },
-
   // 上传图片到服务器
   uploadImages: function(newImages, oldImages) {
     if (newImages.length === 0) {
@@ -762,55 +611,219 @@ Page({
       title: '上传图片中...',
     });
     
-    const totalCount = newImages.length;
-    let completedCount = 0;
-    const uploadedImages = [];
-    
-    newImages.forEach((path, index) => {
-      this.uploadSingleImage(path)
-        .then(imageUrl => {
-          completedCount++;
-          
-          if (imageUrl) {
-            // 使用正确的格式添加图片
-            uploadedImages.push({ imageUrl: imageUrl });
-          }
-          
-          // 更新上传进度
-          const progress = Math.floor((completedCount / totalCount) * 100);
+    // 使用多图上传接口
+    this.uploadMultipleImages(newImages)
+      .then(uploadedImages => {
+        wx.hideLoading();
+        
+        // 合并图片数组，确保格式正确
+        const formattedOldImages = oldImages.map(img => {
+          // 如果已经是正确格式则直接使用，否则转换格式
+          return typeof img === 'string' ? { imageUrl: img } : img;
+        });
+        
+        const images = formattedOldImages.concat(uploadedImages);
+        
+        this.setData({
+          'product.images': images,
+          isUploading: false
+        });
+        
+        // 检查表单有效性
+        this.checkFormValidity();
+      })
+      .catch(error => {
+        wx.hideLoading();
+        console.error('上传图片失败:', error);
+        wx.showToast({
+          title: '图片上传失败',
+          icon: 'none'
+        });
+        this.setData({
+          isUploading: false
+        });
+      });
+  },
+
+  // 上传多张图片
+  uploadMultipleImages: function(filePaths) {
+    return new Promise((resolve, reject) => {
+      // 显示上传进度
+      let progress = 0;
+      const timer = setInterval(() => {
+        progress += 5;
+        if (progress > 95) {
+          clearInterval(timer);
+        }
+        this.setData({
+          uploadProgress: progress
+        });
+      }, 200);
+      
+      // 检查API基础URL是否有效
+      if (!api || !api.baseUrl) {
+        console.error('API对象或baseUrl未定义');
+        clearInterval(timer);
+        wx.hideLoading();
+        wx.showToast({
+          title: 'API配置错误',
+          icon: 'none'
+        });
+        reject(new Error('API配置错误'));
+        return;
+      }
+      
+      // 构建多图上传的请求
+      const uploadUrl = `${api.baseUrl}/v1/upload/multiple`;
+      console.log('多图上传URL:', uploadUrl);
+      
+      // 准备FormData
+      let formData = {
+        type: 'product',
+        fileCount: filePaths.length // 告诉后端有多少个文件
+      };
+      
+      // 微信小程序不支持直接上传多个文件，需要将文件路径添加到formData中
+      filePaths.forEach((path, index) => {
+        formData[`file${index}`] = path;
+      });
+      
+      console.log('上传文件数量:', filePaths.length);
+      console.log('第一个文件路径:', filePaths[0]);
+      
+      // 使用wx.uploadFile上传文件
+      wx.uploadFile({
+        url: uploadUrl,
+        filePath: filePaths[0], // 第一个文件
+        name: 'files', // 文件字段名
+        header: {
+          'Authorization': 'Bearer ' + wx.getStorageSync('token')
+        },
+        formData: formData,
+        success: (res) => {
+          clearInterval(timer);
           this.setData({
-            uploadProgress: progress
+            uploadProgress: 100
           });
           
-          // 所有图片上传完成
-          if (completedCount === totalCount) {
-            wx.hideLoading();
+          console.log('多图上传响应:', res);
+          
+          try {
+            const data = JSON.parse(res.data);
+            console.log('解析后的响应数据:', data);
             
-            // 合并图片数组，确保格式正确
-            const formattedOldImages = oldImages.map(img => {
-              // 如果已经是正确格式则直接使用，否则转换格式
-              return typeof img === 'string' ? { imageUrl: img } : img;
-            });
-            
-            const images = formattedOldImages.concat(uploadedImages);
-            
-            this.setData({
-              'product.images': images,
-              isUploading: false
-            });
-            
-            // 检查表单有效性
-            this.checkFormValidity();
+            // 新的返回格式: {message: "Files uploaded successfully", files: [{filename, path, size, mimetype}]}
+            if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+              // 处理返回的URL，确保添加正确的前缀
+              const uploadedImages = data.files.map(file => {
+                let imageUrl = file.path;
+                
+                // 如果URL不是以http开头，添加域名前缀
+                if (imageUrl && !imageUrl.startsWith('http')) {
+                  // 从baseUrl中提取域名部分
+                  const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                  const domain = domainMatch ? domainMatch[1] : '';
+                  imageUrl = domain + imageUrl;
+                }
+                
+                return { imageUrl: imageUrl };
+              });
+              
+              console.log('处理后的图片数据:', uploadedImages);
+              resolve(uploadedImages);
+            } else if (data.code === 200 && data.data) {
+              // 兼容旧版返回格式
+              const uploadedImages = [];
+              
+              // 检查返回的数据结构
+              if (Array.isArray(data.data)) {
+                // 如果data是数组，直接处理
+                data.data.forEach(item => {
+                  let imageUrl = '';
+                  
+                  // 优先使用files中的path
+                  if (item.files && Array.isArray(item.files) && item.files.length > 0) {
+                    imageUrl = item.files[0].path;
+                  } else if (item.path) {
+                    // 如果没有files但有path字段
+                    imageUrl = item.path;
+                  } else if (item.url) {
+                    // 兼容旧版返回格式
+                    imageUrl = item.url;
+                  }
+                  
+                  // 如果URL不是以http开头，添加域名前缀
+                  if (imageUrl && !imageUrl.startsWith('http')) {
+                    // 从baseUrl中提取域名部分
+                    const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                    const domain = domainMatch ? domainMatch[1] : '';
+                    imageUrl = domain + imageUrl;
+                  }
+                  
+                  if (imageUrl) {
+                    uploadedImages.push({ imageUrl: imageUrl });
+                  }
+                });
+              } else if (data.data.files && Array.isArray(data.data.files)) {
+                // 如果data.files是数组
+                data.data.files.forEach(file => {
+                  let imageUrl = file.path || file.url;
+                  
+                  // 如果URL不是以http开头，添加域名前缀
+                  if (imageUrl && !imageUrl.startsWith('http')) {
+                    // 从baseUrl中提取域名部分
+                    const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                    const domain = domainMatch ? domainMatch[1] : '';
+                    imageUrl = domain + imageUrl;
+                  }
+                  
+                  if (imageUrl) {
+                    uploadedImages.push({ imageUrl: imageUrl });
+                  }
+                });
+              }
+              
+              console.log('处理后的图片数据:', uploadedImages);
+              resolve(uploadedImages);
+            } else {
+              console.error('上传图片返回错误:', data);
+              reject(new Error(data.message || '上传失败'));
+            }
+          } catch (e) {
+            console.error('解析上传响应失败:', e, res.data);
+            reject(e);
           }
-        });
+        },
+        fail: (err) => {
+          clearInterval(timer);
+          console.error('上传图片请求失败:', err);
+          reject(err);
+        }
+      });
     });
   },
 
-  // 上传单张图片
+  // 上传单张图片 (保留作为备用方法)
   uploadSingleImage: function(filePath) {
     return new Promise((resolve, reject) => {
+      // 检查API基础URL是否有效
+      if (!api || !api.baseUrl) {
+        console.error('API对象或baseUrl未定义');
+        wx.hideLoading();
+        wx.showToast({
+          title: 'API配置错误',
+          icon: 'none'
+        });
+        reject(new Error('API配置错误'));
+        return;
+      }
+      
+      // 构建上传URL
+      const uploadUrl = `${api.baseUrl}/v1/upload`;
+      console.log('单图上传URL:', uploadUrl);
+      
       wx.uploadFile({
-        url: `${api.baseUrl}/v1/upload`,
+        url: uploadUrl,
         filePath: filePath,
         name: 'file',
         header: {
@@ -822,8 +835,68 @@ Page({
         success: (res) => {
           try {
             const data = JSON.parse(res.data);
-            if (data.code === 0 && data.data && data.data.url) {
-              resolve(data.data.url);
+            console.log('单图上传响应数据:', data);
+            
+            // 新的返回格式: {message: "Files uploaded successfully", files: [{filename, path, size, mimetype}]}
+            if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+              let imageUrl = data.files[0].path;
+              
+              // 如果URL不是以http开头，添加域名前缀
+              if (imageUrl && !imageUrl.startsWith('http')) {
+                // 从baseUrl中提取域名部分
+                const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                const domain = domainMatch ? domainMatch[1] : '';
+                imageUrl = domain + imageUrl;
+              }
+              
+              resolve({ imageUrl: imageUrl });
+            } else if (data.code === 200 && data.data) {
+              // 兼容旧版返回格式
+              let imageUrl = '';
+              
+              // 检查返回的数据结构
+              if (Array.isArray(data.data) && data.data.length > 0) {
+                const item = data.data[0];
+                
+                // 优先使用files中的path
+                if (item.files && Array.isArray(item.files) && item.files.length > 0) {
+                  imageUrl = item.files[0].path;
+                } else if (item.path) {
+                  // 如果没有files但有path字段
+                  imageUrl = item.path;
+                } else if (item.url) {
+                  // 兼容旧版返回格式
+                  imageUrl = item.url;
+                }
+              } else if (data.data.files && Array.isArray(data.data.files) && data.data.files.length > 0) {
+                // 如果data.files是数组
+                imageUrl = data.data.files[0].path || data.data.files[0].url;
+              } else if (data.data.path) {
+                // 直接使用path
+                imageUrl = data.data.path;
+              } else if (data.data.url) {
+                // 兼容旧版返回格式
+                imageUrl = data.data.url;
+              }
+              
+              // 如果URL不是以http开头，添加域名前缀
+              if (imageUrl && !imageUrl.startsWith('http')) {
+                // 从baseUrl中提取域名部分
+                const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                const domain = domainMatch ? domainMatch[1] : '';
+                imageUrl = domain + imageUrl;
+              }
+              
+              if (imageUrl) {
+                resolve({ imageUrl: imageUrl });
+              } else {
+                console.error('无法从响应中获取图片URL:', data);
+                wx.showToast({
+                  title: '图片上传失败',
+                  icon: 'none'
+                });
+                resolve(null);
+              }
             } else {
               console.error('上传图片返回错误:', data);
               wx.showToast({
@@ -856,13 +929,32 @@ Page({
   // 预览图片
   previewImage: function(e) {
     const current = e.currentTarget.dataset.src;
+    
     // 确保预览的URL列表格式正确
     const urls = this.data.product.images.map(img => {
-      return img.imageUrl || img;
+      let imageUrl = img.imageUrl || img;
+      
+      // 如果URL不是以http开头，添加域名前缀
+      if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('http') && api && api.baseUrl) {
+        // 从baseUrl中提取域名部分
+        const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+        const domain = domainMatch ? domainMatch[1] : '';
+        imageUrl = domain + imageUrl;
+      }
+      
+      return imageUrl;
     });
     
+    // 同样处理当前选中的图片URL
+    let currentUrl = current;
+    if (currentUrl && typeof currentUrl === 'string' && !currentUrl.startsWith('http') && api && api.baseUrl) {
+      const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+      const domain = domainMatch ? domainMatch[1] : '';
+      currentUrl = domain + currentUrl;
+    }
+    
     wx.previewImage({
-      current: current,
+      current: currentUrl,
       urls: urls
     });
   },
@@ -909,25 +1001,8 @@ Page({
       return; // 如果按钮未激活，不执行操作
     }
     
-    // 检查是否有本地图片
-    const hasLocalImages = this.data.product.images.some(img => img.isLocalImage);
-    
-    if (hasLocalImages && !this.data.isOfflineMode) {
-      // 如果有本地图片且当前不是离线模式，提示用户
-      wx.showModal({
-        title: '提示',
-        content: '检测到有本地暂存的图片，建议在网络良好时重新上传，是否继续提交？',
-        success: (res) => {
-          if (res.confirm) {
-            // 用户确认，继续提交
-            this.doSubmitForm();
-          }
-        }
-      });
-    } else {
-      // 直接提交
-      this.doSubmitForm();
-    }
+    // 直接提交
+    this.doSubmitForm();
   },
   
   // 执行表单提交
@@ -941,7 +1016,17 @@ Page({
     
     // 确保图片格式正确
     const formattedImages = this.data.product.images.map(img => {
-      return { imageUrl: img.imageUrl || img };
+      let imageUrl = img.imageUrl || img;
+      
+      // 如果URL不是以http开头，添加域名前缀
+      if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('http') && api && api.baseUrl) {
+        // 从baseUrl中提取域名部分
+        const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+        const domain = domainMatch ? domainMatch[1] : '';
+        imageUrl = domain + imageUrl;
+      }
+      
+      return { imageUrl: imageUrl };
     });
     
     // 转换日期格式为ISO格式
@@ -984,35 +1069,7 @@ Page({
     
     console.log('提交商品数据:', productData);
     
-    // 如果是离线模式，模拟提交
-    if (this.data.isOfflineMode) {
-      setTimeout(() => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '已保存到本地',
-          icon: 'success',
-          duration: 2000
-        });
-        
-        // 可以将数据保存到本地存储
-        try {
-          const drafts = wx.getStorageSync('product_drafts') || [];
-          drafts.push({
-            data: productData,
-            timestamp: new Date().getTime()
-          });
-          wx.setStorageSync('product_drafts', drafts);
-        } catch (e) {
-          console.error('保存草稿失败:', e);
-        }
-        
-        // 跳转到成功页面或返回列表
-        wx.navigateBack();
-      }, 1500);
-      return;
-    }
-    
-    // 正常模式，调用API提交商品
+    // 调用API提交商品
     api.product.createProduct(productData).then(res => {
       wx.hideLoading();
       
