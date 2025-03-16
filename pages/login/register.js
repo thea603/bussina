@@ -306,12 +306,8 @@ Page({
           util.hideLoading();
           console.error('检查店铺失败:', err);
           
-          // 如果检查店铺失败，默认跳转到首页
-          setTimeout(() => {
-            wx.switchTab({
-              url: '/pages/productindex/index'
-            });
-          }, 1500);
+          // 显示错误提示，不自动跳转
+          util.showError(err.message || '检查店铺状态失败，请重试');
         });
       }).catch(err => {
         util.hideLoading();
