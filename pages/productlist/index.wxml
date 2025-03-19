@@ -75,8 +75,8 @@
     <block wx:for="{{displayProducts}}" wx:key="id">
       <view class="product-item {{sortType === 1 ? 'bulk-mode' : ''}}">
         <!-- 商品选择框 (仅在批量下架模式下显示) -->
-        <view class="product-checkbox" wx:if="{{sortType === 1}}" catchtap="toggleSelectProduct" data-id="{{item.id}}">
-          <checkbox class="custom-checkbox" checked="{{selectedProducts.indexOf(String(item.id)) !== -1}}" color="#FF6600" />
+        <view class="product-checkbox" wx:if="{{sortType === 1}}" catchtap="toggleSelectProduct" data-id="{{item.id}}" wx:key="{{item.id}}">
+          <checkbox class="custom-checkbox" checked="{{item.checked}}" color="#FF6600" />
         </view>
         
         <!-- 商品图片 -->
