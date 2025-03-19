@@ -1,9 +1,10 @@
 {
   "pages": [
+    "pages/productlist/index",
+    "pages/productindex/index",
     "pages/login/login",
     "pages/productindex/newproduct/index",
     "pages/orderlist/index",
-    "pages/productindex/index",
     "pages/shop/index",
     "pages/shop/open",
     "pages/login/register",
@@ -16,7 +17,6 @@
     "pages/productindex/verify/scan",
     "pages/productindex/verify/success",
     "pages/productindex/newproduct/success",
-    "pages/productlist/index",
     "pages/orderlist/detail"
   ],
   "window": {

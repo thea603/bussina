@@ -10,7 +10,7 @@ Page({
     sortOrder: 'desc', // 排序方向，desc 为降序，asc 为升序
     isAllSelected: false, // 是否全选
     selectedProducts: [], // 已选择的商品ID数组
-    products: [], // 从API获取的商品数据
+    products: [], // 存储的商品数据
     filteredProducts: [], // 筛选后的商品
     displayProducts: [], // 当前显示的商品（分页后）
     pageSize: 10, // 每页显示的数据条数
@@ -30,33 +30,211 @@ Page({
       offShelf: 0,
       reviewing: 0
     },
-    isLoadingMore: false // 是否正在加载更多数据
+    isLoadingMore: false, // 是否正在加载更多数据
+    // 本地假数据
+    mockProducts: [
+      {
+        id: 1,
+        name: '时尚休闲连衣裙',
+        price: 129.99,
+        originalPrice: 199.99,
+        stock: 50,
+        sales: 120,
+        image: 'https://img.alicdn.com/imgextra/i2/2023937117/O1CN01OPwXCD1e2AKWgmCeB_!!2023937117.jpg',
+        status: 0, // 正常
+        createTime: '2023-01-15T08:30:00Z'
+      },
+      {
+        id: 2,
+        name: '纯棉T恤 夏季清凉',
+        price: 69.90,
+        originalPrice: 99.00,
+        stock: 5,
+        sales: 200,
+        image: 'https://img.alicdn.com/imgextra/i4/367651038/O1CN01WvpBxt1MkmWd3bBvq_!!367651038.jpg',
+        status: 1, // 库存紧张
+        createTime: '2023-02-10T15:45:00Z'
+      },
+      {
+        id: 3,
+        name: '运动休闲鞋',
+        price: 199.00,
+        originalPrice: 299.00,
+        stock: 0,
+        sales: 85,
+        image: 'https://img.alicdn.com/imgextra/i3/2213972051683/O1CN01VYzovC235wJq1wYUg_!!2213972051683.jpg',
+        status: 2, // 已售罄
+        createTime: '2023-02-25T10:20:00Z'
+      },
+      {
+        id: 4,
+        name: '智能手表',
+        price: 699.00,
+        originalPrice: 999.00,
+        stock: 25,
+        sales: 60,
+        image: 'https://img.alicdn.com/imgextra/i4/1714128138/O1CN01UzJJnR29zFlrKLXu7_!!1714128138.jpg',
+        status: 3, // 已下架
+        createTime: '2023-03-05T14:10:00Z'
+      },
+      {
+        id: 5,
+        name: '防晒霜 SPF50+',
+        price: 89.00,
+        originalPrice: 129.00,
+        stock: 120,
+        sales: 240,
+        image: 'https://img.alicdn.com/imgextra/i1/2208417957783/O1CN01OkZ7oU1kN1zWAHDfM_!!2208417957783.jpg',
+        status: 4, // 审核中
+        createTime: '2023-03-10T09:30:00Z'
+      },
+      {
+        id: 6,
+        name: '儿童益智玩具',
+        price: 159.00,
+        originalPrice: 239.00,
+        stock: 30,
+        sales: 45,
+        image: 'https://img.alicdn.com/imgextra/i2/2211448293302/O1CN01COk2Z11x0VhLOfJAe_!!2211448293302.jpg',
+        status: 0, // 正常
+        createTime: '2023-03-15T11:45:00Z'
+      },
+      {
+        id: 7,
+        name: '简约风台灯',
+        price: 129.00,
+        originalPrice: 169.00,
+        stock: 18,
+        sales: 30,
+        image: 'https://img.alicdn.com/imgextra/i1/2214127414780/O1CN01qNMCw11ZRrG9MKLH3_!!2214127414780.jpg',
+        status: 0, // 正常
+        createTime: '2023-03-20T16:20:00Z'
+      },
+      {
+        id: 8,
+        name: '便携式蓝牙音箱',
+        price: 249.00,
+        originalPrice: 399.00,
+        stock: 0,
+        sales: 75,
+        image: 'https://img.alicdn.com/imgextra/i3/2212097829095/O1CN01TN0Pn41fMx51Rchw8_!!2212097829095.jpg',
+        status: 2, // 已售罄
+        createTime: '2023-03-25T13:15:00Z'
+      },
+      {
+        id: 9,
+        name: '保温杯',
+        price: 89.00,
+        originalPrice: 119.00,
+        stock: 10,
+        sales: 120,
+        image: 'https://img.alicdn.com/imgextra/i2/2212358572050/O1CN01Mh72xA1jaakKbPYCm_!!2212358572050.jpg',
+        status: 1, // 库存紧张
+        createTime: '2023-04-01T10:00:00Z'
+      },
+      {
+        id: 10,
+        name: '无线充电器',
+        price: 129.00,
+        originalPrice: 169.00,
+        stock: 40,
+        sales: 95,
+        image: 'https://img.alicdn.com/imgextra/i4/2215251440509/O1CN01SvxpSG22KRTUBVAhg_!!2215251440509.jpg',
+        status: 0, // 正常
+        createTime: '2023-04-05T14:30:00Z'
+      },
+      {
+        id: 11,
+        name: '旅行箱',
+        price: 369.00,
+        originalPrice: 599.00,
+        stock: 15,
+        sales: 40,
+        image: 'https://img.alicdn.com/imgextra/i2/2214304862249/O1CN01j0Ue1s1lrOFFDgSzw_!!2214304862249.jpg',
+        status: 0, // 正常
+        createTime: '2023-04-10T09:45:00Z'
+      },
+      {
+        id: 12,
+        name: '厨房置物架',
+        price: 149.00,
+        originalPrice: 199.00,
+        stock: 0,
+        sales: 65,
+        image: 'https://img.alicdn.com/imgextra/i2/2212306953029/O1CN01H2YQqw1eF6FsEZ2TO_!!2212306953029.jpg',
+        status: 2, // 已售罄
+        createTime: '2023-04-15T15:50:00Z'
+      }
+    ]
   },
 
   onLoad: function (options) {
     // 获取状态栏高度
     const statusBarHeight = wx.getSystemInfoSync().statusBarHeight;
+    
+    // 使用本地假数据
+    const mockData = [...this.data.mockProducts];
+    
+    // 先根据当前标签页筛选商品
+    let displayProducts = [];
+    
+    // 出售中：状态为0(正常)或1(库存紧张)且库存>0
+    const onSaleProducts = mockData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
+    // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
+    const soldOutProducts = mockData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
+    // 已下架：状态为3(已下架)
+    const offShelfProducts = mockData.filter(item => item.status === 3);
+    // 审核中：状态为4(审核中)
+    const reviewingProducts = mockData.filter(item => item.status === 4);
+    
+    // 根据当前标签显示对应数据
+    if (this.data.activeTab === 0) {
+      displayProducts = onSaleProducts;
+    } else if (this.data.activeTab === 1) {
+      displayProducts = soldOutProducts;
+    } else if (this.data.activeTab === 2) {
+      displayProducts = offShelfProducts;
+    } else if (this.data.activeTab === 3) {
+      displayProducts = reviewingProducts;
+    }
+    
+    console.log('初始加载商品数量:', displayProducts.length);
+    
     this.setData({
       statusBarHeight,
       sortType: 0,  // 确保默认选中商品排序
-      isLoading: true,  // 设置加载状态为true
+      products: mockData,
+      filteredProducts: displayProducts,
+      displayProducts: displayProducts,
+      tabCounts: {
+        onSale: onSaleProducts.length,
+        soldOut: soldOutProducts.length,
+        offShelf: offShelfProducts.length,
+        reviewing: reviewingProducts.length
+      },
+      isLoading: false
     });
     
-    // 获取商品列表数据
-    this.fetchProductList();
+    console.log('页面加载，显示模拟数据，总计:', mockData.length);
+    console.log('出售中:', onSaleProducts.length);
+    console.log('已售罄:', soldOutProducts.length);
+    console.log('已下架:', offShelfProducts.length);
+    console.log('审核中:', reviewingProducts.length);
   },
 
   onShow: function() {
     console.log('页面显示，当前排序方式：', this.data.sortOrder === 'asc' ? '升序' : '降序');
     
+    // 只有当displayProducts为空时才重新加载数据
+    if (!this.data.displayProducts || this.data.displayProducts.length === 0) {
     // 设置加载状态为true
     this.setData({
-      isLoading: true,
-      displayProducts: [] // 清空当前显示的商品，确保显示加载中状态
+        isLoading: true
     });
     
     // 重新获取商品列表数据
     this.fetchProductList();
+    }
   },
   
   // 获取商品列表数据
@@ -87,126 +265,88 @@ Page({
       });
     }
     
-    // 构建请求参数
-    const params = {
-      sort: this.data.sortOrder, // 排序方向
-      page: this.data.currentPage,
-      limit: this.data.pageSize,
-      status: 1 // 默认传递状态为1
-    };
-    
-    // 根据当前标签页设置不同的状态参数
-    if (this.data.activeTab === 0) {
-      params.status = 1; // 出售中
-    } else if (this.data.activeTab === 1) {
-      params.status = 2; // 已售罄
-    } else if (this.data.activeTab === 2) {
-      params.status = 3; // 已下架
-    } else if (this.data.activeTab === 3) {
-      params.status = 4; // 审核中
-    }
-    
-    // 如果有搜索关键词，添加到参数中
+    // 模拟网络请求延迟
+    setTimeout(() => {
+      // 使用本地假数据替代API调用
+      const mockData = [...this.data.mockProducts];
+      
+      // 关键词搜索筛选
+      let filteredData = mockData;
     if (this.data.searchValue) {
-      params.keyword = this.data.searchValue;
-    }
-    
-    console.log('请求商品列表参数:', params);
-    
-    // 调用API获取商品列表
-    api.product.getProductList(params).then(res => {
-      if (res.code === 200 && res.data) {
-        // 处理返回的数据
-        const newProducts = res.data.map(item => {
-          // 根据库存设置商品状态
-          let status = 0; // 默认正常
-          if (item.stock === 0) {
-            status = 2; // 已售罄
-          } else if (item.stock <= 10) {
-            status = 1; // 库存紧张
-          }
-          
-          // 如果API返回的数据中有status字段，则使用API返回的状态
-          if (item.status !== undefined) {
-            status = item.status;
-          }
-          
-          // 返回处理后的商品数据
-          return {
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            originalPrice: item.originalPrice || item.price * 1.5, // 如果没有原价，则设置为售价的1.5倍
-            stock: item.stock || 0,
-            sales: item.sales || 0,
-            image: item.image || '/assets/images/product-placeholder.png', // 如果没有图片，则使用默认图片
-            status: status,
-            createTime: item.createTime || new Date().toISOString() // 如果没有创建时间，则使用当前时间
-          };
-        });
-        
-        // 判断是否还有更多数据
-        const hasMore = newProducts.length === this.data.pageSize;
-        
-        if (loadMore) {
-          // 如果是加载更多，则将新数据追加到现有数据后面
-          this.setData({
-            products: [...this.data.products, ...newProducts],
-            hasMoreData: hasMore,
-            isLoadingMore: false,
-            currentPage: this.data.currentPage + 1 // 页码加1，为下次加载做准备
-          });
-        } else {
-          // 如果是首次加载或刷新，则直接替换数据
-          this.setData({
-            products: newProducts,
-            hasMoreData: hasMore,
-            isLoading: false,
-            currentPage: 2 // 页码设为2，为下次加载做准备
-          });
-        }
-        
-        // 更新标签页数量
-        this.updateTabCounts();
-        
-        // 根据当前标签页筛选商品
-        this.filterProductsByTab(this.data.activeTab);
-        
-        // 如果是首次加载或刷新，则重新加载第一页数据
-        if (!loadMore) {
-    this.loadPageData(true);
-        } else {
-          // 如果是加载更多，则追加显示新数据
-          this.appendDisplayProducts(newProducts);
-        }
-      } else {
-        // 处理API请求失败的情况
-        wx.showToast({
-          title: res.message || '获取商品列表失败',
-          icon: 'none'
-        });
-        
-        // 设置加载状态为false
-        this.setData({
-          isLoading: false,
-          isLoadingMore: false
-        });
+        const keyword = this.data.searchValue.toLowerCase();
+        filteredData = mockData.filter(item => 
+          item.name.toLowerCase().includes(keyword)
+        );
       }
-    }).catch(err => {
-      console.error('获取商品列表失败:', err);
       
-      // 显示错误提示
-      wx.showToast({
-        title: '获取商品列表失败，请稍后再试',
-        icon: 'none'
+      // 排序处理
+      filteredData.sort((a, b) => {
+        const timeA = new Date(a.createTime).getTime();
+        const timeB = new Date(b.createTime).getTime();
+        
+        if (this.data.sortOrder === 'desc') {
+          return timeB - timeA; // 降序：从新到旧
+        } else {
+          return timeA - timeB; // 升序：从旧到新
+        }
       });
       
-      // 设置加载状态为false
-      this.setData({
-        isLoading: false,
-        isLoadingMore: false
+      // 根据当前标签页筛选商品
+      let tabFilteredData = [];
+      const tabIndex = this.data.activeTab;
+      
+      if (tabIndex === 0) {
+        // 出售中：状态为0(正常)或1(库存紧张)且库存>0
+        tabFilteredData = filteredData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
+      } else if (tabIndex === 1) {
+        // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
+        tabFilteredData = filteredData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
+      } else if (tabIndex === 2) {
+        // 已下架：状态为3(已下架)
+        tabFilteredData = filteredData.filter(item => item.status === 3);
+      } else if (tabIndex === 3) {
+        // 审核中：状态为4(审核中)
+        tabFilteredData = filteredData.filter(item => item.status === 4);
+      }
+      
+      // 模拟分页
+      const { currentPage, pageSize } = this.data;
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      
+      // 获取当前页的数据
+      const currentPageData = tabFilteredData.slice(startIndex, Math.min(endIndex, tabFilteredData.length));
+      
+      // 判断是否还有更多数据
+      const hasMore = endIndex < tabFilteredData.length;
+      
+      // 计算各个标签页的商品数量
+      const onSaleCount = filteredData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0).length;
+      const soldOutCount = filteredData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4)).length;
+      const offShelfCount = filteredData.filter(item => item.status === 3).length;
+      const reviewingCount = filteredData.filter(item => item.status === 4).length;
+      
+      // 直接设置所有数据，简化流程
+        this.setData({
+        products: filteredData,
+        filteredProducts: tabFilteredData,
+        displayProducts: loadMore ? [...this.data.displayProducts, ...currentPageData] : currentPageData,
+        hasMoreData: hasMore,
+          isLoading: false,
+        isLoadingMore: false,
+        currentPage: loadMore ? this.data.currentPage + 1 : 2,
+        tabCounts: {
+          onSale: onSaleCount,
+          soldOut: soldOutCount,
+          offShelf: offShelfCount,
+          reviewing: reviewingCount
+        }
       });
-    });
+      
+      console.log('数据加载完成，当前页数据：', currentPageData);
+      console.log('所有标签页计数：', {onSaleCount, soldOutCount, offShelfCount, reviewingCount});
+      console.log('当前显示商品数量：', loadMore ? this.data.displayProducts.length + currentPageData.length : currentPageData.length);
+    }, 1000); // 模拟1秒网络延迟
   },
   
   // 追加显示新数据
@@ -315,8 +455,58 @@ Page({
       displayProducts: [] // 清空当前显示的商品，确保显示加载中状态
       });
     
-    // 重新获取商品列表数据，搜索参数会在fetchProductList中添加
-    this.fetchProductList();
+    // 使用本地假数据进行搜索
+    const mockData = [...this.data.mockProducts];
+    
+    // 关键词搜索筛选
+    let filteredData = mockData;
+    if (value) {
+      const keyword = value.toLowerCase();
+      filteredData = mockData.filter(item => 
+        item.name.toLowerCase().includes(keyword)
+      );
+    }
+    
+    // 根据当前标签进一步筛选
+    let tabFilteredData = [];
+    const tabIndex = this.data.activeTab;
+    
+    if (tabIndex === 0) {
+      // 出售中：状态为0(正常)或1(库存紧张)且库存>0
+      tabFilteredData = filteredData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
+    } else if (tabIndex === 1) {
+      // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
+      tabFilteredData = filteredData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
+    } else if (tabIndex === 2) {
+      // 已下架：状态为3(已下架)
+      tabFilteredData = filteredData.filter(item => item.status === 3);
+    } else if (tabIndex === 3) {
+      // 审核中：状态为4(审核中)
+      tabFilteredData = filteredData.filter(item => item.status === 4);
+    }
+    
+    // 按照时间排序
+    tabFilteredData.sort((a, b) => {
+      const timeA = new Date(a.createTime).getTime();
+      const timeB = new Date(b.createTime).getTime();
+      
+      if (this.data.sortOrder === 'desc') {
+        return timeB - timeA; // 降序：从新到旧
+      } else {
+        return timeA - timeB; // 升序：从旧到新
+      }
+    });
+    
+    // 直接设置数据
+    setTimeout(() => {
+      this.setData({
+        filteredProducts: tabFilteredData,
+        displayProducts: tabFilteredData,
+        isLoading: false
+      });
+      
+      console.log('搜索完成，找到匹配商品:', tabFilteredData.length);
+    }, 500);
   },
 
   // 切换标签页
@@ -333,49 +523,49 @@ Page({
       displayProducts: [] // 清空当前显示的商品，确保显示加载中状态
     });
     
-    // 重新获取商品列表数据，根据标签页状态获取
-    this.fetchProductList();
+    console.log('切换到标签页:', index);
     
-    console.log('切换标签页，重置排序类型:', newSortType);
-  },
-
-  // 根据标签筛选商品
-  filterProductsByTab: function(tabIndex) {
-    // 获取所有商品
-    const allProducts = this.data.products;
+    // 使用本地假数据
+    const mockData = [...this.data.mockProducts];
     
-    // 根据标签筛选
+    // 进行数据筛选
     let filteredProducts = [];
-    if (tabIndex === 0) {
+    if (index === 0) {
       // 出售中：状态为0(正常)或1(库存紧张)且库存>0
-      filteredProducts = allProducts.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
-    } else if (tabIndex === 1) {
+      filteredProducts = mockData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
+    } else if (index === 1) {
       // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
-      filteredProducts = allProducts.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
-    } else if (tabIndex === 2) {
+      filteredProducts = mockData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
+    } else if (index === 2) {
       // 已下架：状态为3(已下架)
-      filteredProducts = allProducts.filter(item => item.status === 3);
-    } else if (tabIndex === 3) {
+      filteredProducts = mockData.filter(item => item.status === 3);
+    } else if (index === 3) {
       // 审核中：状态为4(审核中)
-      filteredProducts = allProducts.filter(item => item.status === 4);
+      filteredProducts = mockData.filter(item => item.status === 4);
     }
     
-    // 确保 filteredProducts 不为 null 或 undefined
-    filteredProducts = filteredProducts || [];
-    
-    // 更新标签页显示的数量
-    this.updateTabCounts();
-    
-    this.setData({
-      filteredProducts: filteredProducts,
-      isLoading: true // 设置为加载状态，确保在切换标签页时显示加载中
+    // 按照时间排序
+    filteredProducts.sort((a, b) => {
+      const timeA = new Date(a.createTime).getTime();
+      const timeB = new Date(b.createTime).getTime();
+      
+      if (this.data.sortOrder === 'desc') {
+        return timeB - timeA; // 降序：从新到旧
+      } else {
+        return timeA - timeB; // 升序：从旧到新
+      }
     });
     
-    // 筛选后进行排序
-    this.sortProducts();
-    
-    // 重新计算商品列表位置，确保布局正确
-    this.calculateListPosition();
+    // 直接设置数据
+    setTimeout(() => {
+    this.setData({
+      filteredProducts: filteredProducts,
+        displayProducts: filteredProducts,
+        isLoading: false
+      });
+      
+      console.log('标签页切换完成，显示数据数量:', filteredProducts.length);
+    }, 500);
   },
 
   // 切换排序方式
@@ -389,13 +579,33 @@ Page({
       sortOrder: newSortOrder,
       isLoading: true,
       displayProducts: [] // 清空当前显示的商品，确保显示加载中状态
-    }, () => {
-      // 在回调函数中执行排序，确保状态已更新
-      console.log('排序方式已切换为：', this.data.sortOrder === 'asc' ? '升序' : '降序');
-      
-      // 重新获取商品列表
-      this.fetchProductList();
     });
+    
+    // 直接对当前已筛选的数据进行排序
+    let sortedProducts = [...this.data.filteredProducts];
+    
+    // 按照时间排序
+    sortedProducts.sort((a, b) => {
+      const timeA = new Date(a.createTime).getTime();
+      const timeB = new Date(b.createTime).getTime();
+      
+      if (newSortOrder === 'desc') {
+        return timeB - timeA; // 降序：从新到旧
+      } else {
+        return timeA - timeB; // 升序：从旧到新
+      }
+    });
+    
+    // 模拟网络请求延迟
+    setTimeout(() => {
+      this.setData({
+        filteredProducts: sortedProducts,
+        displayProducts: sortedProducts,
+        isLoading: false
+      });
+      
+      console.log('排序完成，排序方式：', newSortOrder, '商品数量：', sortedProducts.length);
+    }, 500);
   },
 
   // 计算商品列表位置
@@ -497,6 +707,8 @@ Page({
       return;
     }
     
+    console.log('准备下架商品数量:', this.data.selectedProducts.length);
+    
     // 显示确认弹窗
     wx.showModal({
       title: '确认下架',
@@ -511,38 +723,41 @@ Page({
             title: '处理中...',
           });
           
-          // 调用批量下架API
-          api.product.batchOfflineProduct(this.data.selectedProducts).then(res => {
-            if (res.code === 200) {
-              // 下架成功，重新获取商品列表
-              this.fetchProductList();
-              
-              // 切换回商品排序模式
+          // 模拟网络请求延迟
+          setTimeout(() => {
+            // 更新本地数据
+            const mockProducts = [...this.data.mockProducts];
+            
+            // 获取选中商品ID（字符串格式）
+            const selectedIds = this.data.selectedProducts;
+            
+            // 将选中的商品状态改为已下架
+            selectedIds.forEach(id => {
+              // 找到匹配的商品进行修改（需要转换为相同类型进行比较）
+              const index = mockProducts.findIndex(p => String(p.id) === id);
+              if (index !== -1) {
+                mockProducts[index].status = 3; // 已下架状态
+              }
+            });
+            
+            // 更新本地数据
           this.setData({
+              mockProducts: mockProducts,
                 sortType: 0,
             isAllSelected: false,
             selectedProducts: []
           });
+            
+            // 重新获取商品列表
+            this.fetchProductList();
           
           wx.showToast({
             title: '下架成功',
             icon: 'success'
               });
-            } else {
-              wx.showToast({
-                title: res.message || '下架失败',
-                icon: 'none'
-              });
-            }
-          }).catch(err => {
-            console.error('批量下架商品失败:', err);
-            wx.showToast({
-              title: '下架失败，请稍后再试',
-              icon: 'none'
-            });
-          }).finally(() => {
+            
             wx.hideLoading();
-          });
+          }, 1000); // 模拟1秒网络延迟
         }
       }
     });
@@ -572,9 +787,16 @@ Page({
   editProduct: function(e) {
     const productId = e.currentTarget.dataset.id;
     console.log('编辑商品:', productId);
-    wx.navigateTo({
-      url: '/pages/productindex/newproduct/index?id=' + productId + '&type=edit&pageTitle=编辑商品'
+    // 显示成功提示
+    wx.showToast({
+      title: '编辑功能模拟',
+      icon: 'success'
     });
+    
+    // 暂时注释掉真实导航，避免页面不存在导致错误
+    // wx.navigateTo({
+    //   url: '/pages/productindex/newproduct/index?id=' + productId + '&type=edit&pageTitle=编辑商品'
+    // });
   },
 
   // 改变商品状态
@@ -610,15 +832,25 @@ Page({
       title: '处理中...',
     });
     
-    // 根据操作类型调用不同的API
-    const apiCall = action === 'upload' ? 
-      api.product.onlineProduct(productId) : 
-      api.product.offlineProduct(productId);
-    
-    apiCall.then(res => {
-      if (res.code === 200) {
-        // 操作成功，关闭弹窗
+    // 模拟网络请求延迟
+    setTimeout(() => {
+      // 更新本地数据
+      const mockProducts = [...this.data.mockProducts];
+      const productIndex = mockProducts.findIndex(p => p.id === productId);
+      
+      if (productIndex !== -1) {
+        // 根据操作类型更新商品状态
+        if (action === 'upload') {
+          // 上架商品
+          mockProducts[productIndex].status = 0; // 正常状态
+        } else {
+          // 下架商品
+          mockProducts[productIndex].status = 3; // 已下架状态
+        }
+        
+        // 更新本地数据
     this.setData({
+          mockProducts: mockProducts,
       showConfirmModal: false,
       currentProductId: null,
       currentAction: null
@@ -634,19 +866,13 @@ Page({
         });
       } else {
         wx.showToast({
-          title: res.message || '操作失败',
+          title: '操作失败，未找到商品',
           icon: 'none'
         });
       }
-    }).catch(err => {
-      console.error('改变商品状态失败:', err);
-      wx.showToast({
-        title: '操作失败，请稍后再试',
-        icon: 'none'
-      });
-    }).finally(() => {
+      
       wx.hideLoading();
-    });
+    }, 1000); // 模拟1秒网络延迟
   },
 
   // 取消下架商品
@@ -660,9 +886,18 @@ Page({
 
   // 新增商品
   addNewProduct: function() {
-    wx.navigateTo({
-      url: '/pages/productindex/newproduct/index'
+    console.log('新增商品');
+    
+    // 显示成功提示而不是导航
+    wx.showToast({
+      title: '新增商品功能模拟',
+      icon: 'success'
     });
+    
+    // 暂时注释掉导航到可能不存在的页面
+    // wx.navigateTo({
+    //   url: '/pages/productindex/newproduct/index'
+    // });
   },
 
   // 修改库存
@@ -702,18 +937,81 @@ Page({
       title: '处理中...',
     });
     
-    // 调用修改库存API
-    api.product.updateStock(productId, newStock).then(res => {
-      if (res.code === 200) {
-        // 修改成功，关闭弹窗
+    // 模拟网络请求延迟
+    setTimeout(() => {
+      // 更新本地数据
+      const mockProducts = [...this.data.mockProducts];
+      const productIndex = mockProducts.findIndex(p => p.id === productId);
+      
+      if (productIndex !== -1) {
+        // 更新库存
+        mockProducts[productIndex].stock = newStock;
+        
+        // 根据库存更新商品状态
+        if (newStock === 0) {
+          mockProducts[productIndex].status = 2; // 已售罄
+        } else if (newStock <= 10) {
+          mockProducts[productIndex].status = 1; // 库存紧张
+        } else {
+          mockProducts[productIndex].status = 0; // 正常状态
+        }
+        
+        // 更新本地数据
     this.setData({
+          mockProducts: mockProducts,
       showStockModal: false,
       currentProductId: null,
       stockValue: ''
     });
     
-        // 重新获取商品列表
-        this.fetchProductList();
+        // 重新筛选当前标签页数据
+        let tabFilteredData = [];
+        const tabIndex = this.data.activeTab;
+        
+        if (tabIndex === 0) {
+          // 出售中：状态为0(正常)或1(库存紧张)且库存>0
+          tabFilteredData = mockProducts.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
+        } else if (tabIndex === 1) {
+          // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
+          tabFilteredData = mockProducts.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
+        } else if (tabIndex === 2) {
+          // 已下架：状态为3(已下架)
+          tabFilteredData = mockProducts.filter(item => item.status === 3);
+        } else if (tabIndex === 3) {
+          // 审核中：状态为4(审核中)
+          tabFilteredData = mockProducts.filter(item => item.status === 4);
+        }
+        
+        // 按照时间排序
+        tabFilteredData.sort((a, b) => {
+          const timeA = new Date(a.createTime).getTime();
+          const timeB = new Date(b.createTime).getTime();
+          
+          if (this.data.sortOrder === 'desc') {
+            return timeB - timeA; // 降序：从新到旧
+          } else {
+            return timeA - timeB; // 升序：从旧到新
+          }
+        });
+        
+        // 重新计算所有标签页数量
+        const onSaleCount = mockProducts.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0).length;
+        const soldOutCount = mockProducts.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4)).length;
+        const offShelfCount = mockProducts.filter(item => item.status === 3).length;
+        const reviewingCount = mockProducts.filter(item => item.status === 4).length;
+        
+        // 更新显示数据
+        this.setData({
+          products: mockProducts,
+          filteredProducts: tabFilteredData,
+          displayProducts: tabFilteredData,
+          tabCounts: {
+            onSale: onSaleCount,
+            soldOut: soldOutCount,
+            offShelf: offShelfCount,
+            reviewing: reviewingCount
+          }
+        });
     
     // 显示成功提示
     wx.showToast({
@@ -722,19 +1020,13 @@ Page({
         });
       } else {
         wx.showToast({
-          title: res.message || '修改库存失败',
+          title: '修改库存失败，未找到商品',
           icon: 'none'
         });
       }
-    }).catch(err => {
-      console.error('修改库存失败:', err);
-      wx.showToast({
-        title: '修改库存失败，请稍后再试',
-        icon: 'none'
-      });
-    }).finally(() => {
+      
       wx.hideLoading();
-    });
+    }, 1000); // 模拟1秒网络延迟
   },
   
   // 取消修改库存
@@ -769,52 +1061,69 @@ Page({
 
   // 切换全选状态
   toggleSelectAll: function() {
+    // 直接反转当前全选状态
     const isAllSelected = !this.data.isAllSelected;
+    console.log('切换全选状态:', isAllSelected);
     
-    let selectedProducts = [];
-    if (isAllSelected) {
-      // 如果是全选，则将所有可见商品的ID添加到已选择数组中
-      selectedProducts = (this.data.filteredProducts || this.data.products)
-        .filter(item => item.status !== 3 && item.status !== 4) // 排除已下架和审核中的商品
-        .map(item => item.id);
-    }
+    // 当前可见商品ID数组，统一转换为字符串类型
+    const visibleProducts = this.data.filteredProducts
+      .filter(item => item.status !== 3 && item.status !== 4)
+        .map(item => {
+          console.log('全选中的商品ID类型:', item.id, typeof item.id);
+          return String(item.id);
+        });
     
+    // 如果是全选，则使用所有可见商品的ID；否则清空
+    const selectedProducts = isAllSelected ? visibleProducts : [];
+    
+    // 更新状态
     this.setData({
       isAllSelected: isAllSelected,
       selectedProducts: selectedProducts
     });
     
-    console.log('全选状态切换为:', isAllSelected, '已选择商品:', selectedProducts);
+    console.log('全选状态变更为:', isAllSelected, '选中商品数:', selectedProducts.length);
+    if(selectedProducts.length > 0) {
+      console.log('全选后的第一个ID类型:', typeof selectedProducts[0]);
+    }
   },
   
   // 切换单个商品的选择状态
   toggleSelectProduct: function(e) {
-    const productId = e.currentTarget.dataset.id;
-    const selectedProducts = [...this.data.selectedProducts];
+    // 从dataset中获取商品ID，确保转换为字符串类型
+    const productId = String(e.currentTarget.dataset.id);
+    console.log('切换商品选择状态:', productId, typeof productId);
     
-    // 检查商品是否已经被选中
+    let selectedProducts = [...this.data.selectedProducts];
+    
+    // 检查商品是否已被选中
     const index = selectedProducts.indexOf(productId);
     
     if (index === -1) {
-      // 如果未选中，则添加到已选择数组
+      // 如果未选中，添加到已选择数组
       selectedProducts.push(productId);
     } else {
-      // 如果已选中，则从已选择数组中移除
+      // 如果已选中，从已选择数组中移除
       selectedProducts.splice(index, 1);
     }
     
-    // 检查是否所有可见商品都被选中
-    const visibleProducts = (this.data.filteredProducts || this.data.products)
-      .filter(item => item.status !== 3 && item.status !== 4); // 排除已下架和审核中的商品
+    // 当前可见商品
+    const visibleProducts = this.data.filteredProducts
+      .filter(item => item.status !== 3 && item.status !== 4)
+      .map(item => String(item.id));
     
+    // 检查是否全选 - 所有可见商品都被选中
     const isAllSelected = visibleProducts.length > 0 && 
-      visibleProducts.every(item => selectedProducts.includes(item.id));
+      visibleProducts.every(id => selectedProducts.indexOf(id) !== -1);
     
+    console.log(selectedProducts,'selectedProducts',productId,'productId');
+    console.log('selectedProducts中的第一个ID类型:', typeof selectedProducts[0]);
+    console.log('ID是否在选中列表中:', selectedProducts.indexOf(productId) !== -1);
+
+    // 更新状态
     this.setData({
       selectedProducts: selectedProducts,
       isAllSelected: isAllSelected
     });
-    
-    console.log('商品选择状态切换:', productId, '已选择商品:', selectedProducts);
   },
 }); 

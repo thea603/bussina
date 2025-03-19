@@ -215,7 +215,18 @@
 .select-all-checkbox {
   display: flex;
   align-items: center;
-  padding: 10rpx 0; /* 增加点击区域 */
+  padding: 10rpx 0;
+  position: relative; /* 添加相对定位 */
+}
+
+.select-all-checkbox::after {
+  content: '';
+  position: absolute;
+  top: -10rpx;
+  left: -10rpx;
+  right: -20rpx;
+  bottom: -10rpx;
+  z-index: 1; /* 确保在复选框下方 */
 }
 
 .select-all-checkbox text {
@@ -236,30 +247,49 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20rpx;
-  min-width: 40rpx; /* 确保勾选框有足够的宽度 */
-  padding: 10rpx; /* 增加点击区域 */
+  margin-right: 10rpx;
+  width: 50rpx;
+  flex-shrink: 0;
+  z-index: 5; /* 提高层级，确保可点击 */
+  position: relative; /* 添加相对定位 */
+}
+
+/* 增强点击区域 */
+.product-checkbox::after {
+  content: '';
+  position: absolute;
+  top: -10rpx;
+  left: -10rpx;
+  right: -10rpx;
+  bottom: -10rpx;
+  z-index: 1; /* 确保在复选框下方 */
 }
 
 /* 自定义checkbox样式 */
 checkbox .wx-checkbox-input {
-  width: 40rpx; /* 设置checkbox的大小 */
+  width: 40rpx;
   height: 40rpx;
-  border-radius: 50%; /* 设置圆形 */
-  border: 2rpx solid #DDDDDD; /* 默认边框颜色 */
-  background-color: #FFFFFF; /* 默认背景色 */
+  border-radius: 50%;
+  border: 2rpx solid #DDDDDD;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2; /* 确保在点击区域上方 */
 }
 
 checkbox .wx-checkbox-input.wx-checkbox-input-checked {
-  background: #FF6600; /* 选中后的背景色 */
-  border-color: #FF6600; /* 选中后的边框色 */
+  background: #FF6600;
+  border-color: #FF6600;
+  color: #fff;
 }
 
 checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
-  font-size: 30rpx; /* 对勾大小 */
-  color: #FFFFFF; /* 对勾颜色 */
-  line-height: 40rpx; /* 确保对勾垂直居中 */
-  text-align: center; /* 确保对勾水平居中 */
+  font-size: 30rpx;
+  color: #FFFFFF;
+  line-height: 40rpx;
+  text-align: center;
+  font-weight: bold;
 }
 
 .product-item {
@@ -269,23 +299,28 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
   padding: 20rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-  width: 100%; /* 使用100%宽度 */
-  box-sizing: border-box; /* 确保padding不会增加元素的总宽度 */
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap; /* 防止项目换行 */
 }
 
 .product-image-container {
   width: 160rpx;
   height: 160rpx;
+  min-width: 160rpx; /* 添加最小宽度 */
+  max-width: 160rpx; /* 添加最大宽度 */
   margin-right: 20rpx;
   background-color: #EEEEEE;
   border-radius: 8rpx;
   overflow: hidden;
-  position: relative; /* 为审核中标识添加定位 */
+  position: relative;
+  flex-shrink: 0;
 }
 
 .product-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 /* 审核中标识 */
@@ -309,7 +344,14 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - 180rpx); /* 减去图片宽度和右边距 */
+  min-width: 0; /* 允许收缩到零 */
+  overflow: hidden;
+  /* 无需设置固定的最大宽度，让它灵活适应 */
+}
+
+/* 批量下架模式下，product-info的最大宽度需要减去复选框的宽度 */
+.product-item:has(.product-checkbox) .product-info {
+  max-width: calc(100% - 240rpx); /* 减去图片宽度、复选框宽度和右边距 */
 }
 
 .product-name {
@@ -320,7 +362,7 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
   white-space: nowrap;        /* 防止文本换行 */
   overflow: hidden;           /* 隐藏超出部分 */
   text-overflow: ellipsis;    /* 显示省略号 */
-  max-width: 450rpx;          /* 设置最大宽度，根据实际需要调整 */
+  width: 100%;                /* 使用100%宽度 */
 }
 
 /* 商品价格 */
@@ -354,6 +396,7 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
   font-weight: 500;
 }
 
+/* 价格标签样式，使其可以压缩 */
 .price-tag {
   font-size: 20rpx;
   color: #FFFFFF;
@@ -362,6 +405,9 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
   border-radius: 4rpx;
   margin-left: 10rpx;
   white-space: nowrap; /* 防止文本换行 */
+  max-width: 120rpx;  /* 最大宽度 */
+  overflow: hidden;   /* 超出隐藏 */
+  text-overflow: ellipsis; /* 省略号 */
 }
 
 .original-price {
