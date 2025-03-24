@@ -4,10 +4,18 @@ Page({
     latestGoods: [],
     loading: false,
     page: 1,
-    hasMore: true
+    hasMore: true,
+    shopName: '' // 添加店铺名称数据
   },
 
   onLoad: function(options) {
+    // 从本地存储获取店铺信息
+    const shopInfo = wx.getStorageSync('shopInfo');
+    if (shopInfo && shopInfo.name) {
+      this.setData({
+        shopName: shopInfo.name
+      });
+    }
     // 获取状态栏高度
     const systemInfo = wx.getSystemInfoSync();
     this.setData({
@@ -23,43 +31,37 @@ Page({
     
     this.setData({ loading: true });
     
-    // 引入API模块
     const api = require('../../utils/api');
-    
-    // 获取店铺ID
     const shopId = wx.getStorageSync('shopId');
     
-    // 构建请求参数
     const params = {
       page: this.data.page,
       pageSize: 20
     };
     
-    // 如果有店铺ID，添加到请求参数中
     if (shopId) {
       params.shopId = shopId;
     }
     
     console.log('请求商品列表参数:', params);
     
-    // 调用product.getProductList方法获取商品列表
     api.product.getProductList(params)
       .then(res => {
-        if (res.code === 200) {
-          const newGoods = res.data || [];
+        if (res.code === 200 && res.data && res.data.items) {
+          const newGoods = res.data.items;
           
-          // 如果返回的数据为空，表示没有更多数据了
-          if (newGoods.length === 0) {
+          // 如果返回的数据为空，或者已经是最后一页
+          if (newGoods.length === 0 || this.data.page >= res.data.pagination.totalPages) {
             this.setData({
               hasMore: false
             });
-          } else {
-            // 将新数据追加到现有数据中
-            this.setData({
-              latestGoods: this.data.page === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
-              page: this.data.page + 1
-            });
           }
+          
+          // 将新数据追加到现有数据中
+          this.setData({
+            latestGoods: this.data.page === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
+            page: this.data.page + 1
+          });
         } else {
           wx.showToast({
             title: '获取商品列表失败',

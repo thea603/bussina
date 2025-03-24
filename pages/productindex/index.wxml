@@ -3,7 +3,7 @@
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="height: {{statusBarHeight + 44}}px;">
     <view class="nav-content" style="padding-top: {{statusBarHeight}}px;">
-      <view class="nav-title">物流 · 科汇园店</view>
+      <view class="nav-title">{{shopName}}</view>
       <view class="nav-buttons">
         <image class="nav-button" src="/images/icon_more.png" mode="aspectFit" bindtap="showMoreOptions"></image>
         <image class="nav-button" src="/images/icon_scan.png" mode="aspectFit" bindtap="scanCode"></image>
@@ -59,7 +59,7 @@
       <view class="goods-list-header">
         <view class="goods-header-item goods-name-header">商品</view>
         <view class="goods-header-item goods-stock-header">库存</view>
-        <view class="goods-header-item goods-price-header">实付金</view>
+        <view class="goods-header-item goods-price-header">奖励金</view>
       </view>
     </view>
   </view>
@@ -78,14 +78,18 @@
         <block wx:for="{{latestGoods}}" wx:key="id">
           <view class="goods-item">
             <view class="goods-info">
-              <image class="goods-image" src="{{item.image}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
+              <!-- 如果没有图片，显示灰色占位框 -->
+              <view wx:if="{{!item.images || item.images.length === 0}}" class="goods-image-placeholder">
+                <text>暂无图片</text>
+              </view>
+              <image wx:else class="goods-image" src="{{item.images[0]}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
               <view class="goods-detail">
                 <view class="goods-name">{{item.name}}</view>
-                <view class="goods-price-small">{{item.priceDesc}}</view>
+                <view class="goods-price-small">¥{{item.sellingPrice}}</view>
               </view>
             </view>
-            <view class="goods-stock">{{item.stock}}</view>
-            <view class="goods-price">¥{{item.price}}</view>
+            <view class="goods-stock-cell">{{item.stock}}</view>
+            <view class="goods-price-cell">¥{{item.rewardAmount}}</view>
           </view>
         </block>
       </block>

@@ -175,49 +175,106 @@ Page({
   /**
    * 下一步
    */
-  nextStep: function () {
-    // 表单验证
-    if (this.data.currentStep === 0) {
-      if (!this.validateLegalInfo()) {
-        return;
-      }
-      
-      // 进入下一步
-      this.setData({
-        currentStep: 1
-      });
-      
-      // 滚动页面到顶部
-      wx.pageScrollTo({
-        scrollTop: 0,
-        duration: 300
-      });
-    } else if (this.data.currentStep === 1) {
-      if (!this.validateShopInfo()) {
-        return;
-      }
-      
-      // 进入下一步
-      this.setData({
-        currentStep: 2
-      });
-      
-      // 滚动页面到顶部
-      wx.pageScrollTo({
-        scrollTop: 0,
-        duration: 300
-      });
-    } else if (this.data.currentStep === 2) {
+  nextStep: function() {
+    // 当前是最后一步，提交表单
+    if (this.data.currentStep === 2) {
+      // 验证资质信息
       if (!this.validateQualificationInfo()) {
         return;
       }
       
-      // 提交表单
-      this.submitForm();
+      // 显示加载状态
+      wx.showLoading({
+        title: '提交中...',
+        mask: true
+      });
+      
+      // 创建提交用的数据对象，排除region和logo字段
+      const submitData = {
+        legalName: this.data.form.legalName,
+        idCardNo: this.data.form.idCardNo,
+        idCardFront: this.data.form.idCardFront,
+        idCardBack: this.data.form.idCardBack,
+        wechatQrcode: this.data.form.wechatQrcode,
+        name: this.data.form.name,
+        description: this.data.form.description,
+        contactName: this.data.form.contactName,
+        contactPhone: this.data.form.contactPhone,
+        address: this.data.form.address,
+        addressDetail: this.data.form.addressDetail,
+        storefront: this.data.form.storefront,
+        businessLicense: this.data.form.businessLicense,
+        businessPermit: this.data.form.businessPermit
+      };
+      
+      // 调用提交店铺信息的API，使用筛选后的数据
+      api.shop.submitShopInfo(submitData)
+        .then(res => {
+          wx.hideLoading();
+          
+          // 如果返回成功(code为200)
+          if (res.code === 200) {
+            console.log('店铺审核提交成功:', res);
+            
+            // 保存店铺ID(如果有)
+            if (res.data && res.data.shopId) {
+              wx.setStorageSync('shopId', res.data.shopId);
+            }
+            
+            // 显示成功提示并跳转到首页
+            wx.showToast({
+              title: '提交成功',
+              icon: 'success',
+              duration: 1500,
+              mask: true,
+              complete: () => {
+                // 成功后直接跳转到首页(productindex/index)
+                setTimeout(() => {
+                  wx.switchTab({
+                    url: '/pages/productindex/index'
+                  });
+                }, 1500);
+              }
+            });
+          } else {
+            // 显示错误提示
+            wx.showToast({
+              title: res.message || '提交失败',
+              icon: 'none',
+              duration: 2000
+            });
+          }
+        })
+        .catch(err => {
+          wx.hideLoading();
+          console.error('提交店铺信息失败:', err);
+          
+          // 显示错误提示
+          wx.showToast({
+            title: err.message || '网络错误，请重试',
+            icon: 'none',
+            duration: 2000
+          });
+        });
+    } else {
+      // 不是最后一步，验证当前步骤并前进
+      // 根据当前步骤使用对应的验证方法
+      let isValid = false;
+      
+      if (this.data.currentStep === 0) {
+        isValid = this.validateLegalInfo();
+      } else if (this.data.currentStep === 1) {
+        isValid = this.validateShopInfo();
+      }
+      
+      if (isValid) {
+        this.setData({
+          currentStep: this.data.currentStep + 1
+        });
+        // 设置导航栏标题
+        this.setNavigationBarTitle();
+      }
     }
-    
-    // 设置导航栏标题
-    this.setNavigationBarTitle();
   },
 
   /**
@@ -325,87 +382,6 @@ Page({
     }
     
     return true;
-  },
-
-  /**
-   * 提交表单
-   */
-  submitForm: function () {
-    // 验证所有表单
-    if (!this.validateLegalInfo()) {
-      this.setData({ currentStep: 0 });
-      return;
-    }
-    
-    if (!this.validateShopInfo()) {
-      this.setData({ currentStep: 1 });
-      return;
-    }
-    
-    if (!this.validateQualificationInfo()) {
-      this.setData({ currentStep: 2 });
-      return;
-    }
-    
-    // 显示加载提示
-    wx.showLoading({
-      title: '提交中...',
-      mask: true
-    });
-    
-    // 准备提交的数据
-    const shopData = {
-      // 法人信息
-      legalName: this.data.form.legalName,
-      idCardNo: this.data.form.idCardNo,
-      idCardFront: this.data.form.idCardFront,
-      idCardBack: this.data.form.idCardBack,
-      wechatQrcode: this.data.form.wechatQrcode,
-      
-      // 店铺信息
-      name: this.data.form.name,
-      description: this.data.form.description || '', // 如果描述为空，使用空字符串
-      logo: this.data.form.logo || this.data.form.storefront || '', // 如果没有logo和店铺照片，使用空字符串
-      contactName: this.data.form.contactName,
-      contactPhone: this.data.form.contactPhone,
-      address: this.data.form.address, // 省市区
-      addressDetail: this.data.form.addressDetail, // 详细地址
-      storefront: this.data.form.storefront,
-      
-      // 资质信息
-      businessLicense: this.data.form.businessLicense,
-      businessPermit: this.data.form.businessPermit
-    };
-    
-    console.log('提交店铺数据:', shopData);
-    
-    // 调用API提交店铺申请
-    api.shop.submitShopInfo(shopData).then(res => {
-      wx.hideLoading();
-      
-      if (res && res.code === 0) {
-        // 提交成功
-        wx.showToast({
-          title: '提交成功',
-          icon: 'success',
-          duration: 2000
-        });
-        
-        // 延迟跳转到店铺页面
-        setTimeout(() => {
-          wx.redirectTo({
-            url: '/pages/shop/index'
-          });
-        }, 1500);
-      } else {
-        // 提交失败
-        util.showError(res.message || '提交失败，请重试');
-      }
-    }).catch(err => {
-      wx.hideLoading();
-      console.error('提交店铺申请失败:', err);
-      util.showError(err.message || '提交失败，请重试');
-    });
   },
 
   /**

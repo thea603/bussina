@@ -286,10 +286,14 @@ Page({
         api.user.checkShop().then(shopRes => {
           util.hideLoading();
           
-          // 保存店铺ID
+          // 保存店铺ID和店铺信息
           if (shopRes.data && shopRes.data.shopId) {
             wx.setStorageSync('shopId', shopRes.data.shopId);
-            console.log('已保存店铺ID:', shopRes.data.shopId);
+            // 新增：保存完整的店铺信息
+            if (shopRes.data.shop) {
+              wx.setStorageSync('shopInfo', shopRes.data.shop);
+              console.log('已保存店铺信息:', shopRes.data.shop);
+            }
           }
           
           // 根据返回结果决定跳转路径
