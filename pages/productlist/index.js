@@ -50,13 +50,24 @@ Page({
 
   onShow: function() {
     // 同样不预先设置isLoading
-    if (!this.data.displayProducts || this.data.displayProducts.length === 0) {
-    this.fetchProductList();
-    }
+    // if (!this.data.displayProducts || this.data.displayProducts.length === 0) {
+    // this.fetchProductList();
+    // }
   },
   
   // 获取商品列表数据
   fetchProductList: function(loadMore = false) {
+    // 获取店铺ID
+    const shopId = wx.getStorageSync('shopId');
+    if (!shopId) {
+      console.error('未找到店铺ID');
+      wx.showToast({
+        title: '获取店铺信息失败',
+        icon: 'none'
+      });
+      return;
+    }
+    
     // 如果是加载更多，则不重置页码
     if (!loadMore) {
       this.setData({
@@ -68,9 +79,9 @@ Page({
     }
     
     // 如果正在加载中，则不重复请求
-    if ((this.data.isLoading && !loadMore) || (this.data.isLoadingMore && loadMore)) {
-      return;
-    }
+    // if ((this.data.isLoading && !loadMore) || (this.data.isLoadingMore && loadMore)) {
+    //   return;
+    // }
     
     // 设置加载状态
     if (loadMore) {
@@ -89,54 +100,68 @@ Page({
       limit: this.data.pageSize,
       status: this.getStatusByTab(this.data.activeTab),
       keyword: this.data.searchValue || '',
-      sort: this.data.sortOrder === 'desc' ? 'desc' : 'asc'
+      sort: this.data.sortOrder === 'desc' ? 'desc' : 'asc',
+      shopId: shopId
     };
+    
+    console.log('请求参数:', params);
     
     // 使用api.product.getProductList方法发送请求
     api.product.getProductList(params)
       .then(res => {
         console.log('获取商品列表响应:', res);
         
-        // 请求成功，处理返回数据
-        const apiData = res.data || [];
-        const total = res.total || 0;
-        
-        // 判断是否还有更多数据
-        const hasMore = (this.data.currentPage * this.data.pageSize) < total;
-        
-        // 处理数据
-        let newProducts = [];
-        if (loadMore) {
-          // 加载更多，追加数据
-          newProducts = [...this.data.displayProducts, ...apiData];
+        if (res.code === 200 && res.data && res.data.items) {
+          // 从 res.data.items 获取商品列表数据
+          const apiData = res.data.items;
+          // 从 res.data.pagination 获取分页信息
+          const pagination = res.data.pagination;
+          
+          // 判断是否还有更多数据
+          const hasMore = this.data.currentPage < pagination.totalPages;
+          
+          // 处理数据
+          let newProducts = [];
+          if (loadMore) {
+            // 加载更多，追加数据
+            newProducts = [...this.data.displayProducts, ...apiData];
+          } else {
+            // 首次加载，直接使用API数据
+            newProducts = apiData;
+          }
+          
+          // 计算各个标签页的商品数量
+          const onSaleCount = apiData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0).length;
+          const soldOutCount = apiData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4)).length;
+          const offShelfCount = apiData.filter(item => item.status === 3).length;
+          const reviewingCount = apiData.filter(item => item.status === 4).length;
+          
+          // 更新数据
+          this.setData({
+            products: apiData,
+            filteredProducts: apiData,
+            displayProducts: newProducts,
+            hasMoreData: hasMore,
+            isLoading: false,
+            isLoadingMore: false,
+            currentPage: loadMore ? this.data.currentPage + 1 : 2,
+            tabCounts: {
+              onSale: onSaleCount,
+              soldOut: soldOutCount,
+              offShelf: offShelfCount,
+              reviewing: reviewingCount
+            }
+          });
+          
+          console.log('数据加载完成，当前页数据:', apiData.length);
+          console.log('所有标签页计数:', {onSaleCount, soldOutCount, offShelfCount, reviewingCount});
+          console.log('当前显示商品数量:', newProducts.length);
         } else {
-          // 首次加载，直接使用API数据
-          newProducts = apiData;
+          wx.showToast({
+            title: '获取商品列表失败',
+            icon: 'none'
+          });
         }
-      
-      // 计算各个标签页的商品数量
-        const tabCounts = res.tabCounts || {
-          onSale: 0,
-          soldOut: 0,
-          offShelf: 0,
-          reviewing: 0
-        };
-        
-        // 更新数据
-        this.setData({
-          products: apiData,
-          filteredProducts: apiData,
-          displayProducts: newProducts,
-        hasMoreData: hasMore,
-          isLoading: false,
-        isLoadingMore: false,
-        currentPage: loadMore ? this.data.currentPage + 1 : 2,
-          tabCounts: tabCounts
-        });
-        
-        console.log('数据加载完成，当前页数据:', apiData.length);
-        console.log('所有标签页计数:', tabCounts);
-        console.log('当前显示商品数量:', newProducts.length);
       })
       .catch(err => {
         console.error('获取商品列表失败:', err);
@@ -282,22 +307,24 @@ Page({
   // 切换标签页
   switchTab: function(e) {
     const index = parseInt(e.currentTarget.dataset.index);
+    console.log('switchTab 被触发，index:', index); // 添加调试日志
     
     // 设置排序类型，如果是已下架(2)或审核中(3)标签页，则只显示商品排序
     const newSortType = (index === 2 || index === 3) ? 0 : this.data.sortType;
     
     this.setData({
       activeTab: index,
-      sortType: newSortType, // 如果是已下架或审核中标签页，则重置为商品排序模式
+      sortType: newSortType,
       isLoading: true,
       currentPage: 1,
-      displayProducts: [] // 清空当前显示的商品，确保显示加载中状态
+      displayProducts: [],
+      selectedProducts: [],
+      isAllSelected: false
+    }, () => {
+      // 在 setData 的回调中调用 fetchProductList，确保状态更新后再请求
+      console.log('准备请求商品列表，activeTab:', this.data.activeTab);
+      this.fetchProductList();
     });
-    
-    console.log('切换到标签页:', index);
-    
-    // 调用接口获取数据
-    this.fetchProductList();
   },
 
   // 切换排序方式
@@ -572,7 +599,6 @@ Page({
     const action = this.data.currentAction;
     console.log('确认改变商品状态:', productId, action);
     
-    // 检查productId是否存在
     if (!productId) {
       console.error('商品ID不存在');
       wx.showToast({
@@ -582,90 +608,64 @@ Page({
       return;
     }
     
-    // 显示加载中
     wx.showLoading({
       title: '处理中...',
     });
     
-    // 确保api.baseUrl存在
-    if (!api.baseUrl) {
-      console.error('API基础URL不存在');
-      wx.showToast({
-        title: '配置错误，请联系管理员',
-        icon: 'none'
-      });
-      wx.hideLoading();
-      return;
-    }
-    
     // 根据操作类型设置不同的状态值
     const status = action === 'upload' ? 0 : 3; // 0为上架状态，3为下架状态
     
-    // 构建请求URL，确保没有undefined
-    const url = `${api.baseUrl}/v1/products/${productId}/status`;
-    console.log('请求URL:', url);
-    
-    // 发起请求
-    wx.request({
-      url: url,
-      method: 'PATCH',
-      data: { status: status },
-      header: {
-        'content-type': 'application/json',
-        'Authorization': 'Bearer ' + wx.getStorageSync('token')
-      },
-      success: (res) => {
+    // 使用api.product.updateProductStatus方法发送请求
+    api.product.updateProductStatus(productId, status)
+      .then(res => {
         console.log('修改商品状态响应:', res);
         
-        if (res.statusCode === 200) {
+        if (res.code === 200) {
           // 请求成功，更新本地数据
           const products = [...this.data.products];
           const productIndex = products.findIndex(p => p.id === productId);
       
-      if (productIndex !== -1) {
-        // 根据操作类型更新商品状态
-          products[productIndex].status = status;
-        
-        // 更新本地数据
-    this.setData({
-            products: products,
-      showConfirmModal: false,
-      currentProductId: null,
-      currentAction: null
-    });
-    
-          // 重新筛选当前标签页数据并更新显示
-          this.updateDisplayProducts(products);
-    
-    // 显示成功提示
-    wx.showToast({
-      title: action === 'upload' ? '上架成功' : '下架成功',
-      icon: 'success'
-        });
-      } else {
-        wx.showToast({
-          title: '操作失败，未找到商品',
-          icon: 'none'
-        });
-      }
+          if (productIndex !== -1) {
+            // 更新商品状态
+            products[productIndex].status = status;
+            
+            this.setData({
+              products: products,
+              showConfirmModal: false,
+              currentProductId: null,
+              currentAction: null
+            });
+            
+            // 重新筛选当前标签页数据并更新显示
+            this.updateDisplayProducts(products);
+            
+            wx.showToast({
+              title: action === 'upload' ? '上架成功' : '下架成功',
+              icon: 'success'
+            });
+          } else {
+            wx.showToast({
+              title: '操作失败，未找到商品',
+              icon: 'none'
+            });
+          }
         } else {
           wx.showToast({
             title: '修改商品状态失败，请重试',
             icon: 'none'
           });
         }
-      },
-      fail: (err) => {
+      })
+      .catch(err => {
         console.error('修改商品状态失败:', err);
         wx.showToast({
           title: '网络错误，请重试',
           icon: 'none'
         });
-      },
-      complete: () => {
+      })
+      .finally(() => {
         wx.hideLoading();
-      }
-    });
+      });
   },
   
   // 取消修改库存
@@ -821,67 +821,44 @@ Page({
       return;
     }
     
-    // 显示加载中
     wx.showLoading({
       title: '处理中...',
     });
-    
-    // 引入API模块
-    const api = require('../../utils/api');
-    
-    // 构建请求URL
-    const url = `/v1/products/${productId}/stock`;
-    
-    // 发起请求
-    wx.request({
-      url: api.baseUrl + url,
-      method: 'PATCH',
-      data: { stock: newStock },
-      header: {
-        'content-type': 'application/json',
-        'Authorization': 'Bearer ' + wx.getStorageSync('token')
-      },
-      success: (res) => {
+
+    // 使用 api.product.updateStock 方法替代直接构造URL
+    api.product.updateStock(productId, newStock)
+      .then(res => {
         console.log('修改库存响应:', res);
         
-        if (res.statusCode === 200) {
-          // 请求成功，更新本地数据
+        if (res.code === 200) {
+          // 更新本地数据
           const products = [...this.data.products];
           const productIndex = products.findIndex(p => p.id === productId);
       
-      if (productIndex !== -1) {
-        // 更新库存
+          if (productIndex !== -1) {
             products[productIndex].stock = newStock;
-        
-        // 根据库存更新商品状态
-        if (newStock === 0) {
+            
+            // 根据库存更新商品状态
+            if (newStock === 0) {
               products[productIndex].status = 2; // 已售罄
-        } else if (newStock <= 10) {
+            } else if (newStock <= 10) {
               products[productIndex].status = 1; // 库存紧张
-        } else {
+            } else {
               products[productIndex].status = 0; // 正常状态
-        }
-        
-        // 更新本地数据
-    this.setData({
+            }
+            
+            this.setData({
               products: products,
-      showStockModal: false,
-      currentProductId: null,
-      stockValue: ''
-    });
-    
-            // 重新筛选当前标签页数据并更新显示
+              showStockModal: false,
+              currentProductId: null,
+              stockValue: ''
+            });
+            
             this.updateDisplayProducts(products);
             
-            // 显示成功提示
             wx.showToast({
               title: '修改库存成功',
               icon: 'success'
-            });
-          } else {
-            wx.showToast({
-              title: '修改库存失败，未找到商品',
-              icon: 'none'
             });
           }
         } else {
@@ -890,18 +867,17 @@ Page({
             icon: 'none'
           });
         }
-      },
-      fail: (err) => {
+      })
+      .catch(err => {
         console.error('修改库存失败:', err);
         wx.showToast({
           title: '网络错误，请重试',
           icon: 'none'
         });
-      },
-      complete: () => {
+      })
+      .finally(() => {
         wx.hideLoading();
-      }
-    });
+      });
   },
 
   // 更新显示的商品数据

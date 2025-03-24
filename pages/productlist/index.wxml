@@ -44,16 +44,16 @@
     
     <!-- 标签页 -->
     <view class="tabs">
-      <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+      <view class="tab {{activeTab === 0 ? 'active' : ''}}" data-index="0" bindtap="switchTab">
         出售中({{tabCounts.onSale}})
       </view>
-      <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+      <view class="tab {{activeTab === 1 ? 'active' : ''}}" data-index="1" bindtap="switchTab">
         已售罄({{tabCounts.soldOut}})
       </view>
-      <view class="tab {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
+      <view class="tab {{activeTab === 2 ? 'active' : ''}}" data-index="2" bindtap="switchTab">
         已下架({{tabCounts.offShelf}})
       </view>
-      <view class="tab {{activeTab === 3 ? 'active' : ''}}" bindtap="switchTab" data-index="3">
+      <view class="tab {{activeTab === 3 ? 'active' : ''}}" data-index="3" bindtap="switchTab">
         审核中({{tabCounts.reviewing}})
       </view>
     </view>
@@ -96,8 +96,8 @@
             <view class="price-container">
               <text class="price-label">售价</text>
               <text class="price-symbol">¥</text>
-              <text class="price-value">{{item.price}}</text>
-              <text class="price-tag">奖励金 ¥{{item.price * 0.1}}</text>
+              <text class="price-value">{{item.sellingPrice}}</text>
+              <text class="price-tag">奖励金 ¥{{item.rewardAmount}}</text>
             </view>
           </view>
           

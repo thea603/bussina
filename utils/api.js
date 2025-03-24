@@ -282,8 +282,8 @@ const api = {
       return request('/product/batchOffline', 'POST', { ids });
     },
     // 修改商品库存
-    updateStock: (id, stock) => {
-      return request('/product/updateStock', 'POST', { id, stock });
+    updateStock: (productId, stock) => {
+      return request(`/v1/products/${productId}/stock`, 'PATCH', { stock });
     },
     // 编辑商品
     editProduct: (data) => {
@@ -300,7 +300,7 @@ const api = {
     },
     // 更新商品状态
     updateProductStatus: (productId, status) => {
-      return request(`/v1/products/${productId}/status`, 'PATCH', { status: status });
+      return request(`/v1/products/${productId}/status`, 'PATCH', { status });
     }
   },
   
