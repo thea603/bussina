@@ -7,7 +7,7 @@
 const config = {
   // 开发环境配置
   dev: {
-    baseUrl: 'http://shindou.icu:4000/api',
+    baseUrl: 'http://hangzhou.cstext.top:4000/api',
   },
   // 生产环境配置
   prod: {
@@ -231,7 +231,7 @@ const api = {
     },
     // 检查用户是否有店铺
     checkShop: () => {
-      return request('/v1/users/check-shop', 'GET');
+      return request('/v1/users/has-shop', 'GET');
     }
   },
   
@@ -297,6 +297,10 @@ const api = {
     // 创建商品
     createProduct: (data) => {
       return request('/v1/products', 'POST', data);
+    },
+    // 更新商品状态
+    updateProductStatus: (productId, status) => {
+      return request(`/v1/products/${productId}/status`, 'PATCH', { status: status });
     }
   },
   

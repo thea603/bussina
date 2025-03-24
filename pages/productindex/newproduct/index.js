@@ -367,16 +367,14 @@ Page({
     // 调用获取分类接口
     api.product.getCategories().then(res => {
       wx.hideLoading();
-      
-      if (res && res.code === 0 && res.data) {
+      console.log(res,'res');
+      if (res && res.data && res.data.categories) {
         this.setData({
-          categories: res.data
+          categories: res.data.categories
         });
       } else {
-        // 接口返回错误，使用模拟数据
-        this.useMockCategories();
         wx.showToast({
-          title: '使用本地分类数据',
+          title: '获取分类失败',
           icon: 'none'
         });
       }
@@ -384,36 +382,11 @@ Page({
       wx.hideLoading();
       console.error('获取分类失败:', err);
       
-      // 接口调用失败，使用模拟数据
-      this.useMockCategories();
       wx.showToast({
-        title: '使用本地分类数据',
+        title: '获取分类失败，请重试',
         icon: 'none'
       });
     });
-  },
-  
-  // 使用模拟分类数据
-  useMockCategories: function() {
-    // 模拟商品分类数据
-    const mockCategories = [
-      { id: '1', name: '食品饮料' },
-      { id: '2', name: '服装鞋帽' },
-      { id: '3', name: '家用电器' },
-      { id: '4', name: '手机数码' },
-      { id: '5', name: '家居家装' },
-      { id: '6', name: '美妆护肤' },
-      { id: '7', name: '母婴用品' },
-      { id: '8', name: '图书音像' },
-      { id: '9', name: '运动户外' },
-      { id: '10', name: '其他' }
-    ];
-    
-    this.setData({
-      categories: mockCategories
-    });
-    
-    console.log('使用模拟分类数据:', mockCategories);
   },
 
   // 返回上一页
@@ -677,129 +650,145 @@ Page({
       const uploadUrl = `${api.baseUrl}/v1/upload/multiple`;
       console.log('多图上传URL:', uploadUrl);
       
-      // 准备FormData
-      let formData = {
-        type: 'product',
-        fileCount: filePaths.length // 告诉后端有多少个文件
-      };
+      // 由于微信小程序限制，我们需要分批上传
+      // 这里采用批量上传接口，但每次只传一张图片
+      const uploadedImages = [];
       
-      // 微信小程序不支持直接上传多个文件，需要将文件路径添加到formData中
-      filePaths.forEach((path, index) => {
-        formData[`file${index}`] = path;
-      });
-      
-      console.log('上传文件数量:', filePaths.length);
-      console.log('第一个文件路径:', filePaths[0]);
-      
-      // 使用wx.uploadFile上传文件
-      wx.uploadFile({
-        url: uploadUrl,
-        filePath: filePaths[0], // 第一个文件
-        name: 'files', // 文件字段名
-        header: {
-          'Authorization': 'Bearer ' + wx.getStorageSync('token')
-        },
-        formData: formData,
-        success: (res) => {
+      // 创建递归上传函数
+      const uploadOneByOne = (index) => {
+        // 如果已经上传完所有图片，返回结果
+        if (index >= filePaths.length) {
           clearInterval(timer);
           this.setData({
             uploadProgress: 100
           });
-          
-          console.log('多图上传响应:', res);
-          
-          try {
-            const data = JSON.parse(res.data);
-            console.log('解析后的响应数据:', data);
-            
-            // 新的返回格式: {message: "Files uploaded successfully", files: [{filename, path, size, mimetype}]}
-            if (data.files && Array.isArray(data.files) && data.files.length > 0) {
-              // 处理返回的URL，确保添加正确的前缀
-              const uploadedImages = data.files.map(file => {
-                let imageUrl = file.path;
-                
-                // 如果URL不是以http开头，添加域名前缀
-                if (imageUrl && !imageUrl.startsWith('http')) {
-                  // 从baseUrl中提取域名部分
-                  const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
-                  const domain = domainMatch ? domainMatch[1] : '';
-                  imageUrl = domain + imageUrl;
+          console.log('全部图片上传完成:', uploadedImages);
+          resolve(uploadedImages);
+          return;
+        }
+        
+        // 更新进度提示
+        wx.showLoading({
+          title: `上传第${index + 1}/${filePaths.length}张...`,
+        });
+        
+        // 准备当前图片的FormData
+        const formData = {
+          type: 'product',
+          fileCount: 1
+        };
+        
+        // 上传当前图片
+        wx.uploadFile({
+          url: uploadUrl,
+          filePath: filePaths[index],
+          name: 'files', // 使用multiple接口的name参数
+          header: {
+            'Authorization': 'Bearer ' + wx.getStorageSync('token')
+          },
+          formData: formData,
+          success: (res) => {
+            try {
+              const data = JSON.parse(res.data);
+              console.log(`第${index + 1}张图片上传响应:`, data);
+              
+              // 处理返回数据，提取图片URL
+              if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+                // 新版API返回格式
+                data.files.forEach(file => {
+                  let imageUrl = file.path;
+                  
+                  // 如果URL不是以http开头，添加域名前缀
+                  if (imageUrl && !imageUrl.startsWith('http')) {
+                    // 从baseUrl中提取域名部分
+                    const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                    const domain = domainMatch ? domainMatch[1] : '';
+                    imageUrl = domain + imageUrl;
+                  }
+                  
+                  if (imageUrl) {
+                    uploadedImages.push({ imageUrl: imageUrl });
+                  }
+                });
+              } else if (data.code === 200 && data.data) {
+                // 兼容旧版返回格式
+                if (Array.isArray(data.data)) {
+                  data.data.forEach(item => {
+                    let imageUrl = '';
+                    
+                    if (item.path) {
+                      imageUrl = item.path;
+                    } else if (item.url) {
+                      imageUrl = item.url;
+                    } else if (item.files && Array.isArray(item.files) && item.files.length > 0) {
+                      imageUrl = item.files[0].path || item.files[0].url;
+                    }
+                    
+                    // 如果URL不是以http开头，添加域名前缀
+                    if (imageUrl && !imageUrl.startsWith('http')) {
+                      // 从baseUrl中提取域名部分
+                      const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                      const domain = domainMatch ? domainMatch[1] : '';
+                      imageUrl = domain + imageUrl;
+                    }
+                    
+                    if (imageUrl) {
+                      uploadedImages.push({ imageUrl: imageUrl });
+                    }
+                  });
+                } else if (data.data.files && Array.isArray(data.data.files)) {
+                  // 如果data.files是数组
+                  data.data.files.forEach(file => {
+                    let imageUrl = file.path || file.url;
+                    
+                    // 如果URL不是以http开头，添加域名前缀
+                    if (imageUrl && !imageUrl.startsWith('http')) {
+                      // 从baseUrl中提取域名部分
+                      const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                      const domain = domainMatch ? domainMatch[1] : '';
+                      imageUrl = domain + imageUrl;
+                    }
+                    
+                    if (imageUrl) {
+                      uploadedImages.push({ imageUrl: imageUrl });
+                    }
+                  });
+                } else if (data.data.path || data.data.url) {
+                  // 单图情况
+                  let imageUrl = data.data.path || data.data.url;
+                  
+                  // 如果URL不是以http开头，添加域名前缀
+                  if (imageUrl && !imageUrl.startsWith('http')) {
+                    // 从baseUrl中提取域名部分
+                    const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                    const domain = domainMatch ? domainMatch[1] : '';
+                    imageUrl = domain + imageUrl;
+                  }
+                  
+                  if (imageUrl) {
+                    uploadedImages.push({ imageUrl: imageUrl });
+                  }
                 }
-                
-                return { imageUrl: imageUrl };
-              });
-              
-              console.log('处理后的图片数据:', uploadedImages);
-              resolve(uploadedImages);
-            } else if (data.code === 200 && data.data) {
-              // 兼容旧版返回格式
-              const uploadedImages = [];
-              
-              // 检查返回的数据结构
-              if (Array.isArray(data.data)) {
-                // 如果data是数组，直接处理
-                data.data.forEach(item => {
-                  let imageUrl = '';
-                  
-                  // 优先使用files中的path
-                  if (item.files && Array.isArray(item.files) && item.files.length > 0) {
-                    imageUrl = item.files[0].path;
-                  } else if (item.path) {
-                    // 如果没有files但有path字段
-                    imageUrl = item.path;
-                  } else if (item.url) {
-                    // 兼容旧版返回格式
-                    imageUrl = item.url;
-                  }
-                  
-                  // 如果URL不是以http开头，添加域名前缀
-                  if (imageUrl && !imageUrl.startsWith('http')) {
-                    // 从baseUrl中提取域名部分
-                    const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
-                    const domain = domainMatch ? domainMatch[1] : '';
-                    imageUrl = domain + imageUrl;
-                  }
-                  
-                  if (imageUrl) {
-                    uploadedImages.push({ imageUrl: imageUrl });
-                  }
-                });
-              } else if (data.data.files && Array.isArray(data.data.files)) {
-                // 如果data.files是数组
-                data.data.files.forEach(file => {
-                  let imageUrl = file.path || file.url;
-                  
-                  // 如果URL不是以http开头，添加域名前缀
-                  if (imageUrl && !imageUrl.startsWith('http')) {
-                    // 从baseUrl中提取域名部分
-                    const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
-                    const domain = domainMatch ? domainMatch[1] : '';
-                    imageUrl = domain + imageUrl;
-                  }
-                  
-                  if (imageUrl) {
-                    uploadedImages.push({ imageUrl: imageUrl });
-                  }
-                });
               }
               
-              console.log('处理后的图片数据:', uploadedImages);
-              resolve(uploadedImages);
-            } else {
-              console.error('上传图片返回错误:', data);
-              reject(new Error(data.message || '上传失败'));
+              // 继续上传下一张图片
+              uploadOneByOne(index + 1);
+            } catch (e) {
+              console.error(`解析第${index + 1}张图片上传响应失败:`, e);
+              // 继续尝试上传下一张图片
+              uploadOneByOne(index + 1);
             }
-          } catch (e) {
-            console.error('解析上传响应失败:', e, res.data);
-            reject(e);
+          },
+          fail: (err) => {
+            console.error(`第${index + 1}张图片上传失败:`, err);
+            // 继续尝试上传下一张图片
+            uploadOneByOne(index + 1);
           }
-        },
-        fail: (err) => {
-          clearInterval(timer);
-          console.error('上传图片请求失败:', err);
-          reject(err);
-        }
-      });
+        });
+      };
+      
+      // 开始上传第一张图片
+      uploadOneByOne(0);
     });
   },
 
@@ -1014,6 +1003,9 @@ Page({
       title: '提交中...',
     });
     
+    // 获取店铺ID
+    const shopId = wx.getStorageSync('shopId');
+    
     // 确保图片格式正确
     const formattedImages = this.data.product.images.map(img => {
       let imageUrl = img.imageUrl || img;
@@ -1049,20 +1041,23 @@ Page({
       promotionEnd = `${endYear}-${endMonth}-${endDay}T23:59:59Z`;
     }
     
+
+    console.log(this.data.product.sellingPrice,'this.data.sellingPrice');
+    console.log(formattedImages,'formattedImages')
     // 准备提交的数据
     const productData = {
       name: this.data.product.name,
       description: this.data.product.description || '',
-      shopId:7,
+      shopId: shopId || '',
       images: {
         create: formattedImages
       }, // 使用正确格式的图片数组
-      sellingPrice: parseFloat(this.data.product.sellingPrice),
-      originalPrice: parseFloat(this.data.product.originalPrice),
-      rewardAmount: parseFloat(this.data.product.rewardAmount),
+      sellingPrice: Number(this.data.product.sellingPrice),
+      originalPrice: Number(this.data.product.originalPrice),
+      rewardAmount: Number(this.data.product.rewardAmount),
       categoryId: this.data.product.categoryId,
       specification: this.data.product.specification,
-      stock: parseInt(this.data.product.stock),
+      stock: parseInt(this.data.product.stock) || 0,
       promotionStart: promotionStart,
       promotionEnd: promotionEnd
     };
@@ -1118,5 +1113,16 @@ Page({
         duration: 2000
       });
     });
+  },
+
+  // 解析数字字段，确保返回有效数字
+  parseNumberField: function(value) {
+    if (!value || value === '') {
+      return 0;
+    }
+    // 移除非数字字符（保留小数点）
+    value = value.toString().replace(/[^\d.]/g, '');
+    const number = parseFloat(value);
+    return isNaN(number) ? 0 : number;
   }
 }) 

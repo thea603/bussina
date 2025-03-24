@@ -1,8 +1,10 @@
 {
   "pages": [
-    "pages/productlist/index",
-    "pages/productindex/index",
     "pages/login/login",
+
+    "pages/productindex/index",
+
+    "pages/productlist/index",
     "pages/productindex/newproduct/index",
     "pages/orderlist/index",
     "pages/shop/index",

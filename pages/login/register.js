@@ -286,6 +286,12 @@ Page({
         api.user.checkShop().then(shopRes => {
           util.hideLoading();
           
+          // 保存店铺ID
+          if (shopRes.data && shopRes.data.shopId) {
+            wx.setStorageSync('shopId', shopRes.data.shopId);
+            console.log('已保存店铺ID:', shopRes.data.shopId);
+          }
+          
           // 根据返回结果决定跳转路径
           if (shopRes.data && shopRes.data.hasShop) {
             // 如果有店铺，跳转到首页

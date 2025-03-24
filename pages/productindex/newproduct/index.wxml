@@ -70,12 +70,12 @@
         <view class="inline-form-label">奖励金 <text class="required">*</text></view>
         <input 
           class="form-input inline-form-input"
-          type="digit" 
+          type="number" 
           placeholder="请输入" 
           placeholder-class="input-placeholder"
           bindinput="onInputChange"
           data-field="rewardAmount"
-          data-type="money"
+          
           value="{{product.rewardAmount}}"
         />
       </view>
@@ -109,12 +109,13 @@
         <view class="inline-form-label">售价 <text class="required">*</text></view>
         <input 
           class="form-input inline-form-input" 
-          type="digit" 
+                    type="number" 
+
           placeholder="请输入" 
           placeholder-class="input-placeholder"
           bindinput="onInputChange"
           data-field="sellingPrice"
-          data-type="money"
+          
           value="{{product.sellingPrice}}"
         />
       </view>
@@ -124,12 +125,11 @@
         <view class="inline-form-label">原价 <text class="required">*</text></view>
         <input 
           class="form-input inline-form-input" 
-          type="digit" 
+          type="number" 
           placeholder="请输入" 
           placeholder-class="input-placeholder"
           bindinput="onInputChange"
           data-field="originalPrice"
-          data-type="money"
           value="{{product.originalPrice}}"
         />
       </view>

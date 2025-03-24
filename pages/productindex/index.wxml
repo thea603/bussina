@@ -69,22 +69,43 @@
     scroll-y="true" 
     class="goods-scroll-view" 
     style="top: {{fixedContentHeight + 5}}px; height: {{scrollHeight}}px;"
+    bindscrolltolower="onReachBottom"
+    enable-back-to-top="true"
   >
     <!-- 商品列表 -->
     <view class="goods-list">
-      <block wx:for="{{latestGoods}}" wx:key="id">
-        <view class="goods-item">
-          <view class="goods-info">
-            <image class="goods-image" src="{{item.image}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
-            <view class="goods-detail">
-              <view class="goods-name">{{item.name}}</view>
-              <view class="goods-price-small">{{item.priceDesc}}</view>
+      <block wx:if="{{latestGoods.length > 0}}">
+        <block wx:for="{{latestGoods}}" wx:key="id">
+          <view class="goods-item">
+            <view class="goods-info">
+              <image class="goods-image" src="{{item.image}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
+              <view class="goods-detail">
+                <view class="goods-name">{{item.name}}</view>
+                <view class="goods-price-small">{{item.priceDesc}}</view>
+              </view>
             </view>
+            <view class="goods-stock">{{item.stock}}</view>
+            <view class="goods-price">¥{{item.price}}</view>
           </view>
-          <view class="goods-stock">{{item.stock}}</view>
-          <view class="goods-price">¥{{item.price}}</view>
-        </view>
+        </block>
       </block>
+      
+      <!-- 加载中状态 -->
+      <view wx:if="{{loading}}" class="loading-container">
+        <view class="loading-indicator"></view>
+        <text class="loading-text">正在加载...</text>
+      </view>
+      
+      <!-- 空状态 -->
+      <view wx:if="{{!loading && latestGoods.length === 0}}" class="empty-state">
+        <image class="empty-icon" src="/images/empty_icon.png" mode="aspectFit"></image>
+        <text class="empty-text">暂无商品数据</text>
+      </view>
+      
+      <!-- 加载完成提示 -->
+      <view wx:if="{{!loading && !hasMore && latestGoods.length > 0}}" class="load-all-tip">
+        <text>—— 已经到底啦 ——</text>
+      </view>
     </view>
   </scroll-view>
   

@@ -1,248 +1,10 @@
 Page({
   data: {
     statusBarHeight: 20, // 默认值，会在onLoad中获取实际高度
-    latestGoods: [
-      {
-        id: 1,
-        name: '这是美食的标题这是美食的标题',
-        image: '/images/food1.png',
-        priceDesc: '这是美食的价格',
-        stock: 20,
-        price: '22'
-      },
-      {
-        id: 2,
-        name: '双层牛肉汉堡',
-        image: '/images/food1.png',
-        priceDesc: '超值套餐',
-        stock: 18,
-        price: '38'
-      },
-      {
-        id: 3,
-        name: '招牌炸鸡全家桶',
-        image: '/images/food1.png',
-        priceDesc: '家庭分享装',
-        stock: 5,
-        price: '99'
-      },
-      {
-        id: 4,
-        name: '黄金薯条大份',
-        image: '/images/food1.png',
-        priceDesc: '配番茄酱',
-        stock: 50,
-        price: '18'
-      },
-      {
-        id: 5,
-        name: '冰淇淋圣代',
-        image: '/images/food1.png',
-        priceDesc: '草莓口味',
-        stock: 15,
-        price: '12'
-      },
-      {
-        id: 6,
-        name: '鲜榨橙汁中杯',
-        image: '/images/food1.png',
-        priceDesc: '无糖版',
-        stock: 28,
-        price: '15'
-      },
-      {
-        id: 7,
-        name: '意式浓缩咖啡',
-        image: '/images/food1.png',
-        priceDesc: '双倍浓缩',
-        stock: 32,
-        price: '22'
-      },
-      {
-        id: 8,
-        name: '巧克力慕斯蛋糕',
-        image: '/images/food1.png',
-        priceDesc: '精品甜点',
-        stock: 8,
-        price: '28'
-      },
-      {
-        id: 9,
-        name: '水果沙拉大份',
-        image: '/images/food1.png',
-        priceDesc: '时令水果',
-        stock: 12,
-        price: '26'
-      },
-      {
-        id: 10,
-        name: '芝士焗饭',
-        image: '/images/food1.png',
-        priceDesc: '海鲜口味',
-        stock: 7,
-        price: '36'
-      },
-      {
-        id: 11,
-        name: '意大利面',
-        image: '/images/food1.png',
-        priceDesc: '番茄肉酱',
-        stock: 16,
-        price: '42'
-      },
-      {
-        id: 12,
-        name: '田园蔬菜沙拉',
-        image: '/images/food1.png',
-        priceDesc: '低卡健康',
-        stock: 22,
-        price: '18'
-      },
-      {
-        id: 13,
-        name: '超级至尊披萨',
-        image: '/images/food1.png',
-        priceDesc: '9寸家庭装',
-        stock: 3,
-        price: '68'
-      },
-      {
-        id: 14,
-        name: '烤翅拼盘',
-        image: '/images/food1.png',
-        priceDesc: '混合口味',
-        stock: 14,
-        price: '45'
-      },
-      {
-        id: 15,
-        name: '鲜虾鸡肉卷',
-        image: '/images/food1.png',
-        priceDesc: '墨西哥风味',
-        stock: 19,
-        price: '32'
-      },
-      {
-        id: 16,
-        name: '豪华海鲜饭',
-        image: '/images/food1.png',
-        priceDesc: '西班牙风味',
-        stock: 6,
-        price: '88'
-      },
-      {
-        id: 17,
-        name: '香煎三文鱼',
-        image: '/images/food1.png',
-        priceDesc: '挪威进口',
-        stock: 9,
-        price: '78'
-      },
-      {
-        id: 18,
-        name: '日式拉面',
-        image: '/images/food1.png',
-        priceDesc: '正宗豚骨汤底',
-        stock: 25,
-        price: '39'
-      },
-      {
-        id: 19,
-        name: '韩式石锅拌饭',
-        image: '/images/food1.png',
-        priceDesc: '配泡菜',
-        stock: 11,
-        price: '42'
-      },
-      {
-        id: 20,
-        name: '泰式冬阴功汤',
-        image: '/images/food1.png',
-        priceDesc: '酸辣口味',
-        stock: 17,
-        price: '35'
-      },
-      {
-        id: 21,
-        name: '越南牛肉河粉',
-        image: '/images/food1.png',
-        priceDesc: '配香草',
-        stock: 21,
-        price: '38'
-      },
-      {
-        id: 22,
-        name: '印度咖喱鸡',
-        image: '/images/food1.png',
-        priceDesc: '配印度飞饼',
-        stock: 13,
-        price: '46'
-      },
-      {
-        id: 23,
-        name: '法式蜗牛',
-        image: '/images/food1.png',
-        priceDesc: '配蒜香黄油',
-        stock: 4,
-        price: '88'
-      },
-      {
-        id: 24,
-        name: '英式下午茶套餐',
-        image: '/images/food1.png',
-        priceDesc: '配司康饼',
-        stock: 10,
-        price: '58'
-      },
-      {
-        id: 25,
-        name: '美式BBQ烤肋排',
-        image: '/images/food1.png',
-        priceDesc: '配烤玉米',
-        stock: 7,
-        price: '98'
-      },
-      {
-        id: 26,
-        name: '德国猪肘',
-        image: '/images/food1.png',
-        priceDesc: '配酸菜',
-        stock: 5,
-        price: '88'
-      },
-      {
-        id: 27,
-        name: '俄罗斯红菜汤',
-        image: '/images/food1.png',
-        priceDesc: '配酸奶油',
-        stock: 15,
-        price: '32'
-      },
-      {
-        id: 28,
-        name: '希腊沙拉',
-        image: '/images/food1.png',
-        priceDesc: '配橄榄油',
-        stock: 20,
-        price: '28'
-      },
-      {
-        id: 29,
-        name: '墨西哥玉米卷',
-        image: '/images/food1.png',
-        priceDesc: '配鳄梨酱',
-        stock: 18,
-        price: '36'
-      },
-      {
-        id: 30,
-        name: '新加坡辣椒蟹',
-        image: '/images/food1.png',
-        priceDesc: '配馒头',
-        stock: 2,
-        price: '128'
-      }
-    ]
+    latestGoods: [],
+    loading: false,
+    page: 1,
+    hasMore: true
   },
 
   onLoad: function(options) {
@@ -251,6 +13,86 @@ Page({
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight
     });
+    // 加载商品数据
+    this.fetchGoodsList();
+  },
+
+  // 获取商品列表数据
+  fetchGoodsList: function() {
+    if (this.data.loading || !this.data.hasMore) return;
+    
+    this.setData({ loading: true });
+    
+    // 引入API模块
+    const api = require('../../utils/api');
+    
+    // 获取店铺ID
+    const shopId = wx.getStorageSync('shopId');
+    
+    // 构建请求参数
+    const params = {
+      page: this.data.page,
+      pageSize: 20
+    };
+    
+    // 如果有店铺ID，添加到请求参数中
+    if (shopId) {
+      params.shopId = shopId;
+    }
+    
+    console.log('请求商品列表参数:', params);
+    
+    // 调用product.getProductList方法获取商品列表
+    api.product.getProductList(params)
+      .then(res => {
+        if (res.code === 200) {
+          const newGoods = res.data || [];
+          
+          // 如果返回的数据为空，表示没有更多数据了
+          if (newGoods.length === 0) {
+            this.setData({
+              hasMore: false
+            });
+          } else {
+            // 将新数据追加到现有数据中
+            this.setData({
+              latestGoods: this.data.page === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
+              page: this.data.page + 1
+            });
+          }
+        } else {
+          wx.showToast({
+            title: '获取商品列表失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('请求商品列表失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        this.setData({ loading: false });
+      });
+  },
+
+  // 下拉刷新
+  onPullDownRefresh: function() {
+    this.setData({
+      latestGoods: [],
+      page: 1,
+      hasMore: true
+    });
+    this.fetchGoodsList();
+    wx.stopPullDownRefresh();
+  },
+  
+  // 上拉加载更多
+  onReachBottom: function() {
+    this.fetchGoodsList();
   },
 
   onReady: function() {
