@@ -262,8 +262,8 @@ const api = {
       return request('/product/add', 'POST', data);
     },
     // 更新商品
-    updateProduct: (data) => {
-      return request('/product/update', 'PUT', data);
+    updateProduct: (productId, data) => {
+      return request(`/v1/products/${productId}`, 'PUT', data);
     },
     // 删除商品
     deleteProduct: (id) => {
@@ -301,6 +301,15 @@ const api = {
     // 更新商品状态
     updateProductStatus: (productId, status) => {
       return request(`/v1/products/${productId}/status`, 'PATCH', { status });
+    },
+    batchUpdateStatus: (productIds, status) => {
+      return request('/v1/products/batch/status', 'PATCH', {
+        productIds,
+        status
+      });
+    },
+    getProductDetail: (productId) => {
+      return request(`/v1/products/${productId}`, 'GET');
     }
   },
   

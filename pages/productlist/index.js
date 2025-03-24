@@ -455,81 +455,62 @@ Page({
           // 用户点击确定，执行下架操作
           console.log('批量下架商品:', this.data.selectedProducts);
           
-          // 显示加载中
           wx.showLoading({
             title: '处理中...',
           });
           
-          // 引入API模块
-          const api = require('../../utils/api');
-          
-          // 构建请求URL和参数
-          const url = '/v1/products/batch/status';
-          
-          // 发起请求
-          wx.request({
-            url: api.baseUrl + url,
-            method: 'PATCH',
-            data: {
-              productIds: this.data.selectedProducts,
-              status: 3 // 3为下架状态
-            },
-            header: {
-              'content-type': 'application/json',
-              'Authorization': 'Bearer ' + wx.getStorageSync('token')
-            },
-            success: (res) => {
+          // 使用 api.product.batchUpdateStatus 方法发送请求
+          api.product.batchUpdateStatus(this.data.selectedProducts, 3)
+            .then(res => {
               console.log('批量下架响应:', res);
               
-              if (res.statusCode === 200) {
+              if (res.code === 200) {
                 // 请求成功，更新本地数据
                 const products = [...this.data.products];
-            
-            // 获取选中商品ID（字符串格式）
-            const selectedIds = this.data.selectedProducts;
-            
-            // 将选中的商品状态改为已下架
-            selectedIds.forEach(id => {
-              // 找到匹配的商品进行修改（需要转换为相同类型进行比较）
+                
+                // 获取选中商品ID（字符串格式）
+                const selectedIds = this.data.selectedProducts;
+                
+                // 将选中的商品状态改为已下架
+                selectedIds.forEach(id => {
                   const index = products.findIndex(p => String(p.id) === id);
-              if (index !== -1) {
+                  if (index !== -1) {
                     products[index].status = 3; // 已下架状态
-              }
-            });
-            
+                  }
+                });
+                
                 // 更新数据
-          this.setData({
+                this.setData({
                   products: products,
-                sortType: 0,
-            isAllSelected: false,
-            selectedProducts: []
-          });
-            
+                  sortType: 0,
+                  isAllSelected: false,
+                  selectedProducts: []
+                });
+                
                 // 重新筛选当前标签页数据并更新显示
                 this.updateDisplayProducts(products);
-          
-          wx.showToast({
-            title: '下架成功',
-            icon: 'success'
-              });
+                
+                wx.showToast({
+                  title: '下架成功',
+                  icon: 'success'
+                });
               } else {
                 wx.showToast({
                   title: '下架失败，请重试',
                   icon: 'none'
                 });
               }
-            },
-            fail: (err) => {
+            })
+            .catch(err => {
               console.error('批量下架失败:', err);
               wx.showToast({
                 title: '网络错误，请重试',
                 icon: 'none'
               });
-            },
-            complete: () => {
-            wx.hideLoading();
-            }
-          });
+            })
+            .finally(() => {
+              wx.hideLoading();
+            });
         }
       }
     });
@@ -559,16 +540,12 @@ Page({
   editProduct: function(e) {
     const productId = e.currentTarget.dataset.id;
     console.log('编辑商品:', productId);
-    // 显示成功提示
-    wx.showToast({
-      title: '编辑功能模拟',
-      icon: 'success'
-    });
+  
     
     // 暂时注释掉真实导航，避免页面不存在导致错误
-    // wx.navigateTo({
-    //   url: '/pages/productindex/newproduct/index?id=' + productId + '&type=edit&pageTitle=编辑商品'
-    // });
+    wx.navigateTo({
+      url: '/pages/productindex/newproduct/index?id=' + productId + '&type=edit&pageTitle=编辑商品'
+    });
   },
 
   // 改变商品状态

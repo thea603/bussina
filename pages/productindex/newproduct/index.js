@@ -35,7 +35,10 @@ Page({
     isUploading: false, // 是否正在上传图片
     uploadProgress: 0, // 上传进度
     isOfflineMode: false, // 是否为离线模式
-    networkType: 'unknown' // 网络状态
+    networkType: 'unknown', // 网络状态
+    pendingCategoryMatch: null, // 用于存储分类加载完成后的回调
+    isEdit: false,
+    productId: null
   },
 
   onLoad: function(options) {
@@ -49,8 +52,7 @@ Page({
     console.log('API配置:', api);
     if (!api.baseUrl) {
       console.warn('API baseUrl未定义，将使用默认URL');
-      // 设置一个默认的API基础URL
-      api.baseUrl = 'http://shindou.icu:4000/api'; // 使用实际的API地址
+      api.baseUrl = 'http://shindou.icu:4000/api';
       console.log('已设置API baseUrl:', api.baseUrl);
     }
     
@@ -70,12 +72,15 @@ Page({
         title: '编辑商品'
       });
       
+      // 保存商品ID用于编辑提交
+      this.setData({
+        isEdit: true,
+        productId: options.id
+      });
+      
       // 如果有商品ID，加载商品信息
       if (options.id) {
-        // 这里应该从服务器获取商品信息
-        // 模拟获取商品信息
-        const productId = parseInt(options.id);
-        // 加载商品信息的逻辑...
+        this.fetchProductDetail(options.id);
       }
     } else {
       // 新增商品模式
@@ -83,6 +88,91 @@ Page({
         title: '新增商品'
       });
     }
+  },
+
+  // 获取商品详情
+  fetchProductDetail: function(productId) {
+    wx.showLoading({
+      title: '加载商品信息...',
+    });
+
+    api.product.getProductDetail(productId)
+      .then(res => {
+        console.log('获取商品详情响应:', res);
+        
+        if (res.code === 200 && res.data) {
+          const productData = res.data;
+          
+          // 格式化日期
+          let promotionStart = '';
+          let promotionEnd = '';
+          
+          if (productData.promotionStart) {
+            const startDate = new Date(productData.promotionStart);
+            promotionStart = `${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日`;
+          }
+          
+          if (productData.promotionEnd) {
+            const endDate = new Date(productData.promotionEnd);
+            promotionEnd = `${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日`;
+          }
+          
+          // 在商品分类列表中查找匹配的分类
+          let categoryName = '';
+          if (this.data.categories && this.data.categories.length > 0) {
+            const category = this.data.categories.find(cat => cat.id === productData.categoryId);
+            if (category) {
+              categoryName = category.name;
+            }
+          } else {
+            // 如果分类列表还未加载完成，保存一个回调函数在分类加载完成后执行
+            this.pendingCategoryMatch = () => {
+              const category = this.data.categories.find(cat => cat.id === productData.categoryId);
+              if (category) {
+                this.setData({
+                  'product.categoryName': category.name
+                });
+              }
+            };
+          }
+          
+          // 更新页面数据
+          this.setData({
+            'product': {
+              name: productData.name || '',
+              description: productData.description || '',
+              images: productData.images || [],
+              sellingPrice: productData.sellingPrice || '',
+              originalPrice: productData.originalPrice || '',
+              rewardAmount: productData.rewardAmount || '',
+              categoryId: productData.categoryId || '', // 保存分类ID用于表单提交
+              categoryName: categoryName || productData.categoryName || '', // 显示分类名称
+              specification: productData.specification || '',
+              stock: productData.stock || '',
+              promotionStart: promotionStart,
+              promotionEnd: promotionEnd
+            }
+          });
+          
+          // 检查表单有效性
+          this.checkFormValidity();
+        } else {
+          wx.showToast({
+            title: '获取商品信息失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('获取商品信息失败:', err);
+        wx.showToast({
+          title: '获取商品信息失败',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 
   // 检查网络状态
@@ -364,7 +454,6 @@ Page({
       title: '加载分类...',
     });
     
-    // 调用获取分类接口
     api.product.getCategories().then(res => {
       wx.hideLoading();
       console.log(res,'res');
@@ -372,6 +461,12 @@ Page({
         this.setData({
           categories: res.data.categories
         });
+        
+        // 如果有待处理的分类匹配，执行它
+        if (this.pendingCategoryMatch) {
+          this.pendingCategoryMatch();
+          this.pendingCategoryMatch = null;
+        }
       } else {
         wx.showToast({
           title: '获取分类失败',
@@ -1006,13 +1101,12 @@ Page({
     // 获取店铺ID
     const shopId = wx.getStorageSync('shopId');
     
-    // 确保图片格式正确
+    // 准备图片数据
     const formattedImages = this.data.product.images.map(img => {
       let imageUrl = img.imageUrl || img;
       
       // 如果URL不是以http开头，添加域名前缀
       if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('http') && api && api.baseUrl) {
-        // 从baseUrl中提取域名部分
         const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
         const domain = domainMatch ? domainMatch[1] : '';
         imageUrl = domain + imageUrl;
@@ -1041,9 +1135,6 @@ Page({
       promotionEnd = `${endYear}-${endMonth}-${endDay}T23:59:59Z`;
     }
     
-
-    console.log(this.data.product.sellingPrice,'this.data.sellingPrice');
-    console.log(formattedImages,'formattedImages')
     // 准备提交的数据
     const productData = {
       name: this.data.product.name,
@@ -1051,7 +1142,7 @@ Page({
       shopId: shopId || '',
       images: {
         create: formattedImages
-      }, // 使用正确格式的图片数组
+      },
       sellingPrice: Number(this.data.product.sellingPrice),
       originalPrice: Number(this.data.product.originalPrice),
       rewardAmount: Number(this.data.product.rewardAmount),
@@ -1064,38 +1155,36 @@ Page({
     
     console.log('提交商品数据:', productData);
     
-    // 调用API提交商品
-    api.product.createProduct(productData).then(res => {
+    // 根据是否为编辑模式选择不同的API方法
+    const apiMethod = this.data.isEdit ? 
+      api.product.updateProduct(this.data.productId, productData) : 
+      api.product.createProduct(productData);
+    
+    apiMethod.then(res => {
       wx.hideLoading();
       
-      if (res && res.code === 0) {
+      if (res && (res.code === 0 || res.code === 200)) {
         // 提交成功
         wx.showToast({
-          title: '提交成功',
+          title: this.data.isEdit ? '编辑成功' : '提交成功',
           icon: 'success',
           duration: 2000
         });
         
-        // 跳转到成功页面
-        wx.redirectTo({
-          url: '/pages/productindex/newproduct/success',
-          fail: function(err) {
-            console.error('跳转失败', err);
-            
-            // 尝试使用另一种方式跳转
-            wx.navigateTo({
-              url: '/pages/productindex/newproduct/success',
-              fail: function(err2) {
-                console.error('第二次尝试跳转失败', err2);
-                
-                // 如果都失败，尝试跳转到一个已知可用的页面
-                wx.switchTab({
-                  url: '/pages/productindex/index'
-                });
-              }
-            });
-          }
-        });
+        // 返回上一页或跳转到成功页面
+        if (this.data.isEdit) {
+          wx.navigateBack();
+        } else {
+          wx.redirectTo({
+            url: '/pages/productindex/newproduct/success',
+            fail: function(err) {
+              console.error('跳转失败', err);
+              wx.switchTab({
+                url: '/pages/productindex/index'
+              });
+            }
+          });
+        }
       } else {
         // 提交失败
         wx.showToast({
