@@ -105,8 +105,6 @@ Page({
       page: this.data.currentPage,
       limit: this.data.pageSize,
       status: this.getStatusByTab(this.data.activeTab),
-      keyword: this.data.searchValue || '',
-      sort: this.data.sortOrder === 'desc' ? 'desc' : 'asc',
       shopId: shopId
     };
     
@@ -187,13 +185,13 @@ Page({
   getStatusByTab: function(tabIndex) {
     switch(tabIndex) {
       case 0: // 出售中
-        return "0,1"; // 包括正常和库存紧张状态
+        return "1"; // 包括正常和库存紧张状态
       case 1: // 已售罄
         return "2"; // 已售罄状态
       case 2: // 已下架
         return "3"; // 已下架状态
       case 3: // 审核中
-        return "4"; // 审核中状态
+        return "0"; // 审核中状态
       default:
         return "";
     }

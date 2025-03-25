@@ -92,3 +92,36 @@
   font-size: 24rpx; /* 12px */
   color: #666666; /* 灰色文字 */
 }
+
+.wechat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 88rpx;
+  background: #07C160;
+  border-radius: 44rpx;
+  margin-bottom: 30rpx;
+  border: none;
+  padding: 0;
+}
+
+.wechat-btn::after {
+  border: none;
+}
+
+.wechat-btn .wechat-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 16rpx;
+}
+
+.wechat-btn text {
+  color: #FFFFFF;
+  font-size: 32rpx;
+}
+
+/* 修改其他按钮样式以保持一致性 */
+.login-btn, .register-btn {
+  margin-bottom: 30rpx;
+}

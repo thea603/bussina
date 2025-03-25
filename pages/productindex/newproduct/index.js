@@ -50,11 +50,11 @@ Page({
     
     // 检查API配置
     console.log('API配置:', api);
-    if (!api.baseUrl) {
-      console.warn('API baseUrl未定义，将使用默认URL');
-      api.baseUrl = 'http://shindou.icu:4000/api';
-      console.log('已设置API baseUrl:', api.baseUrl);
-    }
+    // if (!api.baseUrl) {
+    //   console.warn('API baseUrl未定义，将使用默认URL');
+    //   api.baseUrl = 'http://shindou.icu:4000/api';
+    //   console.log('已设置API baseUrl:', api.baseUrl);
+    // }
     
     // 检查网络状态
     this.checkNetworkStatus();
@@ -686,8 +686,8 @@ Page({
         
         // 合并图片数组，确保格式正确
         const formattedOldImages = oldImages.map(img => {
-          // 如果已经是正确格式则直接使用，否则转换格式
-          return typeof img === 'string' ? { imageUrl: img } : img;
+          // 如果是对象格式，提取URL；否则直接使用字符串
+          return typeof img === 'object' && img.imageUrl ? img.imageUrl : img;
         });
         
         const images = formattedOldImages.concat(uploadedImages);
@@ -727,7 +727,7 @@ Page({
           uploadProgress: progress
         });
       }, 200);
-      
+      console.log(api,'api.baseUrl')
       // 检查API基础URL是否有效
       if (!api || !api.baseUrl) {
         console.error('API对象或baseUrl未定义');
@@ -802,7 +802,7 @@ Page({
                   }
                   
                   if (imageUrl) {
-                    uploadedImages.push({ imageUrl: imageUrl });
+                    uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
                   }
                 });
               } else if (data.code === 200 && data.data) {
@@ -828,7 +828,7 @@ Page({
                     }
                     
                     if (imageUrl) {
-                      uploadedImages.push({ imageUrl: imageUrl });
+                      uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
                     }
                   });
                 } else if (data.data.files && Array.isArray(data.data.files)) {
@@ -845,7 +845,7 @@ Page({
                     }
                     
                     if (imageUrl) {
-                      uploadedImages.push({ imageUrl: imageUrl });
+                      uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
                     }
                   });
                 } else if (data.data.path || data.data.url) {
@@ -861,7 +861,7 @@ Page({
                   }
                   
                   if (imageUrl) {
-                    uploadedImages.push({ imageUrl: imageUrl });
+                    uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
                   }
                 }
               }
@@ -1101,7 +1101,7 @@ Page({
     // 获取店铺ID
     const shopId = wx.getStorageSync('shopId');
     
-    // 准备图片数据
+    // 准备图片数据 - 修改为直接使用URL字符串数组格式
     const formattedImages = this.data.product.images.map(img => {
       let imageUrl = img.imageUrl || img;
       
@@ -1112,7 +1112,7 @@ Page({
         imageUrl = domain + imageUrl;
       }
       
-      return { imageUrl: imageUrl };
+      return imageUrl; // 直接返回URL字符串，不包装成对象
     });
     
     // 转换日期格式为ISO格式
@@ -1140,9 +1140,7 @@ Page({
       name: this.data.product.name,
       description: this.data.product.description || '',
       shopId: shopId || '',
-      images: {
-        create: formattedImages
-      },
+      images: formattedImages,
       sellingPrice: Number(this.data.product.sellingPrice),
       originalPrice: Number(this.data.product.originalPrice),
       rewardAmount: Number(this.data.product.rewardAmount),

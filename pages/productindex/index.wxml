@@ -83,7 +83,7 @@
               <view wx:if="{{!item.images || item.images.length === 0}}" class="goods-image-placeholder">
                 <text>暂无图片</text>
               </view>
-              <image wx:else class="goods-image" src="{{item.images[0]}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
+              <image wx:else class="goods-image" src="{{item.images[0].imageUrl}}" mode="aspectFill" binderror="handleImageError" data-index="{{index}}"></image>
               <view class="goods-detail">
                 <view class="goods-name">{{item.name}}</view>
                 <view class="goods-price-small">¥{{item.sellingPrice}}</view>

@@ -9,7 +9,8 @@ Page({
       todayOrders: 128,
       todayRevenue: 3280,
       totalProducts: 1024
-    }
+    },
+    shopInfo: {}
   },
 
   onLoad: function() {
@@ -17,6 +18,24 @@ Page({
     wx.setNavigationBarTitle({
       title: '我的'
     });
+
+    // 从本地缓存获取店铺信息
+    const shopInfo = wx.getStorageSync('shopInfo');
+    if (shopInfo) {
+      this.setData({
+        shopInfo: shopInfo
+      });
+    }
+  },
+
+  onShow: function() {
+    // 每次显示页面时重新获取店铺信息，确保信息是最新的
+    const shopInfo = wx.getStorageSync('shopInfo');
+    if (shopInfo) {
+      this.setData({
+        shopInfo: shopInfo
+      });
+    }
   },
 
   // 显示店铺二维码

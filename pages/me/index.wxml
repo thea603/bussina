@@ -3,10 +3,16 @@
   <!-- 店铺名称信息 -->
   <view class="shop-info">
     <view class="shop-avatar">
-      <view class="avatar-placeholder"></view>
+      <image 
+        wx:if="{{shopInfo.logo}}" 
+        src="{{shopInfo.logo}}" 
+        mode="aspectFill" 
+        class="avatar-image"
+      ></image>
+      <view wx:else class="avatar-placeholder"></view>
     </view>
     <view class="shop-name-container">
-      <view class="shop-name">数林石磨脑粉餐馆(凤凰广场店)</view>
+      <view class="shop-name">{{shopInfo.name}}</view>
       <view class="shop-status">
         <view class="status-tag">
           <view class="status-dot"></view>

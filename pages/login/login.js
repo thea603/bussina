@@ -1,4 +1,6 @@
 // pages/login/login.js
+const api = require('../../utils/api');
+
 Page({
 
   /**
@@ -100,6 +102,151 @@ Page({
             url: '/pages/productindex/index'
           });
         }, 1500);
+      }
+    });
+  },
+
+  // 获取手机号
+  getPhoneNumber(e) {
+    console.log("获取手机号回调", e.detail.errMsg);
+    
+    if (e.detail.errMsg === 'getPhoneNumber:ok') {
+      // 显示加载提示
+      wx.showLoading({
+        title: '登录中...',
+      });
+
+      // 获取登录凭证
+      wx.login({
+        success: (res) => {
+          if (res.code) {
+            console.log("获取code成功：", res.code);
+            // 构建登录参数
+            const loginParams = {
+              code: res.code,
+              phoneCode: e.detail.code  // 手机号获取凭证
+            };
+
+            // 调用登录接口
+            api.user.wxLogin(loginParams)
+              .then(res => {
+                console.log("登录接口返回：", res);
+                if (res.code === 0) {
+                  // 保存token
+                  wx.setStorageSync('token', res.data.token);
+                  
+                  // 如果有店铺信息，保存店铺信息
+                  if (res.data.shopInfo) {
+                    wx.setStorageSync('shopInfo', res.data.shopInfo);
+                    // 跳转到首页
+                    wx.switchTab({
+                      url: '/pages/productindex/index'
+                    });
+                  } else {
+                    // 跳转到注册店铺页面
+                    wx.redirectTo({
+                      url: '/pages/shop/register/index'
+                    });
+                  }
+                } else {
+                  wx.showToast({
+                    title: res.msg || '登录失败',
+                    icon: 'none'
+                  });
+                }
+              })
+              .catch(err => {
+                console.error('登录失败:', err);
+                wx.showToast({
+                  title: '登录失败，请重试',
+                  icon: 'none'
+                });
+              })
+              .finally(() => {
+                wx.hideLoading();
+              });
+          }
+        },
+        fail: (err) => {
+          console.error('wx.login 失败:', err);
+          wx.hideLoading();
+          wx.showToast({
+            title: '登录失败，请重试',
+            icon: 'none'
+          });
+        }
+      });
+    } else if (e.detail.errMsg === 'getPhoneNumber:fail user deny') {
+      // 用户拒绝授权
+      wx.showToast({
+        title: '需要授权手机号才能继续使用',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 处理微信登录
+  handleWxLogin() {
+    wx.showLoading({
+      title: '登录中...',
+    });
+
+    wx.login({
+      success: (res) => {
+        if (res.code) {
+          console.log("获取code成功：", res.code);
+          // 构建登录参数
+          const loginParams = {
+            code: res.code
+          };
+
+          // 调用登录接口
+          api.user.wxLogin(loginParams)
+            .then(res => {
+              console.log("登录接口返回：", res);
+              if (res.code === 0) {
+                // 保存token
+                wx.setStorageSync('token', res.data.token);
+                
+                // 如果有店铺信息，保存店铺信息
+                if (res.data.shopInfo) {
+                  wx.setStorageSync('shopInfo', res.data.shopInfo);
+                  // 跳转到首页
+                  wx.switchTab({
+                    url: '/pages/productindex/index'
+                  });
+                } else {
+                  // 跳转到注册店铺页面
+                  wx.redirectTo({
+                    url: '/pages/shop/register/index'
+                  });
+                }
+              } else {
+                wx.showToast({
+                  title: res.msg || '登录失败',
+                  icon: 'none'
+                });
+              }
+            })
+            .catch(err => {
+              console.error('登录失败:', err);
+              wx.showToast({
+                title: '登录失败，请重试',
+                icon: 'none'
+              });
+            })
+            .finally(() => {
+              wx.hideLoading();
+            });
+        }
+      },
+      fail: (err) => {
+        console.error('wx.login 失败:', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: '登录失败，请重试',
+          icon: 'none'
+        });
       }
     });
   }

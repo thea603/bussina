@@ -15,9 +15,17 @@
   <view class="bottom-area">
     <!-- 按钮容器 -->
     <view class="btn-container">
+      <!-- 微信授权登录按钮 -->
+      <button 
+        class="btn wechat-btn" 
+        bindtap="handleWxLogin"
+      >
+        <image class="wechat-icon" src="/images/wechat.png" mode="aspectFit"></image>
+        <text>微信快捷登录</text>
+      </button>
       <!-- 登录按钮 -->
       <view class="btn login-btn" bindtap="login">
-        <text>登录</text>
+        <text>手机号登录</text>
       </view>
       <!-- 注册开店按钮 -->
       <view class="btn register-btn" bindtap="register">

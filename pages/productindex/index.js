@@ -5,7 +5,8 @@ Page({
     loading: false,
     page: 1,
     hasMore: true,
-    shopName: '' // 添加店铺名称数据
+    shopName: '', // 添加店铺名称数据
+    currentPage: 1 // 新增currentPage数据
   },
 
   onLoad: function(options) {
@@ -23,6 +24,19 @@ Page({
     });
     // 加载商品数据
     this.fetchGoodsList();
+  },
+
+  onShow: function() {
+    // 每次页面显示时重新获取商品列表
+    this.setData({
+      currentPage: 1,  // 重置页码
+      latestGoods: [], // 清空现有商品列表
+      hasMore: true,   // 重置加载更多状态
+      loading: true    // 显示加载状态
+    }, () => {
+      // 重新获取商品列表
+      this.fetchLatestGoods();
+    });
   },
 
   // 获取商品列表数据
@@ -78,6 +92,54 @@ Page({
       })
       .finally(() => {
         this.setData({ loading: false });
+      });
+  },
+
+  // 获取最新商品列表
+  fetchLatestGoods: function() {
+    const shopId = wx.getStorageSync('shopId');
+    if (!shopId) {
+      wx.showToast({
+        title: '获取店铺信息失败',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 构建请求参数
+    const params = {
+      page: this.data.currentPage,
+      limit: 10,
+      shopId: shopId
+    };
+
+    const api = require('../../utils/api');
+    api.product.getProductList(params)
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          const newGoods = res.data.items || [];
+          const pagination = res.data.pagination || {};
+
+          this.setData({
+            latestGoods: this.data.currentPage === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
+            hasMore: this.data.currentPage < pagination.totalPages,
+            loading: false
+          });
+        } else {
+          this.setData({ loading: false });
+          wx.showToast({
+            title: '获取商品列表失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('获取商品列表失败:', err);
+        this.setData({ loading: false });
+        wx.showToast({
+          title: '获取商品列表失败',
+          icon: 'none'
+        });
       });
   },
 

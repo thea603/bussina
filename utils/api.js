@@ -25,12 +25,12 @@ const isHttps = (url) => {
 };
 
 // 统一请求方法
-const request = (url, method, data, header = {}) => {
+const request = ({ url, method = 'GET', data = {}, header = {} }) => {
   // 完整URL
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  const fullUrl = (typeof url === 'string' && url.startsWith('http')) ? url : `${baseUrl}${url}`;
   
   // 判断是否为HTTPS请求
-  const useHttps = isHttps(fullUrl);
+  const useHttps = typeof fullUrl === 'string' && fullUrl.startsWith('https://');
   
   // 设置通用header
   const commonHeader = {
@@ -41,14 +41,11 @@ const request = (url, method, data, header = {}) => {
   // 获取token（如果存在）
   const token = wx.getStorageSync('token');
   if (token) {
-    commonHeader['Authorization'] = 'Bearer ' + token; // 添加Bearer前缀
+    commonHeader['Authorization'] = 'Bearer ' + token;
   }
   
   // 调试日志
   console.log(`[API请求] ${method} ${fullUrl}`, data);
-  if (token) {
-    console.log('[API请求] 使用Token:', token);
-  }
   
   return new Promise((resolve, reject) => {
     wx.request({
@@ -205,7 +202,7 @@ const api = {
         code: data.verifyCode,
         userType: data.userType
       };
-      return request('/v1/users/login', 'POST', params);
+      return request({ url: '/v1/users/login', method: 'POST', data: params });
     },
     // 用户登录
     login: (data) => {
@@ -215,7 +212,7 @@ const api = {
         code: data.verifyCode,
         userType: data.userType
       };
-      return request('/v1/users/login', 'POST', params);
+      return request({ url: '/v1/users/login', method: 'POST', data: params });
     },
     // 发送验证码
     sendVerifyCode: (data) => {
@@ -223,15 +220,25 @@ const api = {
       const params = {
         phone: data.phone
       };
-      return request('/v1/users/send-code', 'POST', params);
+      return request({ url: '/v1/users/send-code', method: 'POST', data: params });
     },
     // 获取用户信息
     getUserInfo: () => {
-      return request('/v1/users/info', 'GET');
+      return request({ url: '/v1/users/info', method: 'GET' });
     },
     // 检查用户是否有店铺
     checkShop: () => {
-      return request('/v1/users/has-shop', 'GET');
+      return request({ url: '/v1/users/has-shop', method: 'GET' });
+    },
+    wxLogin(data) {
+      return request({
+        url: '/v1/auth/login',  // 确保这是正确的登录接口路径
+        method: 'POST',
+        data: {
+          code: data.code,
+          phoneCode: data.phoneCode
+        }
+      });
     }
   },
   
@@ -239,11 +246,11 @@ const api = {
   shop: {
     // 提交店铺信息
     submitShopInfo: (data) => {
-      return request('/v1/shops', 'POST', data);
+      return request({ url: '/v1/shops', method: 'POST', data: data });
     },
     // 获取店铺信息
     getShopInfo: () => {
-      return request('/v1/shops/info', 'GET');
+      return request({ url: '/v1/shops/info', method: 'GET' });
     },
     // 上传图片
     uploadImage: (filePath, formData) => {
@@ -255,61 +262,58 @@ const api = {
   product: {
     // 获取商品列表
     getProductList: (params) => {
-      return request('/v1/products', 'GET', params);
+      return request({ url: '/v1/products', method: 'GET', data: params });
     },
     // 添加商品
     addProduct: (data) => {
-      return request('/product/add', 'POST', data);
+      return request({ url: '/product/add', method: 'POST', data: data });
     },
     // 更新商品
     updateProduct: (productId, data) => {
-      return request(`/v1/products/${productId}`, 'PUT', data);
+      return request({ url: `/v1/products/${productId}`, method: 'PUT', data: data });
     },
     // 删除商品
     deleteProduct: (id) => {
-      return request('/product/delete', 'DELETE', { id });
+      return request({ url: '/product/delete', method: 'DELETE', data: { id } });
     },
     // 商品上架
     onlineProduct: (id) => {
-      return request('/product/online', 'POST', { id });
+      return request({ url: '/product/online', method: 'POST', data: { id } });
     },
     // 商品下架
     offlineProduct: (id) => {
-      return request('/product/offline', 'POST', { id });
+      return request({ url: '/product/offline', method: 'POST', data: { id } });
     },
     // 批量商品下架
     batchOfflineProduct: (ids) => {
-      return request('/product/batchOffline', 'POST', { ids });
+      return request({ url: '/product/batchOffline', method: 'POST', data: { ids } });
     },
     // 修改商品库存
     updateStock: (productId, stock) => {
-      return request(`/v1/products/${productId}/stock`, 'PATCH', { stock });
+      return request({ url: `/v1/products/${productId}/stock`, method: 'PATCH', data: { stock } });
     },
     // 编辑商品
     editProduct: (data) => {
-      return request('/product/edit', 'PUT', data);
+      return request({ url: '/product/edit', method: 'PUT', data: data });
     },
     // 获取商品分类
     getCategories: () => {
-      return request('/v1/categories', 'GET');
+      return request({ url: '/v1/categories', method: 'GET' });
     },
     
     // 创建商品
     createProduct: (data) => {
-      return request('/v1/products', 'POST', data);
+      return request({ url: '/v1/products', method: 'POST', data: data });
     },
     // 更新商品状态
     updateProductStatus: (productId, status) => {
-      return request(`/v1/products/${productId}/status`, 'PATCH', { status });
+      return request({ url: `/v1/products/${productId}/status`, method: 'PATCH', data: { status } });
     },
     batchUpdateStatus: (productIds, status) => {
-      return request('/v1/products/batch/status', 'PATCH', {
-        productIds,
-        status
-      });
+      return request({ url: '/v1/products/batch/status', method: 'PATCH', data: { productIds, status } });
     },
     getProductDetail: (productId) => {
-      return request(`/v1/products/${productId}`, 'GET');
+      return request({ url: `/v1/products/${productId}`, method: 'GET' });
     }
   },
   
@@ -317,31 +321,31 @@ const api = {
   order: {
     // 获取订单列表
     getOrderList: (params) => {
-      return request('/order/list', 'GET', params);
+      return request({ url: '/v1/orders', method: 'GET', data: params });
     },
     // 获取订单详情
     getOrderDetail: (id) => {
-      return request('/order/detail', 'GET', { id });
+      return request({ url: '/order/detail', method: 'GET', data: { id } });
     },
     // 更新订单状态
     updateOrderStatus: (id, status) => {
-      return request('/order/updateStatus', 'PUT', { id, status });
+      return request({ url: '/order/updateStatus', method: 'PUT', data: { id, status } });
     },
     // 订单核销
     verifyOrder: (id, verifyCode) => {
-      return request('/order/verify', 'POST', { id, verifyCode });
+      return request({ url: '/order/verify', method: 'POST', data: { id, verifyCode } });
     },
     // 扫码核销
     scanVerifyOrder: (qrCode) => {
-      return request('/order/scanVerify', 'POST', { qrCode });
+      return request({ url: '/order/scanVerify', method: 'POST', data: { qrCode } });
     },
     // 同意退款
     approveRefund: (id) => {
-      return request('/order/approveRefund', 'POST', { id });
+      return request({ url: '/order/approveRefund', method: 'POST', data: { id } });
     },
     // 拒绝退款
     rejectRefund: (id, reason) => {
-      return request('/order/rejectRefund', 'POST', { id, reason });
+      return request({ url: '/order/rejectRefund', method: 'POST', data: { id, reason } });
     }
   },
   
@@ -349,23 +353,23 @@ const api = {
   withdraw: {
     // 获取账户余额
     getBalance: () => {
-      return request('/withdraw/balance', 'GET');
+      return request({ url: '/withdraw/balance', method: 'GET' });
     },
     // 申请提现
     applyWithdraw: (data) => {
-      return request('/withdraw/apply', 'POST', data);
+      return request({ url: '/withdraw/apply', method: 'POST', data: data });
     },
     // 获取提现记录列表
     getWithdrawList: (params) => {
-      return request('/withdraw/list', 'GET', params);
+      return request({ url: '/withdraw/list', method: 'GET', data: params });
     },
     // 获取提现详情
     getWithdrawDetail: (id) => {
-      return request('/withdraw/detail', 'GET', { id });
+      return request({ url: '/withdraw/detail', method: 'GET', data: { id } });
     },
     // 取消提现申请
     cancelWithdraw: (id) => {
-      return request('/withdraw/cancel', 'POST', { id });
+      return request({ url: '/withdraw/cancel', method: 'POST', data: { id } });
     }
   },
   
@@ -373,14 +377,17 @@ const api = {
   stats: {
     // 获取销售统计
     getSalesStats: (params) => {
-      return request('/stats/sales', 'GET', params);
+      return request({ url: '/stats/sales', method: 'GET', data: params });
     },
     // 获取商品销售排行
     getProductRanking: (params) => {
-      return request('/stats/products', 'GET', params);
+      return request({ url: '/stats/products', method: 'GET', data: params });
     }
   }
 };
 
 // 导出API接口
-module.exports = api; 
+module.exports = {
+  ...api,
+  baseUrl: baseUrl
+}; 
