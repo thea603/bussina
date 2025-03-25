@@ -50,7 +50,8 @@ Page({
     
     const params = {
       page: this.data.page,
-      pageSize: 20
+      pageSize: 20,
+      status: 1
     };
     
     if (shopId) {
@@ -110,7 +111,8 @@ Page({
     const params = {
       page: this.data.currentPage,
       limit: 10,
-      shopId: shopId
+      shopId: shopId,
+      status: 1
     };
 
     const api = require('../../utils/api');
