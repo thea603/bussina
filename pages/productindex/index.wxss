@@ -82,8 +82,8 @@
 }
 
 .function-icon {
-  width: 80rpx;
-  height: 80rpx;
+  width: 54rpx;
+  height: 54rpx;
   margin-bottom: 16rpx;
 }
 
@@ -127,9 +127,8 @@
 }
 
 .add-goods-icon-placeholder {
-  width: 80rpx;
-  height: 80rpx;
-  background-color: #EEEEEE;
+  width: 54rpx;
+  height: 54rpx;
   border-radius: 8rpx;
 }
 
@@ -263,7 +262,7 @@
 }
 
 .goods-detail {
-  width: 120px;       /* 设置固定宽度，根据实际需求调整 */
+  width: 90px;       /* 设置固定宽度，根据实际需求调整 */
   flex-shrink: 0;     /* 防止被压缩 */
 }
 

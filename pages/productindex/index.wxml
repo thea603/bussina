@@ -17,11 +17,11 @@
     <view class="function-area">
       <view class="function-cards">
         <view class="function-card" bindtap="navigateToDigitalVerify">
-          <image class="function-icon" src="/images/icon_digital.png" mode="aspectFit"></image>
+          <image class="function-icon" src="./images/shouxie.png" mode="aspectFit"></image>
           <view class="function-name">数字核销</view>
         </view>
         <view class="function-card" bindtap="navigateToScanVerify">
-          <image class="function-icon" src="/images/icon_scan_code.png" mode="aspectFit"></image>
+          <image class="function-icon" src="./images/saoma.png" mode="aspectFit"></image>
           <view class="function-name">扫码核销</view>
         </view>
       </view>
@@ -35,7 +35,9 @@
         <view class="add-goods-area" bindtap="navigateToAddGoods">
           <view class="add-goods-icon-wrapper">
             <!-- 使用灰色方框替代图片，后续可替换为实际图片 -->
-            <view class="add-goods-icon-placeholder"></view>
+            <view class="add-goods-icon-placeholder">
+              <image class="function-icon" src="./images/new.png" mode="aspectFit"></image>
+          </view>
           </view>
           <view class="add-goods-info">
             <view class="add-goods-text">新建商品</view>
@@ -45,7 +47,6 @@
         
         <view class="add-goods-btn" bindtap="navigateToAddGoods">
           <!-- 使用灰色方框替代图片，后续可替换为实际图片 -->
-          <view class="add-goods-btn-icon-placeholder"></view>
           <view class="add-goods-btn-text">新建商品</view>
         </view>
       </view>

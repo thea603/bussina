@@ -30,7 +30,9 @@ Page({
       offShelf: 0,
       reviewing: 0
     },
-    isLoadingMore: false // 是否正在加载更多数据
+    isLoadingMore: false, // 是否正在加载更多数据
+    needRefresh: false, // 是否需要刷新页面
+    isFirstLoad: true // 标记是否是第一次加载
   },
 
   onLoad: function (options) {
@@ -42,17 +44,21 @@ Page({
       sortType: 0  // 确保默认选中商品排序
     });
     
-    // 调用接口获取商品列表数据，不预先设置isLoading
-    this.fetchProductList();
+    // 标记为第一次加载
+    this.isFirstLoad = true;
     
-    console.log('页面加载，准备获取接口数据');
+    console.log('页面加载完成');
   },
 
   onShow: function() {
-    // 同样不预先设置isLoading
-    // if (!this.data.displayProducts || this.data.displayProducts.length === 0) {
-    // this.fetchProductList();
-    // }
+    console.log('页面显示，isFirstLoad:', this.isFirstLoad, 'needRefresh:', this.data.needRefresh);
+    
+    // 如果是第一次加载或需要刷新，则请求数据
+    if (this.isFirstLoad || this.data.needRefresh) {
+      this.refreshCurrentPage();
+      this.isFirstLoad = false;
+      this.data.needRefresh = false;
+    }
   },
   
   // 获取商品列表数据
@@ -907,5 +913,41 @@ Page({
             reviewing: reviewingCount
           }
         });
+  },
+
+  // 添加 onTabItemTap 处理函数
+  onTabItemTap(item) {
+    // 当通过 tabBar 切换到当前页面时触发
+    console.log('Tab被点击:', item);
+    this.refreshCurrentPage();
+  },
+
+  // 修改刷新页面方法
+  refreshCurrentPage() {
+    console.log('刷新页面数据');
+    
+    // 重置页面状态
+    this.setData({
+      currentPage: 1,
+      displayProducts: [],
+      selectedProducts: [], // 清空选中的商品
+      isAllSelected: false, // 重置全选状态
+      isLoading: true
+    });
+
+    // 重新获取商品列表
+    this.fetchProductList();
+  },
+
+  // 修改 onHide 方法
+  onHide() {
+    console.log('页面隐藏，标记需要刷新');
+    this.data.needRefresh = true;
+  },
+
+  // onUnload 方法用于页面销毁时的处理
+  onUnload() {
+    console.log('页面卸载');
+    this.isFirstLoad = true; // 重置首次加载标记
   },
 }); 
