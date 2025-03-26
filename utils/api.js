@@ -314,6 +314,10 @@ const api = {
     },
     getProductDetail: (productId) => {
       return request({ url: `/v1/products/${productId}`, method: 'GET' });
+    },
+    //商品核销
+    getProductScan:()=>{
+      return request({url:'/v1/verification/verify-code',method:'POST',data:data});
     }
   },
   

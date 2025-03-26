@@ -112,7 +112,6 @@ Page({
       page: this.data.currentPage,
       limit: 10,
       shopId: shopId,
-      status: 1
     };
 
     const api = require('../../utils/api');

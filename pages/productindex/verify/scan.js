@@ -100,26 +100,45 @@ Page({
     const scanCode = this.data.scanCode;
     console.log('提交扫码核销:', scanCode);
 
-    // 模拟核销过程
+  // 模拟核销过程
     wx.showLoading({
       title: '核销中...',
     });
 
-    // 模拟网络请求延迟
-    setTimeout(() => {
-      wx.hideLoading();
+    api.product.getProductScan({code:scanCode})
+    .then(res => {
+      if (res.code === 200 && res.data && res.data.items) {
+        wx.hideLoading();
       
-      // 跳转到核销成功页面
-      wx.navigateTo({
-        url: '/pages/productindex/verify/success'
-      });
+        // 跳转到核销成功页面
+        wx.navigateTo({
+          url: '/pages/productindex/verify/success'
+        });
+        
+        // 在页面跳转后立即清空输入框内容
+        this.setData({
+          scanCode: '',
+          isSubmitActive: false
+        });
       
-      // 在页面跳转后立即清空输入框内容
-      this.setData({
-        scanCode: '',
-        isSubmitActive: false
+      } else {
+        wx.showToast({
+          title: '商品核销失败',
+          icon: 'none'
+        });
+      }
+    })
+    .catch(err => {
+      console.error('商品核销失败:', err);
+      wx.showToast({
+        title: '网络错误，请重试',
+        icon: 'none'
       });
-    }, 1500);
+    })
+    .finally(() => {
+      this.setData({ loading: false });
+    });
+
   },
 
   // 返回上一页
