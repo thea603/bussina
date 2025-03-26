@@ -92,13 +92,21 @@
           <!-- 订单金额 -->
           <view class="order-amount">
             <text class="amount-label">本单预计收入</text>
-            <text class="amount-value">¥ {{item.amount}}</text>
+            <text class="amount-value">¥ {{item.totalAmount}}</text>
           </view>
           
           <!-- 订单信息 -->
+
+          
           <view class="order-info">
-            <text class="order-id">订单编号：{{item.id}}</text>
-            <text class="order-time">下单时间：{{item.orderTime}}</text>
+           <view class="order-amount">
+            <text class="amount-label">订单编号</text>
+            <text >{{item.orderNo}}</text>
+          </view>
+            <view class="order-amount">
+            <text class="amount-label">下单时间</text>
+            <text >{{item.createdAt}}</text>
+          </view>
           </view>
         </view>
         

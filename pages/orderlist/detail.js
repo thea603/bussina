@@ -5,7 +5,8 @@ Page({
     rejectReason: '', // 拒绝退款理由
     showConfirmModal: false, // 是否显示确认弹窗
     modalTitle: '', // 弹窗标题
-    modalMessage: '' // 弹窗消息
+    modalMessage: '', // 弹窗消息
+    loading: true // 加载状态
   },
 
   onLoad: function(options) {
@@ -13,38 +14,49 @@ Page({
     const orderId = options.id;
     console.log('订单ID:', orderId);
     
-    // 模拟从服务器获取订单详情
-    // 实际应用中，应该通过API请求获取订单详情
+    // 通过API请求获取订单详情
     this.getOrderDetail(orderId);
   },
   
   // 获取订单详情
   getOrderDetail: function(orderId) {
-    console.log('原始订单ID:', orderId);
-    console.log('解析后的订单ID:', parseInt(orderId));
-    console.log('取模结果:', parseInt(orderId) % 3);
-    
-    // 模拟订单数据
-    // 实际应用中，应该通过API请求获取订单详情
-    const orderData = {
-      id: orderId,
-      customerPhone: '153****2424',
-      productName: '位置一天【含调】单人下午茶套餐',
-      shopName: '大娃四川味(温湖)',
-      quantity: 'x1',
-      spec: '300g',
-      amount: 74,
-      status: parseInt(orderId) % 3, // 根据订单ID动态设置状态，用于测试
-      orderTime: '2024-07-07 16:08:08',
-      payMethod: '微信',
-      transactionId: '123456789012345678901234567890'
-    };
-    
-    console.log('订单状态:', orderData.status);
-    
-    this.setData({
-      order: orderData
+    // 显示加载提示
+    wx.showLoading({
+      title: '加载中...',
     });
+    
+    const api = require('../../utils/api');
+    
+    // 调用API获取订单详情
+    api.order.getOrderDetail(orderId)
+      .then(res => {
+        console.log('订单详情响应:', res);
+        
+        if (res.code === 200 && res.data) {
+          this.setData({
+            order: res.data,
+            loading: false
+          });
+        } else {
+          wx.showToast({
+            title: '获取订单失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('获取订单详情失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        wx.hideLoading();
+        this.setData({
+          loading: false
+        });
+      });
   },
   
   // 拨打电话
@@ -108,20 +120,40 @@ Page({
     
     console.log('拒绝退款理由:', this.data.rejectReason);
     
-    // 更新订单状态
-    const order = this.data.order;
-    order.status = 1; // 更新为待核销状态
+    const api = require('../../utils/api');
+    const orderId = this.data.order.id;
     
-    this.setData({
-      order: order,
-      showRejectModal: false,
-      rejectReason: ''
+    wx.showLoading({
+      title: '处理中...',
     });
     
-    wx.showToast({
-      title: '已拒绝退款',
-      icon: 'success'
-    });
+    // 调用拒绝退款API
+    api.order.rejectRefund(orderId, this.data.rejectReason)
+      .then(res => {
+        if (res.code === 200) {
+          // 刷新订单状态
+          return this.getOrderDetail(orderId);
+        } else {
+          wx.showToast({
+            title: res.message || '操作失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('拒绝退款失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        wx.hideLoading();
+        this.setData({
+          showRejectModal: false,
+          rejectReason: ''
+        });
+      });
   },
   
   // 同意退款
@@ -142,19 +174,43 @@ Page({
   
   // 确认操作
   confirmAction: function() {
-    // 更新订单状态
-    const order = this.data.order;
-    order.status = 0; // 更新为已完成状态
+    const api = require('../../utils/api');
+    const orderId = this.data.order.id;
     
-    this.setData({
-      order: order,
-      showConfirmModal: false
+    wx.showLoading({
+      title: '处理中...',
     });
     
-    wx.showToast({
-      title: '退款成功',
-      icon: 'success'
-    });
+    // 调用同意退款API
+    api.order.approveRefund(orderId)
+      .then(res => {
+        if (res.code === 200) {
+          wx.showToast({
+            title: '退款成功',
+            icon: 'success'
+          });
+          // 刷新订单状态
+          return this.getOrderDetail(orderId);
+        } else {
+          wx.showToast({
+            title: res.message || '操作失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('同意退款失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        wx.hideLoading();
+        this.setData({
+          showConfirmModal: false
+        });
+      });
   },
   
   // 扫码核销

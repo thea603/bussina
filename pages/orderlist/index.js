@@ -85,6 +85,7 @@ Page({
             hasMoreData: this.data.currentPage < pagination.totalPages,
             currentPage: loadMore ? this.data.currentPage + 1 : 2
           });
+          console.log(this.data.displayOrders,'this.data.displayOrders')
         } else {
           wx.showToast({
             title: '获取订单列表失败',

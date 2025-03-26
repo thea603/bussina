@@ -19,7 +19,7 @@
     
     <!-- 商品信息 -->
     <view class="product-section">
-      <view class="shop-name">{{order.shopName || '大娃四川味(温湖)'}}</view>
+      <view class="shop-name">{{order.orderItems[0].product.name || '大娃四川味(温湖)'}}</view>
       
       <view class="product-info">
         <!-- 商品图片 -->
@@ -33,7 +33,7 @@
             <text class="spec-item">数量: {{order.quantity || 'x1'}}</text>
             <text class="spec-item">规格: {{order.spec || '300g'}}</text>
           </view>
-          <view class="product-price">¥{{order.amount}}</view>
+          <view class="product-price">¥{{order.totalAmount}}</view>
         </view>
       </view>
       
@@ -41,7 +41,7 @@
       <view class="order-amount-info">
         <view class="amount-item">
           <text class="amount-label">共计商品</text>
-          <text class="amount-value">实付¥{{order.amount}}</text>
+          <text class="amount-value">实付¥{{order.totalAmount}}</text>
         </view>
         <view class="amount-item">
           <text class="amount-label">等待退款</text>
@@ -54,11 +54,11 @@
     <view class="order-info-section">
       <view class="info-item">
         <text class="info-label">下单时间</text>
-        <text class="info-value">{{order.orderTime || '2024-07-07 16:08:08'}}</text>
+        <text class="info-value">{{order.createdAt || '2024-07-07 16:08:08'}}</text>
       </view>
       <view class="info-item">
         <text class="info-label">订单编号</text>
-        <text class="info-value">{{order.id}}</text>
+        <text class="info-value">{{order.orderNo}}</text>
         <text class="copy-btn" bindtap="copyOrderId">复制</text>
       </view>
       <view class="info-item">

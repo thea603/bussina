@@ -20,7 +20,6 @@
         class="btn wechat-btn" 
         bindtap="handleWxLogin"
       >
-        <image class="wechat-icon" src="/images/wechat.png" mode="aspectFit"></image>
         <text>微信快捷登录</text>
       </button>
       <!-- 登录按钮 -->

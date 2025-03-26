@@ -203,30 +203,8 @@ Page({
           // 调用登录接口
           api.user.wxLogin(loginParams)
             .then(res => {
-              console.log("登录接口返回：", res);
-              if (res.code === 0) {
-                // 保存token
-                wx.setStorageSync('token', res.data.token);
-                
-                // 如果有店铺信息，保存店铺信息
-                if (res.data.shopInfo) {
-                  wx.setStorageSync('shopInfo', res.data.shopInfo);
-                  // 跳转到首页
-                  wx.switchTab({
-                    url: '/pages/productindex/index'
-                  });
-                } else {
-                  // 跳转到注册店铺页面
-                  wx.redirectTo({
-                    url: '/pages/shop/register/index'
-                  });
-                }
-              } else {
-                wx.showToast({
-                  title: res.msg || '登录失败',
-                  icon: 'none'
-                });
-              }
+              console.log("登录接口返回：res", res);
+           
             })
             .catch(err => {
               console.error('登录失败:', err);

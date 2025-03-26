@@ -232,11 +232,11 @@ const api = {
     },
     wxLogin(data) {
       return request({
-        url: '/v1/auth/login',  // 确保这是正确的登录接口路径
+        url: '/v1/wechat/getOpenId',  // 确保这是正确的登录接口路径
         method: 'POST',
         data: {
           code: data.code,
-          phoneCode: data.phoneCode
+          type:'business'
         }
       });
     }
@@ -329,7 +329,7 @@ const api = {
     },
     // 获取订单详情
     getOrderDetail: (id) => {
-      return request({ url: '/order/detail', method: 'GET', data: { id } });
+      return request({ url: `/v1/orders/${id}`, method: 'GET' });
     },
     // 更新订单状态
     updateOrderStatus: (id, status) => {
