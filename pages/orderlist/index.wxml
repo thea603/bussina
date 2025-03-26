@@ -112,7 +112,7 @@
         
         <!-- 订单操作按钮 -->
         <view class="order-actions" wx:if="{{item.status === 2}}">
-          <view class="action-button reject" bindtap="rejectRefund" data-id="{{item.id}}" catchtap="rejectRefund">
+          <view class="action-button reject" bindtap="rejectRefund" data-id="{{item.id}}">
             <text>拒绝退款</text>
           </view>
           <view class="action-button agree" bindtap="agreeRefund" data-id="{{item.id}}">
@@ -154,6 +154,25 @@
       <view class="modal-buttons">
         <button class="modal-button cancel" bindtap="cancelAction">取消</button>
         <button class="modal-button confirm" bindtap="confirmAction">确认</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 拒绝退款弹窗 -->
+  <view class="modal-mask" wx:if="{{showRejectModal}}">
+    <view class="modal-content">
+      <view class="modal-title">拒绝退款</view>
+      <view class="modal-message">
+        <textarea 
+          class="reason-input" 
+          placeholder="请输入拒绝退款理由" 
+          value="{{rejectReason}}"
+          bindinput="onReasonInput"
+        ></textarea>
+      </view>
+      <view class="modal-buttons">
+        <button class="modal-button cancel" bindtap="cancelReject">取消</button>
+        <button class="modal-button confirm" bindtap="confirmReject">确认</button>
       </view>
     </view>
   </view>

@@ -681,44 +681,35 @@ Page({
 
   // 切换全选状态
   toggleSelectAll: function() {
-    // 直接反转当前全选状态
     const isAllSelected = !this.data.isAllSelected;
-    console.log('切换全选状态:', isAllSelected);
-    
-    // 当前可见商品ID数组，统一转换为字符串类型
     const visibleProducts = this.data.filteredProducts
       .filter(item => item.status !== 3 && item.status !== 4)
-        .map(item => {
-          console.log('全选中的商品ID类型:', item.id, typeof item.id);
-          return String(item.id);
-        });
-    
-    // 如果是全选，则使用所有可见商品的ID；否则清空
+      .map(item => String(item.id));
     const selectedProducts = isAllSelected ? visibleProducts : [];
-    
-    // 更新状态
+    const displayProducts = this.data.displayProducts.slice().map((item) => {
+      return {
+        ...item,
+        checked: selectedProducts.includes(String(item.id))
+      }
+    });
     this.setData({
       isAllSelected: isAllSelected,
-      selectedProducts: selectedProducts
+      selectedProducts: selectedProducts,
+      displayProducts
     });
-    
-    console.log('全选状态变更为:', isAllSelected, '选中商品数:', selectedProducts.length);
-    if(selectedProducts.length > 0) {
-      console.log('全选后的第一个ID类型:', typeof selectedProducts[0]);
-    }
   },
   
   // 切换单个商品的选择状态
-  toggleSelectProduct: function(e) {
+  toggleSelectProduct: function (e) {
     // 从dataset中获取商品ID，确保转换为字符串类型
     const productId = String(e.currentTarget.dataset.id);
     console.log('切换商品选择状态:', productId, typeof productId);
-    
+
     let selectedProducts = [...this.data.selectedProducts];
-    
+
     // 检查商品是否已被选中
     const index = selectedProducts.indexOf(productId);
-    
+
     if (index === -1) {
       // 如果未选中，添加到已选择数组
       selectedProducts.push(productId);
@@ -726,26 +717,27 @@ Page({
       // 如果已选中，从已选择数组中移除
       selectedProducts.splice(index, 1);
     }
-    
+
     // 当前可见商品
     const visibleProducts = this.data.filteredProducts
       .filter(item => item.status !== 3 && item.status !== 4)
       .map(item => String(item.id));
-    
+
     // 检查是否全选 - 所有可见商品都被选中
-    const isAllSelected = visibleProducts.length > 0 && 
+    const isAllSelected = visibleProducts.length > 0 &&
       visibleProducts.every(id => selectedProducts.indexOf(id) !== -1);
-    
-    console.log('selectedProducts:', selectedProducts, 'productId:', productId);
-    
+
+    console.log(selectedProducts, 'selectedProducts', productId, 'productId');
+    console.log('selectedProducts中的第一个ID类型:', typeof selectedProducts[0]);
+    console.log('ID是否在选中列表中:', selectedProducts.indexOf(productId) !== -1);
+
     // 更新状态
     this.setData({
       selectedProducts: selectedProducts,
       isAllSelected: isAllSelected
     });
   },
-
-  // 取消下架商品
+  // 取消下架商品s
   cancelChangeStatus: function() {
     // 关闭弹窗
     this.setData({
