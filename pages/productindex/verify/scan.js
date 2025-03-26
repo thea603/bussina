@@ -104,6 +104,7 @@ Page({
     wx.showLoading({
       title: '核销中...',
     });
+    const api = require('../../utils/api');
 
     api.product.getProductScan({code:scanCode})
     .then(res => {
