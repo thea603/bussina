@@ -53,10 +53,10 @@ Page({
       })
       .finally(() => {
         wx.hideLoading();
-        this.setData({
+    this.setData({
           loading: false
         });
-      });
+    });
   },
   
   // 拨打电话
@@ -142,7 +142,7 @@ Page({
       })
       .catch(err => {
         console.error('拒绝退款失败:', err);
-        wx.showToast({
+    wx.showToast({
           title: '网络错误，请重试',
           icon: 'none'
         });
@@ -153,7 +153,7 @@ Page({
           showRejectModal: false,
           rejectReason: ''
         });
-      });
+    });
   },
   
   // 同意退款
@@ -185,9 +185,9 @@ Page({
     api.order.approveRefund(orderId)
       .then(res => {
         if (res.code === 200) {
-          wx.showToast({
-            title: '退款成功',
-            icon: 'success'
+    wx.showToast({
+      title: '退款成功',
+      icon: 'success'
           });
           // 刷新订单状态
           return this.getOrderDetail(orderId);
@@ -210,7 +210,7 @@ Page({
         this.setData({
           showConfirmModal: false
         });
-      });
+    });
   },
   
   // 扫码核销

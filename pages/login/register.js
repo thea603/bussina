@@ -39,6 +39,26 @@ Page({
         pageType: 'register'
       });
     }
+
+    // 如果URL中包含手机号，自动填充
+    if (options.phone) {
+      const phone = options.phone;
+      console.log('自动填充手机号:', phone);
+      this.setData({
+        phone: phone
+      });
+      // 校验手机号格式
+      this.validatePhone(phone);
+      
+      // 自动发送验证码（延迟执行，确保页面渲染完成）
+      setTimeout(() => {
+        // 如果手机号有效，自动发送验证码
+        if (this.data.isPhoneValid && this.data.countdown === 0) {
+          console.log('自动发送验证码...');
+          this.sendVerifyCode();
+        }
+      }, 500);
+    }
   },
 
   /**

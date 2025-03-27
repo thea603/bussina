@@ -61,8 +61,8 @@ const request = ({ url, method = 'GET', data = {}, header = {} }) => {
         if (res.statusCode === 200) {
           // API可能直接返回数据，没有code字段
           if (res.data.code !== undefined) {
-            // 有code字段的情况
-            if (res.data.code === 200) {
+            // 有code字段的情况，code为200或0都表示成功
+            if (res.data.code === 200 || res.data.code === 0) {
               resolve(res.data);
             } else {
               // 业务错误处理
@@ -237,6 +237,28 @@ const api = {
         data: {
           code: data.code,
           type:'business'
+        }
+      });
+    },
+    // 获取微信 AccessToken
+    getAccessToken(data) {
+      return request({
+        url: '/v1/wechat/getAccessToken',
+        method: 'POST',
+        data: {
+          type: data.type || 'business'
+        }
+      });
+    },
+    // 获取用户手机号
+    getPhoneNumber(data) {
+      return request({
+        url: '/v1/wechat/getPhoneNumber',
+        method: 'POST',
+        data: {
+          code: data.code,
+          access_token: data.access_token,
+          
         }
       });
     }
