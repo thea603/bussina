@@ -53,26 +53,87 @@
   }
   ```
 
-### 3. 微信登录
+### 3. 微信登录获取OpenID
 
-- **接口名称**: 微信登录
-- **URL**: `/v1/auth/login`
+- **接口名称**: 获取OpenID
+- **URL**: `/v1/wechat/getOpenId`
 - **方法**: POST
 - **请求参数**:
   ```json
   {
     "code": "微信登录code",
-    "phoneCode": "手机号验证码"
+    "type": "business"
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 0,
+    "message": "成功",
+    "data": {
+      "openid": "微信用户openid",
+      "session_key": "会话密钥"
+    }
   }
   ```
 
-### 4. 获取用户信息
+### 4. 获取微信AccessToken
+
+- **接口名称**: 获取AccessToken
+- **URL**: `/v1/wechat/getAccessToken`
+- **方法**: POST
+- **请求参数**:
+  ```json
+  {
+    "type": "business"
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 0,
+    "message": "成功",
+    "data": {
+      "access_token": "访问令牌",
+      "expires_in": 7200
+    }
+  }
+  ```
+
+### 5. 获取微信用户手机号
+
+- **接口名称**: 获取手机号
+- **URL**: `/v1/wechat/getPhoneNumber`
+- **方法**: POST
+- **请求参数**:
+  ```json
+  {
+    "code": "微信获取手机号凭证code",
+    "type": "business",
+    "access_token": "访问令牌",
+    "openid": "用户openid"
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 0,
+    "message": "成功",
+    "data": {
+      "phoneNumber": "13800138000",
+      "purePhoneNumber": "13800138000",
+      "countryCode": "86"
+    }
+  }
+  ```
+
+### 6. 获取用户信息
 
 - **接口名称**: 获取用户信息
 - **URL**: `/v1/users/info`
 - **方法**: GET
 
-### 5. 检查用户是否有店铺
+### 7. 检查用户是否有店铺
 
 - **接口名称**: 检查用户是否有店铺
 - **URL**: `/v1/users/has-shop`
