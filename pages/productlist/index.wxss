@@ -551,6 +551,7 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index:90;
   box-shadow: 0 4rpx 8rpx rgba(255, 102, 0, 0.2);
 }
 

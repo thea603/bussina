@@ -2,7 +2,7 @@
 // API接口模拟层
 
 // API请求统一管理文件
-
+// 'http://hangzhou.cstext.top:4000/api',
 // 基础配置
 const config = {
   // 开发环境配置
@@ -284,7 +284,19 @@ const api = {
   product: {
     // 获取商品列表
     getProductList: (params) => {
-      return request({ url: '/v1/products', method: 'GET', data: params });
+      return request({ 
+        url: '/v1/products', 
+        method: 'GET',
+        data: params
+      });
+    },
+    // 获取商品状态统计
+    getProductStatusStats: (params) => {
+      return request({ 
+        url: '/v1/products/status/stats', 
+        method: 'GET',
+        data: params
+      });
     },
     // 添加商品
     addProduct: (data) => {
@@ -310,9 +322,13 @@ const api = {
     batchOfflineProduct: (ids) => {
       return request({ url: '/product/batchOffline', method: 'POST', data: { ids } });
     },
-    // 修改商品库存
+    // 更新商品库存
     updateStock: (productId, stock) => {
-      return request({ url: `/v1/products/${productId}/stock`, method: 'PATCH', data: { stock } });
+      return request({ 
+        url: `/v1/products/${productId}/stock`, 
+        method: 'PUT', 
+        data: { stock } 
+      });
     },
     // 编辑商品
     editProduct: (data) => {
@@ -329,10 +345,19 @@ const api = {
     },
     // 更新商品状态
     updateProductStatus: (productId, status) => {
-      return request({ url: `/v1/products/${productId}/status`, method: 'PATCH', data: { status } });
+      return request({ 
+        url: `/v1/products/${productId}/status`, 
+        method: 'PUT', 
+        data: { status } 
+      });
     },
+    // 批量更新商品状态
     batchUpdateStatus: (productIds, status) => {
-      return request({ url: '/v1/products/batch/status', method: 'PATCH', data: { productIds, status } });
+      return request({ 
+        url: '/v1/products/batch/status', 
+        method: 'PUT', 
+        data: { productIds, status } 
+      });
     },
     getProductDetail: (productId) => {
       return request({ url: `/v1/products/${productId}`, method: 'GET' });

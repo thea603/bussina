@@ -47,7 +47,8 @@ Page({
     // 标记为第一次加载
     this.isFirstLoad = true;
     
-    console.log('页面加载完成');
+    // 获取商品状态统计数据
+    this.fetchProductStatusStats();
   },
 
   onShow: function() {
@@ -59,6 +60,45 @@ Page({
       this.isFirstLoad = false;
       this.data.needRefresh = false;
     }
+  },
+  
+  // 获取商品状态统计数据
+  fetchProductStatusStats: function() {
+    // 获取店铺ID
+    const shopId = wx.getStorageSync('shopId');
+    if (!shopId) {
+      console.error('未找到店铺ID');
+      return;
+    }
+    
+    const params = {
+      shopId: shopId
+    };
+    
+    // 使用api模块调用接口
+    api.product.getProductStatusStats(params)
+      .then(res => {
+        console.log('获取商品状态统计响应:', res);
+        
+        if (res.code === 200 && res.data && res.data.statusStats) {
+          const stats = res.data.statusStats;
+          
+          // 更新标签页统计数据
+          this.setData({
+            tabCounts: {
+              onSale: parseInt(stats['1'] || 0),    // 出售中
+              soldOut: parseInt(stats['2'] || 0),   // 已售罄
+              offShelf: parseInt(stats['3'] || 0),  // 已下架
+              reviewing: parseInt(stats['0'] || 0)  // 审核中
+            }
+          });
+        } else {
+          console.error('获取商品状态统计失败:', res.message || '未知错误');
+        }
+      })
+      .catch(err => {
+        console.error('获取商品状态统计异常:', err);
+      });
   },
   
   // 获取商品列表数据
@@ -83,11 +123,6 @@ Page({
         displayProducts: []
       });
     }
-    
-    // 如果正在加载中，则不重复请求
-    // if ((this.data.isLoading && !loadMore) || (this.data.isLoadingMore && loadMore)) {
-    //   return;
-    // }
     
     // 设置加载状态
     if (loadMore) {
@@ -134,12 +169,6 @@ Page({
             newProducts = apiData;
           }
           
-          // 计算各个标签页的商品数量
-          const onSaleCount = apiData.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0).length;
-          const soldOutCount = apiData.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4)).length;
-          const offShelfCount = apiData.filter(item => item.status === 3).length;
-          const reviewingCount = apiData.filter(item => item.status === 4).length;
-          
           // 更新数据
           this.setData({
             products: apiData,
@@ -148,18 +177,14 @@ Page({
             hasMoreData: hasMore,
             isLoading: false,
             isLoadingMore: false,
-            currentPage: loadMore ? this.data.currentPage + 1 : 2,
-            tabCounts: {
-              onSale: onSaleCount,
-              soldOut: soldOutCount,
-              offShelf: offShelfCount,
-              reviewing: reviewingCount
-            }
+            currentPage: loadMore ? this.data.currentPage + 1 : 2
           });
           
           console.log('数据加载完成，当前页数据:', apiData.length);
-          console.log('所有标签页计数:', {onSaleCount, soldOutCount, offShelfCount, reviewingCount});
           console.log('当前显示商品数量:', newProducts.length);
+          
+          // 获取更新的商品状态统计
+          this.fetchProductStatusStats();
         } else {
           wx.showToast({
             title: '获取商品列表失败',
@@ -842,54 +867,57 @@ Page({
 
   // 更新显示的商品数据
   updateDisplayProducts: function(products) {
-        // 重新筛选当前标签页数据
-        let tabFilteredData = [];
-        const tabIndex = this.data.activeTab;
-        
-        if (tabIndex === 0) {
-          // 出售中：状态为0(正常)或1(库存紧张)且库存>0
+    // 重新筛选当前标签页数据
+    let tabFilteredData = [];
+    const tabIndex = this.data.activeTab;
+    
+    if (tabIndex === 0) {
+      // 出售中：状态为0(正常)或1(库存紧张)且库存>0
       tabFilteredData = products.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0);
-        } else if (tabIndex === 1) {
-          // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
+    } else if (tabIndex === 1) {
+      // 已售罄：状态为2(已售罄)或库存为0但状态不是已下架(3)或审核中(4)
       tabFilteredData = products.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4));
-        } else if (tabIndex === 2) {
-          // 已下架：状态为3(已下架)
+    } else if (tabIndex === 2) {
+      // 已下架：状态为3(已下架)
       tabFilteredData = products.filter(item => item.status === 3);
-        } else if (tabIndex === 3) {
-          // 审核中：状态为4(审核中)
+    } else if (tabIndex === 3) {
+      // 审核中：状态为4(审核中)
       tabFilteredData = products.filter(item => item.status === 4);
-        }
-        
-        // 按照时间排序
-        tabFilteredData.sort((a, b) => {
-          const timeA = new Date(a.createTime).getTime();
-          const timeB = new Date(b.createTime).getTime();
-          
-          if (this.data.sortOrder === 'desc') {
-            return timeB - timeA; // 降序：从新到旧
-          } else {
-            return timeA - timeB; // 升序：从旧到新
-          }
-        });
-        
-        // 重新计算所有标签页数量
+    }
+    
+    // 按照时间排序
+    tabFilteredData.sort((a, b) => {
+      const timeA = new Date(a.createTime).getTime();
+      const timeB = new Date(b.createTime).getTime();
+      
+      if (this.data.sortOrder === 'desc') {
+        return timeB - timeA; // 降序：从新到旧
+      } else {
+        return timeA - timeB; // 升序：从旧到新
+      }
+    });
+    
+    // 重新计算所有标签页数量
     const onSaleCount = products.filter(item => (item.status === 0 || item.status === 1) && item.stock > 0).length;
     const soldOutCount = products.filter(item => item.status === 2 || (item.stock === 0 && item.status !== 3 && item.status !== 4)).length;
     const offShelfCount = products.filter(item => item.status === 3).length;
     const reviewingCount = products.filter(item => item.status === 4).length;
-        
-        // 更新显示数据
-        this.setData({
+    
+    // 更新显示数据
+    this.setData({
       products: products,
-          filteredProducts: tabFilteredData,
-          displayProducts: tabFilteredData,
-          tabCounts: {
-            onSale: onSaleCount,
-            soldOut: soldOutCount,
-            offShelf: offShelfCount,
-            reviewing: reviewingCount
-          }
-        });
+      filteredProducts: tabFilteredData,
+      displayProducts: tabFilteredData,
+      tabCounts: {
+        onSale: onSaleCount,
+        soldOut: soldOutCount,
+        offShelf: offShelfCount,
+        reviewing: reviewingCount
+      }
+    });
+    
+    // 获取最新的商品状态统计
+    this.fetchProductStatusStats();
   },
 
   // 添加 onTabItemTap 处理函数
@@ -912,6 +940,9 @@ Page({
       isLoading: true
     });
 
+    // 获取商品状态统计数据
+    this.fetchProductStatusStats();
+    
     // 重新获取商品列表
     this.fetchProductList();
   },
