@@ -679,64 +679,57 @@ Page({
     });
   },
 
-  // 切换全选状态
-  toggleSelectAll: function() {
-    const isAllSelected = !this.data.isAllSelected;
-    const visibleProducts = this.data.filteredProducts
-      .filter(item => item.status !== 3 && item.status !== 4)
-      .map(item => String(item.id));
-    const selectedProducts = isAllSelected ? visibleProducts : [];
-    const displayProducts = this.data.displayProducts.slice().map((item) => {
+  // 复选框组变更处理函数
+  checkboxChange: function(e) {
+    // 获取checkbox-group中所有选中的checkbox的value值
+    const selectedIds = e.detail.value;
+    
+    // 更新选中的商品数组
+    this.setData({
+      selectedProducts: selectedIds,
+      // 判断是否全选 - 如果选中的数量等于当前页面商品数量
+      isAllSelected: selectedIds.length > 0 && selectedIds.length === this.data.displayProducts.length
+    });
+
+    // 更新商品的选中状态
+    const displayProducts = this.data.displayProducts.map(item => {
+      // 添加或更新选中状态
       return {
         ...item,
-        checked: selectedProducts.includes(String(item.id))
-      }
+        checked: selectedIds.includes(String(item.id))
+      };
     });
+    
     this.setData({
-      isAllSelected: isAllSelected,
-      selectedProducts: selectedProducts,
-      displayProducts
+      displayProducts: displayProducts
     });
   },
   
-  // 切换单个商品的选择状态
-  toggleSelectProduct: function (e) {
-    // 从dataset中获取商品ID，确保转换为字符串类型
-    const productId = String(e.currentTarget.dataset.id);
-    console.log('切换商品选择状态:', productId, typeof productId);
-
-    let selectedProducts = [...this.data.selectedProducts];
-
-    // 检查商品是否已被选中
-    const index = selectedProducts.indexOf(productId);
-
-    if (index === -1) {
-      // 如果未选中，添加到已选择数组
-      selectedProducts.push(productId);
-    } else {
-      // 如果已选中，从已选择数组中移除
-      selectedProducts.splice(index, 1);
-    }
-
-    // 当前可见商品
-    const visibleProducts = this.data.filteredProducts
+  // 切换全选状态
+  toggleSelectAll: function() {
+    const isAllSelected = !this.data.isAllSelected;
+    const visibleProducts = this.data.displayProducts
       .filter(item => item.status !== 3 && item.status !== 4)
       .map(item => String(item.id));
-
-    // 检查是否全选 - 所有可见商品都被选中
-    const isAllSelected = visibleProducts.length > 0 &&
-      visibleProducts.every(id => selectedProducts.indexOf(id) !== -1);
-
-    console.log(selectedProducts, 'selectedProducts', productId, 'productId');
-    console.log('selectedProducts中的第一个ID类型:', typeof selectedProducts[0]);
-    console.log('ID是否在选中列表中:', selectedProducts.indexOf(productId) !== -1);
-
-    // 更新状态
+    
+    const selectedProducts = isAllSelected ? visibleProducts : [];
+    
+    // 更新每个商品的选中状态
+    const displayProducts = this.data.displayProducts.map((item) => {
+      return {
+        ...item,
+        checked: isAllSelected && (item.status !== 3 && item.status !== 4)
+      };
+    });
+    
     this.setData({
+      isAllSelected: isAllSelected,
       selectedProducts: selectedProducts,
-      isAllSelected: isAllSelected
+      displayProducts: displayProducts
     });
   },
+
+  
   // 取消下架商品s
   cancelChangeStatus: function() {
     // 关闭弹窗
