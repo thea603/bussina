@@ -57,9 +57,5 @@
     确定
   </button>
   
-  <!-- 底部提示 -->
-  <view class="bottom-tips" wx:if="{{pageType === 'login'}}">
-    <text class="tip-text">没有账号？</text>
-    <text class="login-link" bindtap="goToLogin">去注册</text>
-  </view>
+  
 </view>

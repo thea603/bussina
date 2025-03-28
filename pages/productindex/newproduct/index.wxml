@@ -218,7 +218,6 @@
   
   <!-- 底部按钮 -->
   <view class="bottom-buttons">
-    <button class="draft-button" style='width:30%' bindtap="saveDraft">保存草稿</button>
     <button class="submit-button {{isSubmitActive ? 'active' : ''}}" bindtap="submitForm">
       {{isEdit ? '编辑提交' : '提交审核'}}
     </button>

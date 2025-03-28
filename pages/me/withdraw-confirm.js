@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     balance: 100.00,
@@ -105,15 +107,51 @@ Page({
       title: '提现处理中...',
     });
     
-    // 模拟提现操作
-    setTimeout(() => {
+    // 从本地存储获取openid
+    const openid = wx.getStorageSync('openid');
+    if (!openid) {
+      wx.hideLoading();
+      wx.showToast({
+        title: '未找到用户信息，请重新登录',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    
+    // 调用微信提现接口
+    api.withdraw.createTransfer({
+      amount: 0.01, // 写死金额为0.01
+      openid: openid,
+      desc: "商户提现"
+    }).then(res => {
       wx.hideLoading();
       
-      // 显示成功弹窗
-      this.setData({
-        showSuccessPopup: true
+      console.log('提现结果:', res);
+      
+      if (res.code === 200 || res.code === 0) {
+        // 提现成功
+        this.setData({
+          showSuccessPopup: true
+        });
+      } else {
+        // 提现失败
+        wx.showToast({
+          title: res.message || '提现失败，请重试',
+          icon: 'none',
+          duration: 2000
+        });
+      }
+    }).catch(err => {
+      wx.hideLoading();
+      console.error('提现失败:', err);
+      
+      wx.showToast({
+        title: err.message || '提现失败，请稍后再试',
+        icon: 'none',
+        duration: 2000
       });
-    }, 1500);
+    });
   },
 
   // 返回首页

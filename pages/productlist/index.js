@@ -750,16 +750,10 @@ Page({
   addNewProduct: function() {
     console.log('新增商品');
     
-    // 显示成功提示而不是导航
-    wx.showToast({
-      title: '新增商品功能模拟',
-      icon: 'success'
+    // 跳转到新增商品页面
+    wx.navigateTo({
+      url: '/pages/productindex/newproduct/index?type=add&pageTitle=新增商品'
     });
-    
-    // 暂时注释掉导航到可能不存在的页面
-    // wx.navigateTo({
-    //   url: '/pages/productindex/newproduct/index'
-    // });
   },
 
   // 修改库存

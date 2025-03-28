@@ -959,14 +959,38 @@ Page({
           const data = JSON.parse(res.data);
           console.log('解析后的上传响应:', data);
           
-          // 处理返回的数据
+          // 修复处理返回的数据
           let imageUrl = '';
-          if (data.url) {
+          
+          // 处理成功状态
+          if (data.code === 200 && data.data && data.data.url) {
+            imageUrl = data.data.url;
+            console.log('图片上传成功，URL:', imageUrl);
+            
+            // 调用回调函数，传递图片URL
+            callback && callback(imageUrl);
+            
+            // 确保图片URL在页面上显示
+            this.setData({
+              previewImage: imageUrl
+            });
+            
+            wx.showToast({
+              title: '上传成功',
+              icon: 'success'
+            });
+            return;
+          } else if (data.url) {
+            // 兼容老的接口格式
             imageUrl = data.url;
           } else if (data.path) {
             // 如果返回的是path字段，需要添加基础URL（不包含/api部分）
             const domainUrl = baseUrl.replace(/\/api$/, '');
             imageUrl = domainUrl + data.path;
+          } else if (data.data && data.data.path) {
+            // 可能在data.data下有path
+            const domainUrl = baseUrl.replace(/\/api$/, '');
+            imageUrl = domainUrl + data.data.path;
           }
           
           if (imageUrl) {
@@ -976,7 +1000,6 @@ Page({
             callback && callback(imageUrl);
             
             // 确保图片URL在页面上显示
-            // 设置预览图片
             this.setData({
               previewImage: imageUrl
             });
@@ -986,6 +1009,7 @@ Page({
               icon: 'success'
             });
           } else {
+            console.error('找不到图片URL:', data);
             wx.showToast({
               title: '上传失败: ' + (data.message || '未知错误'),
               icon: 'none'

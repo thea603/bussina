@@ -7,7 +7,7 @@
 const config = {
   // 开发环境配置
   dev: {
-    baseUrl: 'http://hangzhou.cstext.top:4000/api',
+    baseUrl: 'https://xy.ziyuebook.com/api',
   },
   // 生产环境配置
   prod: {
@@ -396,6 +396,10 @@ const api = {
     // 取消提现申请
     cancelWithdraw: (id) => {
       return request({ url: '/withdraw/cancel', method: 'POST', data: { id } });
+    },
+    // 微信提现
+    createTransfer: (data) => {
+      return request({ url: '/v1/wechat/createTransfer', method: 'POST', data: data });
     }
   },
   
