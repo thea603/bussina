@@ -1,5 +1,6 @@
 // pages/login/login.js
-const api = require('../../utils/api');
+const api = require('../../utils/api.js');
+const auth = require('../../utils/auth.js');
 
 Page({
 
@@ -271,6 +272,40 @@ Page({
   handleError: function(errMsg, err) {
     wx.showToast({
       title: errMsg,
+      icon: 'none'
+    });
+  },
+
+  // 登录成功后的处理
+  handleLoginSuccess: function(res) {
+    // 保存登录数据
+    auth.saveLoginData({
+      token: res.token,
+      openid: res.openid,
+      userId: res.userId,
+      userInfo: res.userInfo,
+      shopId: res.shopId,
+      shopInfo: res.shopInfo
+    });
+
+    // 返回上一页或跳转到首页
+    const pages = getCurrentPages();
+    if (pages.length > 0) {
+      wx.navigateBack();
+    } else {
+      wx.switchTab({
+        url: '/pages/index/index'
+      });
+    }
+  },
+
+  // 登录失败的处理
+  handleLoginFail: function(err) {
+    // 清除可能存在的旧登录数据
+    auth.clearLoginData();
+    
+    wx.showToast({
+      title: err.message || '登录失败，请重试',
       icon: 'none'
     });
   }

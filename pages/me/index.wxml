@@ -12,7 +12,7 @@
       <view wx:else class="avatar-placeholder"></view>
     </view>
     <view class="shop-name-container">
-      <view class="shop-name">{{shopInfo.name}}</view>
+      <view class="shop-name">{{shopInfo.name || '未设置店铺名称'}}</view>
       <view class="shop-status">
         <view class="status-tag">
           <view class="status-dot"></view>
@@ -30,10 +30,10 @@
     <view class="user-info">
       <view class="user-details">
         <view class="balance-label">当前余额</view>
-        <view class="balance-value">980.567</view>
+        <view class="balance-value">{{balance || '0.00'}}</view>
       </view>
     </view>
-    <view class="setting-icon" bindtap="navigateToSetting">
+    <view class="setting-icon" bindtap="navigateToWithdraw">
       <view class="setting-text">去提现</view>
     </view>
   </view>
@@ -43,99 +43,54 @@
     <view class="stats-row">
       <view class="stat-item">
         <view class="stat-label">今日营业额</view>
-        <view class="stat-value red">1212</view>
+        <view class="stat-value red">{{todaySales || '0.00'}}</view>
         <view class="stat-icon up"></view>
       </view>
       <view class="stat-item">
         <view class="stat-label">今日订单量</view>
-        <view class="stat-value red">225</view>
+        <view class="stat-value red">{{todayOrders || '0'}}</view>
         <view class="stat-icon down"></view>
       </view>
     </view>
     <view class="stats-row">
       <view class="stat-item">
         <view class="stat-label">昨日营业额</view>
-        <view class="stat-value">12</view>
+        <view class="stat-value">{{yesterdaySales || '0.00'}}</view>
       </view>
       <view class="stat-item">
         <view class="stat-label">昨日订单量</view>
-        <view class="stat-value">45</view>
+        <view class="stat-value">{{yesterdayOrders || '0'}}</view>
       </view>
     </view>
   </view>
   
   <!-- 功能菜单 -->
   <view class="menu-section">
-    <!-- 店铺管理 -->
-    <view class="menu-group">
-      <view class="menu-item" bindtap="navigateToShopInfo">
-        <view class="menu-icon">
-          <view class="icon-placeholder"></view>
-        </view>
-        <view class="menu-name">店铺信息</view>
-        <view class="menu-arrow">
-          <view class="arrow-placeholder"></view>
-        </view>
+    <view class="menu-item" bindtap="navigateToShopManage">
+      <view class="menu-left">
+        <view class="menu-icon"></view>
+        <text class="menu-name">店铺管理</text>
       </view>
-      <view class="menu-item" bindtap="navigateToStaff">
-        <view class="menu-icon">
-          <view class="icon-placeholder"></view>
-        </view>
-        <view class="menu-name">员工管理</view>
-        <view class="menu-arrow">
-          <view class="arrow-placeholder"></view>
-        </view>
-      </view>
+      <view class="menu-arrow"></view>
     </view>
-    
-    <!-- 数据统计 -->
-    <view class="menu-group">
-      <view class="menu-item" bindtap="navigateToSales">
-        <view class="menu-icon">
-          <view class="icon-placeholder"></view>
-        </view>
-        <view class="menu-name">销售统计</view>
-        <view class="menu-arrow">
-          <view class="arrow-placeholder"></view>
-        </view>
+
+    <view class="menu-item" bindtap="navigateToTools">
+      <view class="menu-left">
+        <view class="menu-icon"></view>
+        <text class="menu-name">小工具</text>
       </view>
-      <view class="menu-item" bindtap="navigateToFinance">
-        <view class="menu-icon">
-          <view class="icon-placeholder"></view>
-        </view>
-        <view class="menu-name">财务管理</view>
-        <view class="menu-arrow">
-          <view class="arrow-placeholder"></view>
-        </view>
-      </view>
+      <view class="menu-arrow"></view>
     </view>
-    
-    <!-- 帮助与反馈 -->
-    <view class="menu-group">
-      <view class="menu-item" bindtap="navigateToHelp">
-        <view class="menu-icon">
-          <view class="icon-placeholder"></view>
-        </view>
-        <view class="menu-name">帮助中心</view>
-        <view class="menu-arrow">
-          <view class="arrow-placeholder"></view>
-        </view>
+
+    <view class="menu-item" bindtap="navigateToSettings">
+      <view class="menu-left">
+        <view class="menu-icon"></view>
+        <text class="menu-name">账户与设置</text>
       </view>
-      <view class="menu-item" bindtap="navigateToFeedback">
-        <view class="menu-icon">
-          <view class="icon-placeholder"></view>
-        </view>
-        <view class="menu-name">意见反馈</view>
-        <view class="menu-arrow">
-          <view class="arrow-placeholder"></view>
-        </view>
-      </view>
+      <view class="menu-arrow"></view>
     </view>
   </view>
-  
-  <!-- 退出登录按钮 -->
-  <view class="logout-button" bindtap="logout">退出登录</view>
-  
+    
   <!-- 版本信息 -->
   <view class="version-info">当前版本: v1.0.0</view>
-</view> 
+</view>

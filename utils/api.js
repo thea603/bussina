@@ -390,13 +390,25 @@ const api = {
     scanVerifyOrder: (qrCode) => {
       return request({ url: '/order/scanVerify', method: 'POST', data: { qrCode } });
     },
-    // 同意退款
-    approveRefund: (id) => {
-      return request({ url: '/order/approveRefund', method: 'POST', data: { id } });
+    // 通过核销码核销
+    verifyByCode: (verificationCode) => {
+      return request({ 
+        url: '/v1/orders/verify-by-code', 
+        method: 'POST', 
+        data: { verificationCode } 
+      });
     },
-    // 拒绝退款
-    rejectRefund: (id, reason) => {
-      return request({ url: '/order/rejectRefund', method: 'POST', data: { id, reason } });
+    // 处理退款申请
+    processRefund: (id, action, reason = '') => {
+      const data = { action };
+      if (action === 'reject' && reason) {
+        data.reason = reason;
+      }
+      return request({ 
+        url: `/v1/orders/${id}/process-refund`, 
+        method: 'POST', 
+        data 
+      });
     }
   },
   
@@ -446,3 +458,5 @@ module.exports = {
   ...api,
   baseUrl: baseUrl
 }; 
+
+

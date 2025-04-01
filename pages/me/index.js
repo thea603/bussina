@@ -10,10 +10,15 @@ Page({
       todayRevenue: 3280,
       totalProducts: 1024
     },
-    shopInfo: {}
+    shopInfo: {},
+    balance: '0.00',
+    todaySales: '0.00',
+    todayOrders: '0',
+    yesterdaySales: '0.00',
+    yesterdayOrders: '0'
   },
 
-  onLoad: function() {
+  onLoad: function(options) {
     // 设置导航栏标题
     wx.setNavigationBarTitle({
       title: '我的'
@@ -38,6 +43,38 @@ Page({
     }
   },
 
+  // 店铺管理
+  navigateToShopManage: function() {
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none',
+      duration: 2000
+    });
+  },
+
+  // 小工具
+  navigateToTools: function() {
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none',
+      duration: 2000
+    });
+  },
+
+  // 账户与设置
+  navigateToSettings: function() {
+    wx.navigateTo({
+      url: '/pages/settings/index'
+    });
+  },
+
+  // 去提现
+  navigateToWithdraw: function() {
+    wx.navigateTo({
+      url: '/pages/withdraw/index'
+    });
+  },
+
   // 显示店铺二维码
   showShopQrcode: function() {
     wx.showModal({
@@ -45,20 +82,6 @@ Page({
       content: '这里将显示店铺的二维码图片',
       showCancel: false,
       confirmText: '关闭'
-    });
-  },
-  
-  // 导航到设置页面
-  navigateToSetting: function() {
-    wx.navigateTo({
-      url: '/pages/me/withdraw'
-    });
-  },
-
-  // 导航到店铺信息页面
-  navigateToShopInfo: function() {
-    wx.navigateTo({
-      url: '/pages/me/shop-info'
     });
   },
   

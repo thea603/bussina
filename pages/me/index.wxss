@@ -20,10 +20,11 @@
 }
 
 .shop-avatar {
-  width: 80rpx;  /* 或者你期望的尺寸 */
-  height: 80rpx;
+  width: 120rpx;  /* 增大头像尺寸 */
+  height: 120rpx;
   border-radius: 50%;
   overflow: hidden;
+  border: 2rpx solid rgba(255, 255, 255, 0.3); /* 添加微妙的边框 */
 }
 
 .avatar-image {
@@ -39,6 +40,7 @@
 
 .shop-name-container {
   flex: 1;
+  margin-left: 30rpx; /* 稍微增加与头像的间距 */
   height: 90rpx;
   display: flex;
   flex-direction: column;
@@ -56,25 +58,25 @@
 
 .shop-status {
   display: flex;
+  align-items: center;
 }
 
 .status-tag {
-  font-size: 24rpx;
-  color: #FF6600;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 6rpx 14rpx;
-  border-radius: 30rpx;
   display: flex;
   align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 24rpx;
+  padding: 4rpx 12rpx;
+  font-size: 24rpx;
+  color: #FFFFFF;
 }
 
 .status-dot {
   width: 12rpx;
   height: 12rpx;
-  background-color: #4CD964; /* 绿色圆点 */
+  background: #52C41A;
   border-radius: 50%;
-  margin-right: 8rpx;
-  display: inline-block;
+  margin-right: 6rpx;
 }
 
 .qrcode-icon {
@@ -199,20 +201,16 @@
 
 /* 功能菜单 */
 .menu-section {
-  margin-bottom: 30rpx;
-}
-
-.menu-group {
-  background-color: #FFFFFF;
-  border-radius: 12rpx;
-  margin: 20rpx 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-top: 20rpx;
+  background: #FFFFFF;
+  padding: 0 30rpx;
 }
 
 .menu-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 30rpx 20rpx;
+  padding: 30rpx 0;
   border-bottom: 1rpx solid #F5F5F5;
 }
 
@@ -220,32 +218,29 @@
   border-bottom: none;
 }
 
-.menu-icon {
-  margin-right: 20rpx;
+.menu-left {
+  display: flex;
+  align-items: center;
 }
 
-.icon-placeholder {
+.menu-icon {
   width: 40rpx;
   height: 40rpx;
-  background-color: #EEEEEE;
-  border-radius: 8rpx;
+  margin-right: 20rpx;
+  background: #D8D8D8;
+  border-radius: 6rpx;
 }
 
 .menu-name {
-  flex: 1;
   font-size: 28rpx;
   color: #333333;
 }
 
 .menu-arrow {
-  padding: 10rpx;
-}
-
-.arrow-placeholder {
-  width: 16rpx;
-  height: 16rpx;
-  border-top: 3rpx solid #CCCCCC;
-  border-right: 3rpx solid #CCCCCC;
+  width: 12rpx;
+  height: 12rpx;
+  border-top: 2rpx solid #999999;
+  border-right: 2rpx solid #999999;
   transform: rotate(45deg);
 }
 

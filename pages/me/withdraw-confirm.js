@@ -10,7 +10,8 @@ Page({
     showError: false,
     errorMsg: '',
     buttonActive: false, // 新增：按钮激活状态
-    showSuccessPopup: false // 是否显示成功弹窗
+    showSuccessPopup: false, // 是否显示成功弹窗
+    url: 'https://xy.ziyuebook.com' // API基础URL
   },
 
   onLoad: function(options) {
@@ -119,38 +120,67 @@ Page({
       return;
     }
     
-    // 调用微信提现接口
-    api.withdraw.createTransfer({
-      amount: 0.01, // 写死金额为0.01
-      openid: openid,
-      desc: "商户提现"
-    }).then(res => {
-      wx.hideLoading();
-      
-      console.log('提现结果:', res);
-      
-      if (res.code === 200 || res.code === 0) {
-        // 提现成功
-        this.setData({
-          showSuccessPopup: true
-        });
-      } else {
-        // 提现失败
+    // 转换金额为分（微信支付单位）
+    const amountInCents = Math.floor(amount * 100);
+
+    wx.request({
+      url: `${this.data.url}/api/v1/wechat/createTransfer`,
+      method: 'POST',
+      data: {
+        amount: amountInCents,  // 使用实际金额，单位分
+        openid: openid,
+        desc: '商户提现',
+        type: "business"
+      },
+      success: (res) => {
+        console.log('商家转账请求返回数据:', res.data);
+        wx.hideLoading();
+
+        if (res.data) {
+          wx.requestMerchantTransfer({
+            appId: wx.getAccountInfoSync().miniProgram.appId,
+            mchId: '1700852077',
+            package: res.data.package_info,
+            success: (transferRes) => {
+              console.log('转账成功:', transferRes);
+              wx.showToast({
+                title: '转账成功',
+                icon: 'success',
+                duration: 2000
+              });
+              
+              // 显示成功弹窗
+              this.setData({
+                showSuccessPopup: true
+              });
+            },
+            fail: (err) => {
+              console.error('转账失败:', err);
+              wx.showToast({
+                title: '转账失败',
+                icon: 'error',
+                duration: 2000
+              });
+            }
+          });
+        } else {
+          console.log('转账请求异常:', res.statusCode, res.data);
+          wx.showToast({
+            title: res.data && res.data.message ? res.data.message : '转账申请失败',
+            icon: 'error',
+            duration: 2000
+          });
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.log('转账请求失败:', err);
         wx.showToast({
-          title: res.message || '提现失败，请重试',
-          icon: 'none',
+          title: '转账请求失败，请重试',
+          icon: 'error',
           duration: 2000
         });
       }
-    }).catch(err => {
-      wx.hideLoading();
-      console.error('提现失败:', err);
-      
-      wx.showToast({
-        title: err.message || '提现失败，请稍后再试',
-        icon: 'none',
-        duration: 2000
-      });
     });
   },
 

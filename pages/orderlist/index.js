@@ -197,32 +197,46 @@ Page({
     const orderId = this.data.currentOrderId;
     const action = this.data.currentAction;
     
-    // 更新订单状态
-    const orders = this.data.displayOrders.map(item => {
-      if (item.id === orderId) {
-        return {
-          ...item,
-          status: action === 'agree' ? 0 : 1 // 同意退款：已完成，拒绝退款：待核销
-        };
-      }
-      return item;
+    // 显示加载提示
+    wx.showLoading({
+      title: '处理中...',
     });
-    
-    this.setData({
-      displayOrders: orders,
-      showConfirmModal: false,
-      currentOrderId: null,
-      currentAction: null
-    });
-    
-    // 重新筛选订单
-    this.fetchOrderList();
-    
-    // 显示成功提示
-    wx.showToast({
-      title: action === 'agree' ? '退款成功' : '已拒绝退款',
-      icon: 'success'
-    });
+
+    // 调用退款处理接口
+    api.order.processRefund(orderId, 'approve')
+      .then(res => {
+        wx.hideLoading();
+        // 更新订单状态
+        const orders = this.data.displayOrders.map(item => {
+          if (item.id === orderId) {
+            return {
+              ...item,
+              status: 0 // 更新为已完成状态
+            };
+          }
+          return item;
+        });
+        
+        this.setData({
+          displayOrders: orders,
+          showConfirmModal: false,
+          currentOrderId: null,
+          currentAction: null
+        });
+        
+        // 显示成功提示
+        wx.showToast({
+          title: '退款成功',
+          icon: 'success'
+        });
+      })
+      .catch(err => {
+        wx.hideLoading();
+        wx.showToast({
+          title: err.message || '处理失败，请重试',
+          icon: 'none'
+        });
+      });
   },
   
   // 取消操作
@@ -312,34 +326,47 @@ Page({
       return;
     }
     
-    console.log('拒绝退款理由:', this.data.rejectReason);
-    
-    // 更新订单状态
     const orderId = this.data.currentOrderId;
-    const orders = this.data.displayOrders.map(item => {
-      if (item.id === orderId) {
-        return {
-          ...item,
-          status: 1 // 更新为待核销状态
-        };
-      }
-      return item;
-    });
     
-    this.setData({
-      displayOrders: orders,
-      showRejectModal: false,
-      rejectReason: '',
-      currentOrderId: null
+    // 显示加载提示
+    wx.showLoading({
+      title: '处理中...',
     });
-    
-    // 重新筛选订单
-    this.fetchOrderList();
-    
-    // 显示成功提示
-    wx.showToast({
-      title: '已拒绝退款',
-      icon: 'success'
-    });
+
+    // 调用退款处理接口
+    api.order.processRefund(orderId, 'reject', this.data.rejectReason)
+      .then(res => {
+        wx.hideLoading();
+        // 更新订单状态
+        const orders = this.data.displayOrders.map(item => {
+          if (item.id === orderId) {
+            return {
+              ...item,
+              status: 1 // 更新为待核销状态
+            };
+          }
+          return item;
+        });
+        
+        this.setData({
+          displayOrders: orders,
+          showRejectModal: false,
+          rejectReason: '',
+          currentOrderId: null
+        });
+        
+        // 显示成功提示
+        wx.showToast({
+          title: '已拒绝退款',
+          icon: 'success'
+        });
+      })
+      .catch(err => {
+        wx.hideLoading();
+        wx.showToast({
+          title: err.message || '处理失败，请重试',
+          icon: 'none'
+        });
+      });
   }
 }); 

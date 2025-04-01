@@ -1,4 +1,6 @@
 // pages/productindex/verify/digital.js
+const api = require('../../../utils/api.js');
+
 Page({
 
   /**
@@ -97,27 +99,36 @@ Page({
     const verifyCode = this.data.verifyCode;
     console.log('提交核销码:', verifyCode);
 
-    // 模拟核销过程
+    // 显示加载提示
     wx.showLoading({
       title: '核销中...',
     });
 
-    // 模拟网络请求延迟
-    setTimeout(() => {
-      wx.hideLoading();
-      
-      // 跳转到核销成功页面
-      wx.navigateTo({
-        url: '/pages/productindex/verify/success'
+    // 调用封装好的核销接口
+    api.order.verifyByCode(verifyCode)
+      .then(res => {
+        wx.hideLoading();
+        // 核销成功，跳转到成功页面
+        wx.navigateTo({
+          url: '/pages/productindex/verify/success'
+        });
+        
+        // 清空输入框内容
+        this.setData({
+          verifyCode: '',
+          isSubmitActive: false
+        });
+      })
+      .catch(err => {
+        wx.hideLoading();
+        // 显示错误提示
+        wx.showToast({
+          title: err.message || '核销失败，请重试',
+          icon: 'none',
+          duration: 2000
+        });
+        console.error('核销请求失败:', err);
       });
-      
-      // 在页面跳转后立即清空输入框内容
-      // 这样用户在返回时看到的是空输入框
-      this.setData({
-        verifyCode: '',
-        isSubmitActive: false
-      });
-    }, 1500);
   },
 
   // 返回上一页

@@ -1,0 +1,58 @@
+<!--pages/settings/index.wxml-->
+<view class="settings-container">
+  <!-- 店铺基本信息 -->
+  <view class="info-section">
+    <view class="info-item" bindtap="navigateToShopImage">
+      <view class="item-left">店铺图</view>
+      <view class="item-right">
+        <view class="shop-logo-wrapper">
+          <image 
+            wx:if="{{shopInfo.logo}}" 
+            src="{{shopInfo.logo}}" 
+            mode="aspectFill" 
+            class="shop-logo"
+          ></image>
+          <view wx:else class="shop-logo shop-logo-placeholder"></view>
+        </view>
+        <view class="arrow"></view>
+      </view>
+    </view>
+
+    <view class="info-item" bindtap="navigateToShopName">
+      <view class="item-left">店铺名称</view>
+      <view class="item-right">
+        <text class="item-value">{{shopInfo.name || ''}}</text>
+        <view class="arrow"></view>
+      </view>
+    </view>
+
+    <view class="info-item">
+      <view class="item-left">登录手机</view>
+      <view class="item-right">
+        <text class="item-value">{{shopInfo.phone || ''}}</text>
+        <view class="arrow"></view>
+      </view>
+    </view>
+
+    <view class="info-item" bindtap="navigateToBusinessHours">
+      <view class="item-left">营业时间</view>
+      <view class="item-right">
+        <text class="item-value">{{shopInfo.startTime || ''}} - {{shopInfo.endTime || ''}}</text>
+        <view class="arrow"></view>
+      </view>
+    </view>
+
+    <view class="info-item" bindtap="navigateToShopAddress">
+      <view class="item-left">店铺地址</view>
+      <view class="item-right">
+        <text class="item-value address-value">{{shopInfo.address || ''}}</text>
+        <view class="arrow"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录按钮 -->
+  <view class="logout-section">
+    <text class="logout-text" bindtap="logout">退出登录</text>
+  </view>
+</view> 

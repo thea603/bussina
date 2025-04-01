@@ -1,0 +1,89 @@
+.business-hours-container {
+  min-height: 100vh;
+  background: #F5F5F5;
+  padding: 20rpx 20rpx 120rpx 20rpx;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.time-section {
+  background: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 0 30rpx;
+}
+
+.time-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.time-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #333333;
+  min-width: 140rpx;
+}
+
+.time-picker {
+  flex: 1;
+  text-align: right;
+}
+
+.picker-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: #666666;
+  font-size: 28rpx;
+}
+
+.picker-value text {
+  color: #666666;
+}
+
+.arrow {
+  width: 12rpx;
+  height: 12rpx;
+  border-top: 2rpx solid #999999;
+  border-right: 2rpx solid #999999;
+  transform: rotate(45deg);
+  margin-left: 10rpx;
+  flex-shrink: 0;
+}
+
+.btn-section {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+}
+
+.save-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(90deg, #FF6634, #FF9934);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  border-radius: 44rpx;
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-btn::after {
+  border: none;
+}
+
+.save-btn:active {
+  opacity: 0.9;
+} 

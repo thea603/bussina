@@ -143,7 +143,9 @@
     </view>
     
     <!-- 加载完毕提示 -->
-    <view class="load-all-tip" wx:if="{{!hasMoreData && displayOrders.length > 0}}">已加载全部订单</view>
+    <view class="load-all-tip" wx:if="{{!hasMoreData && displayOrders.length > 0}}">
+            <text>—— 已经到底啦 ——</text>    
+    </view>
   </view>
   
   <!-- 确认弹窗 -->

@@ -1,0 +1,38 @@
+<!--pages/settings/business-hours.wxml-->
+<view class="business-hours-container">
+  <view class="time-section">
+    <view class="time-item">
+      <text class="label">开始时间</text>
+      <picker 
+        mode="time" 
+        value="{{startTime}}" 
+        bindchange="onStartTimeChange"
+        class="time-picker"
+      >
+        <view class="picker-value">
+          <text>{{startTime || '请选择'}}</text>
+          <view class="arrow"></view>
+        </view>
+      </picker>
+    </view>
+
+    <view class="time-item">
+      <text class="label">结束时间</text>
+      <picker 
+        mode="time" 
+        value="{{endTime}}" 
+        bindchange="onEndTimeChange"
+        class="time-picker"
+      >
+        <view class="picker-value">
+          <text>{{endTime || '请选择'}}</text>
+          <view class="arrow"></view>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="btn-section">
+    <button class="save-btn" bindtap="saveBusinessHours">保存</button>
+  </view>
+</view> 

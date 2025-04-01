@@ -1,0 +1,36 @@
+<view class="address-container">
+  <view class="address-section">
+    <!-- 店铺地址 -->
+    <view class="address-item required">
+      <view class="label">店铺地址</view>
+      <picker 
+        mode="region" 
+        value="{{region}}" 
+        bindchange="onRegionChange"
+        class="picker-value"
+      >
+        <view class="picker-content">
+          <text>{{region[0] || ''}} {{region[1] || ''}} {{region[2] || ''}}</text>
+          <view class="arrow"></view>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 详细地址 -->
+    <view class="address-item required">
+      <view class="label">详细地址</view>
+      <input 
+        class="address-input" 
+        placeholder="请输入详细地址" 
+        placeholder-class="input-placeholder"
+        value="{{address}}"
+        bindinput="onAddressInput"
+      />
+    </view>
+  </view>
+
+  <!-- 底部保存按钮 -->
+  <view class="btn-section">
+    <button class="save-btn" bindtap="saveAddress">提交审核</button>
+  </view>
+</view> 

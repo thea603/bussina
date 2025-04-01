@@ -17,7 +17,10 @@
     "pages/productindex/verify/scan",
     "pages/productindex/verify/success",
     "pages/productindex/newproduct/success",
-    "pages/orderlist/detail"
+    "pages/orderlist/detail",
+    "pages/settings/index",
+    "pages/settings/business-hours",
+    "pages/settings/shop-address"
   ],
   "window": {
     "navigationBarTextStyle": "white",
