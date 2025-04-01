@@ -44,22 +44,18 @@ Page({
       sortType: 0  // 确保默认选中商品排序
     });
     
-    // 标记为第一次加载
-    this.isFirstLoad = true;
-    
-    // 获取商品状态统计数据
-    this.fetchProductStatusStats();
+    // 直接在onLoad中加载数据，而不是等到onShow
+    this.refreshCurrentPage();
   },
 
   onShow: function() {
-    console.log('页面显示，isFirstLoad:', this.isFirstLoad, 'needRefresh:', this.data.needRefresh);
+    console.log('页面显示，needRefresh:', this.data.needRefresh);
     
-    // 如果是第一次加载或需要刷新，则请求数据
-    if (this.isFirstLoad || this.data.needRefresh) {
-      this.refreshCurrentPage();
-      this.isFirstLoad = false;
-      this.data.needRefresh = false;
-    }
+    // // 只在需要刷新时重新加载数据
+    // if (this.data.needRefresh) {
+    //   this.refreshCurrentPage();
+    //   this.data.needRefresh = false;
+    // }
   },
   
   // 获取商品状态统计数据
@@ -179,12 +175,8 @@ Page({
             isLoadingMore: false,
             currentPage: loadMore ? this.data.currentPage + 1 : 2
           });
-          
           console.log('数据加载完成，当前页数据:', apiData.length);
           console.log('当前显示商品数量:', newProducts.length);
-          
-          // 获取更新的商品状态统计
-          this.fetchProductStatusStats();
         } else {
           wx.showToast({
             title: '获取商品列表失败',
@@ -634,7 +626,8 @@ Page({
           if (productIndex !== -1) {
             // 更新商品状态
             products[productIndex].status = status;
-            
+            this.fetchProductStatusStats()
+
             this.setData({
               products: products,
               showConfirmModal: false,
@@ -643,12 +636,13 @@ Page({
             });
             
             // 重新筛选当前标签页数据并更新显示
-            this.updateDisplayProducts(products);
+            // this.updateDisplayProducts(products);
             
             wx.showToast({
               title: action === 'upload' ? '上架成功' : '下架成功',
               icon: 'success'
             });
+            this.fetchProductList()
           } else {
             wx.showToast({
               title: '操作失败，未找到商品',
@@ -823,14 +817,14 @@ Page({
           if (productIndex !== -1) {
             products[productIndex].stock = newStock;
             
-            // 根据库存更新商品状态
-            if (newStock === 0) {
-              products[productIndex].status = 2; // 已售罄
-            } else if (newStock <= 10) {
-              products[productIndex].status = 1; // 库存紧张
-            } else {
-              products[productIndex].status = 0; // 正常状态
-            }
+            // // 根据库存更新商品状态
+            // if (newStock === 0) {
+            //   products[productIndex].status = 2; // 已售罄
+            // } else if (newStock <= 10) {
+            //   products[productIndex].status = 1; // 库存紧张
+            // } else {
+            //   products[productIndex].status = 0; // 正常状态
+            // }
             
             this.setData({
               products: products,
@@ -839,8 +833,8 @@ Page({
               stockValue: ''
             });
             
-            this.updateDisplayProducts(products);
-            
+            // this.updateDisplayProducts(products);
+            this.refreshCurrentPage()
             wx.showToast({
               title: '修改库存成功',
               icon: 'success'
@@ -915,9 +909,6 @@ Page({
         reviewing: reviewingCount
       }
     });
-    
-    // 获取最新的商品状态统计
-    this.fetchProductStatusStats();
   },
 
   // 添加 onTabItemTap 处理函数
@@ -940,11 +931,11 @@ Page({
       isLoading: true
     });
 
+    // 获取商品列表
+    this.fetchProductList();
+    
     // 获取商品状态统计数据
     this.fetchProductStatusStats();
-    
-    // 重新获取商品列表
-    this.fetchProductList();
   },
 
   // 修改 onHide 方法

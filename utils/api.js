@@ -326,7 +326,7 @@ const api = {
     updateStock: (productId, stock) => {
       return request({ 
         url: `/v1/products/${productId}/stock`, 
-        method: 'PUT', 
+        method: 'PATCH', 
         data: { stock } 
       });
     },
@@ -347,7 +347,7 @@ const api = {
     updateProductStatus: (productId, status) => {
       return request({ 
         url: `/v1/products/${productId}/status`, 
-        method: 'PUT', 
+        method: 'PATCH', 
         data: { status } 
       });
     },
