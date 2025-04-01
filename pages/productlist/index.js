@@ -385,12 +385,8 @@ Page({
         sortType: 0  // 确保排序类型设置为商品排序
       }, () => {
         console.log('排序方向已切换为:', this.data.sortOrder);
-        // 重新排序商品
-        this.sortProducts();
-        // 重新筛选商品
-        this.filterProductsByTab(this.data.activeTab);
-        // 重新加载第一页数据
-        this.loadPageData(true);
+        // 重新获取数据并排序
+        this.fetchProductList();
       });
     } else {
       // 如果当前已经是批量下架模式，则切换回商品排序模式
@@ -410,9 +406,6 @@ Page({
         });
         console.log('切换到批量下架模式');
       }
-      
-      // 不再调用接口，直接使用当前的显示数据
-      // 保持当前数据不变
     }
   },
 
@@ -508,8 +501,9 @@ Page({
                   selectedProducts: []
                 });
                 
-                // 重新筛选当前标签页数据并更新显示
-                this.updateDisplayProducts(products);
+                // 重新获取最新数据
+                this.fetchProductList();
+                this.fetchProductStatusStats();
                 
                 wx.showToast({
                   title: '下架成功',

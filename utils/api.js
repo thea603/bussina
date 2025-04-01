@@ -355,7 +355,7 @@ const api = {
     batchUpdateStatus: (productIds, status) => {
       return request({ 
         url: '/v1/products/batch/status', 
-        method: 'PUT', 
+        method: 'PATCH', 
         data: { productIds, status } 
       });
     },
