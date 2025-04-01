@@ -619,7 +619,7 @@ Page({
     });
     
     // 根据操作类型设置不同的状态值
-    const status = action === 'upload' ? 0 : 3; // 0为上架状态，3为下架状态
+    const status = action === 'upload' ? 1 : 3; // 0为上架状态，3为下架状态
     
     // 使用api.product.updateProductStatus方法发送请求
     api.product.updateProductStatus(productId, status)

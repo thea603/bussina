@@ -2,13 +2,18 @@
 const auth = require('./utils/auth.js');
 
 App({
-  onLaunch: function () {
+  onLaunch() {
     // 检查登录状态
-    if (!auth.checkLoginStatus()) {
-      // 如果未登录或登录已过期，跳转到登录页
-      wx.redirectTo({
-        url: '/pages/login/login'
-      });
+    const token = wx.getStorageSync('token');
+    const userInfo = wx.getStorageSync('userInfo');
+    const shopInfo = wx.getStorageSync('shopInfo');
+
+    // 如果有token和用户信息，说明已经登录
+    if (token && userInfo) {
+      // 设置全局数据
+      this.globalData.isLoggedIn = true;
+      this.globalData.userInfo = userInfo;
+      this.globalData.shopInfo = shopInfo;
     }
 
     // 展示本地存储能力
@@ -24,6 +29,8 @@ App({
     })
   },
   globalData: {
-    userInfo: null
+    isLoggedIn: false,
+    userInfo: null,
+    shopInfo: null
   }
 })

@@ -1,4 +1,6 @@
 // pages/me/index.js
+const auth = require('../../utils/auth.js');
+
 Page({
   data: {
     userInfo: {
@@ -19,26 +21,35 @@ Page({
   },
 
   onLoad: function(options) {
+    // 检查登录状态
+    if (!auth.checkLoginStatus()) {
+      wx.redirectTo({
+        url: '/pages/login/login'
+      });
+      return;
+    }
+
+    // 获取店铺信息和用户信息
+    const shopInfo = auth.getShopInfo() || {};
+    const userInfo = auth.getUserInfo() || {};
+
+    this.setData({
+      shopInfo,
+      userInfo
+    });
+
     // 设置导航栏标题
     wx.setNavigationBarTitle({
       title: '我的'
     });
-
-    // 从本地缓存获取店铺信息
-    const shopInfo = wx.getStorageSync('shopInfo');
-    if (shopInfo) {
-      this.setData({
-        shopInfo: shopInfo
-      });
-    }
   },
 
   onShow: function() {
-    // 每次显示页面时重新获取店铺信息，确保信息是最新的
-    const shopInfo = wx.getStorageSync('shopInfo');
+    // 每次显示页面时更新店铺信息
+    const shopInfo = auth.getShopInfo() || {};
     if (shopInfo) {
       this.setData({
-        shopInfo: shopInfo
+        shopInfo
       });
     }
   },

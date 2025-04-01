@@ -12,30 +12,9 @@ const EXPIRE_TIME = 24 * 60 * 60 * 1000;
 
 // 检查登录状态
 const checkLoginStatus = () => {
-  const loginTime = wx.getStorageSync(LOGIN_TIME_KEY);
-  const currentTime = new Date().getTime();
-  
-  // 如果没有登录时间，说明未登录
-  if (!loginTime) {
-    return false;
-  }
-  
-  // 检查是否过期
-  if (currentTime - loginTime > EXPIRE_TIME) {
-    // 清除所有登录数据
-    clearLoginData();
-    return false;
-  }
-  
-  // 检查必要的登录数据是否存在
-  const token = wx.getStorageSync(TOKEN_KEY);
-  const openid = wx.getStorageSync(OPENID_KEY);
-  const userId = wx.getStorageSync(USERID_KEY);
-  const userInfo = wx.getStorageSync(USERINFO_KEY);
-  const shopId = wx.getStorageSync(SHOPID_KEY);
-  const shopInfo = wx.getStorageSync(SHOPINFO_KEY);
-  
-  return !!(token && openid && userId && userInfo && shopId && shopInfo);
+  const token = wx.getStorageSync('token');
+  const userInfo = wx.getStorageSync('userInfo');
+  return !!(token && userInfo);
 };
 
 // 保存登录数据
@@ -56,13 +35,9 @@ const saveLoginData = (data) => {
 
 // 清除登录数据
 const clearLoginData = () => {
-  wx.removeStorageSync(TOKEN_KEY);
-  wx.removeStorageSync(OPENID_KEY);
-  wx.removeStorageSync(USERID_KEY);
-  wx.removeStorageSync(USERINFO_KEY);
-  wx.removeStorageSync(SHOPID_KEY);
-  wx.removeStorageSync(SHOPINFO_KEY);
-  wx.removeStorageSync(LOGIN_TIME_KEY);
+  wx.removeStorageSync('token');
+  wx.removeStorageSync('userInfo');
+  wx.removeStorageSync('shopInfo');
 };
 
 // 获取登录数据
@@ -89,10 +64,25 @@ const handleLoginStatus = () => {
   return true;
 };
 
+const getToken = () => {
+  return wx.getStorageSync('token');
+};
+
+const getUserInfo = () => {
+  return wx.getStorageSync('userInfo');
+};
+
+const getShopInfo = () => {
+  return wx.getStorageSync('shopInfo');
+};
+
 module.exports = {
   checkLoginStatus,
   saveLoginData,
   clearLoginData,
   getLoginData,
-  handleLoginStatus
+  handleLoginStatus,
+  getToken,
+  getUserInfo,
+  getShopInfo
 }; 
