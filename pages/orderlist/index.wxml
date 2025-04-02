@@ -62,6 +62,7 @@
         <view class="order-header">
           <view class="customer-info">
             <image class="icon-image" src="./images/user.png"></image>
+            <text class="customer-phone">{{item.user.username}}</text>
             <text class="customer-phone">{{item.user.phone}}</text>
           </view>
           <view class="call-button"  bindtap="callCustomer" data-phone="{{item.user.phone}}">

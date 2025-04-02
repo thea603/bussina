@@ -24,7 +24,7 @@
       <view class="method-title">提现至</view>
       <view class="method-right">
         <view class="method-icon">
-          <view class="icon-placeholder"></view>
+          <image src="./images/wechat.png" class="icon-image"></image>
         </view>
         <view class="method-name">{{paymentMethod}}</view>
       </view>
@@ -35,7 +35,6 @@
   <view class="confirm-button {{buttonActive ? 'active' : 'inactive'}}" bindtap="confirmWithdraw">确认提现</view>
   
   <!-- 提现说明 -->
-  <view class="withdraw-note">温馨提示: 提现申请提交后，预计在3个工作日内到账。</view>
   
   <!-- 成功提示弹窗 -->
   <view class="success-popup" wx:if="{{showSuccessPopup}}">
@@ -53,10 +52,7 @@
           <text class="detail-label">手续费:</text>
           <text class="detail-value">{{feeRate * 100}}%</text>
         </view>
-        <view class="detail-item">
-          <text class="detail-label">预计到账时间:</text>
-          <text class="detail-value">申请成功后1-3个工作日</text>
-        </view>
+      
       </view>
       <view class="back-button" bindtap="navigateBack">返回首页</view>
     </view>

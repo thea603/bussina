@@ -80,7 +80,16 @@
 }
 
 .qrcode-icon {
-  padding: 15rpx;
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qrcode-image {
+  width: 100%;
+  height: 100%;
 }
 
 .qrcode-placeholder {
@@ -227,8 +236,9 @@
   width: 40rpx;
   height: 40rpx;
   margin-right: 20rpx;
-  background: #D8D8D8;
-  border-radius: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .menu-name {
