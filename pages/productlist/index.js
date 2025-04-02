@@ -32,7 +32,8 @@ Page({
     },
     isLoadingMore: false, // 是否正在加载更多数据
     needRefresh: false, // 是否需要刷新页面
-    isFirstLoad: true // 标记是否是第一次加载
+    isFirstLoad: true, // 标记是否是第一次加载
+    fromEditPage: false // 标记是否从编辑/新增页面返回
   },
 
   onLoad: function (options) {
@@ -49,13 +50,15 @@ Page({
   },
 
   onShow: function() {
-    console.log('页面显示，needRefresh:', this.data.needRefresh);
+    console.log('页面显示，fromEditPage:', this.data.fromEditPage);
     
-    // // 只在需要刷新时重新加载数据
-    // if (this.data.needRefresh) {
-    //   this.refreshCurrentPage();
-    //   this.data.needRefresh = false;
-    // }
+    // 如果是从编辑/新增页面返回，需要刷新数据
+    if (this.data.fromEditPage) {
+      this.refreshCurrentPage();
+      this.setData({
+        fromEditPage: false
+      });
+    }
   },
   
   // 获取商品状态统计数据
@@ -555,9 +558,13 @@ Page({
   editProduct: function(e) {
     const productId = e.currentTarget.dataset.id;
     console.log('编辑商品:', productId);
-  
     
-    // 暂时注释掉真实导航，避免页面不存在导致错误
+    // 设置标记，表示即将跳转到编辑页面
+    this.setData({
+      fromEditPage: true
+    });
+    
+    // 跳转到编辑页面
     wx.navigateTo({
       url: '/pages/productindex/newproduct/index?id=' + productId + '&type=edit&pageTitle=编辑商品'
     });
@@ -755,6 +762,11 @@ Page({
   // 新增商品
   addNewProduct: function() {
     console.log('新增商品');
+    
+    // 设置标记，表示即将跳转到新增页面
+    this.setData({
+      fromEditPage: true
+    });
     
     // 跳转到新增商品页面
     wx.navigateTo({

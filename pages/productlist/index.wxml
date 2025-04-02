@@ -82,7 +82,7 @@
           
           <!-- 商品图片 -->
           <view class="product-image-container">
-            <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+            <image class="product-image" src="{{item.images[0]&&item.images[0].imageUrl}}" mode="aspectFill"></image>
             <!-- 审核中标识 -->
             <view class="review-badge" wx:if="{{item.status === 4}}">审核中</view>
           </view>
@@ -97,8 +97,8 @@
               <view class="price-container">
                 <text class="price-label">售价</text>
                 <text class="price-symbol">¥</text>
-                <text class="price-value">{{item.price}}</text>
-                <text class="price-tag">奖励金 ¥{{item.price * 0.1}}</text>
+                <text class="price-value">{{item.sellingPrice}}</text>
+                <text class="price-tag">奖励金 ¥{{item.rewardAmount}}</text>
               </view>
             </view>
             
@@ -115,7 +115,7 @@
             </view>
             
             <!-- 商品状态提示 -->
-            <block wx:if="{{item.status === 1}}">
+            <block wx:if="{{item.status === 1&&item.stock < 10}}">
               <view class="product-status warning">
                 <icon type="warn" size="14" color="#FF9900"></icon>
                 <text>该商品即将售罄，请及时上货</text>

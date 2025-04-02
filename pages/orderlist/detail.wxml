@@ -10,9 +10,10 @@
     <view class="customer-section">
       <view class="section-header">
         <image class="icon-image" src="./images/user.png"></image>
-        <text class="customer-phone">{{order.customerPhone}}</text>
+        <text class="customer-phone">{{order.user.username}}</text>
+        <text class="customer-phone">{{order.user.phone}}</text>
       </view>
-      <view class="call-button" bindtap="callCustomer" data-phone="{{order.customerPhone}}">
+      <view class="call-button" bindtap="callCustomer" data-phone="{{order.user.phone}}">
         <image class="icon-image" src="./images/telephone-out.png"></image>
       </view>
     </view>
@@ -29,11 +30,13 @@
         
         <view class="product-details">
           <text class="product-name">{{order.productName}}</text>
-          <view class="product-spec">
+          <view class="product-info-row">
             <text class="spec-item">数量: {{order.quantity || 'x1'}}</text>
+            <text class="product-price">¥{{order.totalAmount}}</text>
+          </view>
+          <view class="product-spec">
             <text class="spec-item">规格: {{order.spec || '300g'}}</text>
           </view>
-          <view class="product-price">¥{{order.totalAmount}}</view>
         </view>
       </view>
       
@@ -43,9 +46,9 @@
           <text class="amount-label">共计商品</text>
           <text class="amount-value">实付¥{{order.totalAmount}}</text>
         </view>
-        <view class="amount-item">
+        <view class="amount-item" wx:if="{{order.status === 2}}">
           <text class="amount-label">等待退款</text>
-          <text class="amount-value">等待退款金额¥{{order.amount}}</text>
+          <text class="amount-value">等待退款金额<text class="refund-amount">¥{{order.totalAmount}}</text></text>
         </view>
       </view>
     </view>
