@@ -1,52 +1,61 @@
 <view class="container">
   <view class="order-detail">
     <!-- 顶部提示 -->
-    <view class="top-tip" wx:if="{{order.status === 2}}">
+    <view class="top-tip" wx:if="{{order.status === 3}}">
       <icon type="warn" size="14" color="#FF9900"></icon>
       <text>用户已发起退款申请，请尽快处理</text>
     </view>
     
     <!-- 客户信息 -->
-    <view class="customer-section">
+    <view class="customer-section" bindtap="callCustomer" data-phone="{{order.user.phone}}">
       <view class="section-header">
         <image class="icon-image" src="./images/user.png"></image>
-        <text class="customer-phone">{{order.user.username}}</text>
-        <text class="customer-phone">{{order.user.phone}}</text>
+        <text class="customer-phone">{{order.user.username || ''}}</text>
+        <text class="customer-phone">{{order.user.phone || ''}}</text>
       </view>
-      <view class="call-button" bindtap="callCustomer" data-phone="{{order.user.phone}}">
+      <view class="call-button">
         <image class="icon-image" src="./images/telephone-out.png"></image>
       </view>
     </view>
     
     <!-- 商品信息 -->
     <view class="product-section">
-      <view class="shop-name">{{order.orderItems[0].product.name || '大娃四川味(温湖)'}}</view>
+      <view class="shop-name">{{order.orderItems[0].product.name}}</view>
       
-      <view class="product-info">
-        <!-- 商品图片 -->
-        <view class="product-image-container">
-          <view class="product-image-placeholder"></view>
-        </view>
-        
-        <view class="product-details">
-          <text class="product-name">{{order.productName}}</text>
-          <view class="product-info-row">
-            <text class="spec-item">数量: {{order.quantity || 'x1'}}</text>
-            <text class="product-price">¥{{order.totalAmount}}</text>
+      <!-- 循环显示商品信息 -->
+      <block wx:for="{{order.orderItems}}" wx:key="id">
+        <view class="product-info">
+          <!-- 商品图片 -->
+          <view class="product-image-container">
+            <image 
+              wx:if="{{item.product.images[0].imageUrl}}" 
+              src="{{item.product.images[0].imageUrl}}" 
+              mode="aspectFill" 
+              class="product-image"
+            />
+            <view wx:else class="product-image-placeholder"></view>
           </view>
-          <view class="product-spec">
-            <text class="spec-item">规格: {{order.spec || '300g'}}</text>
+          
+          <view class="product-details">
+            <text class="product-name">{{item.product.name || ''}}</text>
+            <view class="product-info-row">
+              <text class="spec-item">数量: x{{item.quantity || 0}}</text>
+              <text class="product-price">¥{{item.productPrice || 0}}</text>
+            </view>
+            <view class="product-spec">
+              <text class="spec-item">规格: {{item.product.specification || '无'}}</text>
+            </view>
           </view>
         </view>
-      </view>
+      </block>
       
       <!-- 订单金额信息 -->
       <view class="order-amount-info">
         <view class="amount-item">
-          <text class="amount-label">共计商品</text>
-          <text class="amount-value">实付¥{{order.totalAmount}}</text>
+          <text class="amount-label">共计{{order.actualAmount || 0}}商品</text>
+          <text class="amount-value">实付¥{{order.totalAmount || 0}}</text>
         </view>
-        <view class="amount-item" wx:if="{{order.status === 2}}">
+        <view class="amount-item" wx:if="{{order.status === 3}}">
           <text class="amount-label">等待退款</text>
           <text class="amount-value">等待退款金额<text class="refund-amount">¥{{order.totalAmount}}</text></text>
         </view>
@@ -78,13 +87,13 @@
   <!-- 底部操作按钮 -->
   <view class="bottom-actions">
     <!-- 待退款状态 -->
-    <block wx:if="{{order.status === 2}}">
+    <block wx:if="{{order.status === 3}}">
       <view class="action-button reject" bindtap="showRejectModal">拒绝退款</view>
       <view class="action-button agree" bindtap="agreeRefund">同意退款</view>
     </block>
     
     <!-- 待核销状态 -->
-    <block wx:if="{{order.status === 1}}">
+    <block wx:if="{{order.status === 0}}">
       <view class="action-button verify" bindtap="verifyOrder">
         <icon type="scan" size="16" color="#FFFFFF"></icon>
         <text>扫码核销</text>

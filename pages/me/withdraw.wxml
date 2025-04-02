@@ -28,12 +28,34 @@
       <block wx:for="{{records}}" wx:key="id">
         <view class="bill-item">
           <view class="bill-left">
-            <view class="bill-type">{{item.type}}</view>
+            <view class="bill-type {{item.status === 3 ? 'rejected' : (item.status === 2 ? 'completed' : '')}}">
+              {{item.type}}
+              <text wx:if="{{item.reason && item.status === 3}}" class="reason">({{item.reason}})</text>
+            </view>
             <view class="bill-time">{{item.date}} {{item.time}}</view>
           </view>
-          <view class="bill-amount">{{item.amount}}</view>
+          <view class="bill-amount {{item.status === 3 ? 'rejected' : (item.status === 2 ? 'completed' : '')}}">
+            {{item.amount}}
+          </view>
         </view>
       </block>
+
+      <!-- 无数据提示 -->
+      <view class="empty-tip" wx:if="{{!records || records.length === 0}}">
+        <icon type="info" size="40" color="#CCCCCC"></icon>
+        <text>暂无提现记录</text>
+      </view>
+      
+      <!-- 加载中提示 -->
+      <view class="loading-tip" wx:if="{{isLoading && records.length > 0}}">
+        <view class="loading-icon"></view>
+        <text>加载中...</text>
+      </view>
+      
+      <!-- 加载完毕提示 -->
+      <view class="load-all-tip" wx:if="{{!hasMoreData && records.length > 0}}">
+        <text> 已经到底啦 </text>    
+      </view>
     </view>
   </view>
   

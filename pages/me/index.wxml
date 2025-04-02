@@ -43,23 +43,23 @@
     <view class="stats-row">
       <view class="stat-item">
         <view class="stat-label">今日营业额</view>
-        <view class="stat-value red">{{todaySales || '0.00'}}</view>
+        <view class="stat-value red">{{todayRevenue}}</view>
         <view class="stat-icon up"></view>
       </view>
       <view class="stat-item">
         <view class="stat-label">今日订单量</view>
-        <view class="stat-value red">{{todayOrders || '0'}}</view>
+        <view class="stat-value red">{{todayOrderCount}}</view>
         <view class="stat-icon down"></view>
       </view>
     </view>
     <view class="stats-row">
       <view class="stat-item">
         <view class="stat-label">昨日营业额</view>
-        <view class="stat-value">{{yesterdaySales || '0.00'}}</view>
+        <view class="stat-value">{{yesterdayRevenue}}</view>
       </view>
       <view class="stat-item">
         <view class="stat-label">昨日订单量</view>
-        <view class="stat-value">{{yesterdayOrders || '0'}}</view>
+        <view class="stat-value">{{yesterdayOrderCount}}</view>
       </view>
     </view>
   </view>

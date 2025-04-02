@@ -1,5 +1,6 @@
 // pages/me/index.js
 const auth = require('../../utils/auth.js');
+const api = require('../../utils/api.js');
 
 Page({
   data: {
@@ -7,17 +8,13 @@ Page({
       name: '科汇园店',
       id: '10086'
     },
-    shopData: {
-      todayOrders: 128,
-      todayRevenue: 3280,
-      totalProducts: 1024
-    },
     shopInfo: {},
     balance: '0.00',
-    todaySales: '0.00',
-    todayOrders: '0',
-    yesterdaySales: '0.00',
-    yesterdayOrders: '0'
+    todayRevenue: '0.00',
+    yesterdayRevenue: '0.00',
+    todayOrderCount: '0',
+    yesterdayOrderCount: '0',
+    isLoading: false
   },
 
   onLoad: function(options) {
@@ -42,16 +39,59 @@ Page({
     wx.setNavigationBarTitle({
       title: '我的'
     });
+
+    // 显示加载状态
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+
+    // 获取店铺统计数据
+    this.fetchShopMetrics();
   },
 
   onShow: function() {
-    // 每次显示页面时更新店铺信息
+    // 每次显示页面时更新店铺信息和统计数据
     const shopInfo = auth.getShopInfo() || {};
     if (shopInfo) {
       this.setData({
         shopInfo
       });
+      this.fetchShopMetrics();
     }
+  },
+
+  // 获取店铺统计数据
+  fetchShopMetrics: function() {
+    if (this.data.isLoading) return;
+
+    this.setData({ isLoading: true });
+
+    const shopId = wx.getStorageSync('shopId');
+    if (!shopId) {
+      console.error('获取店铺ID失败');
+      wx.hideLoading();
+      return;
+    }
+
+    api.shop.getMetrics(shopId)
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          this.setData({
+            todayRevenue: res.data.todayRevenue.toFixed(2),
+            yesterdayRevenue: res.data.yesterdayRevenue.toFixed(2),
+            todayOrderCount: res.data.todayOrderCount,
+            yesterdayOrderCount: res.data.yesterdayOrderCount
+          });
+        }
+      })
+      .catch(err => {
+        console.error('获取店铺统计数据失败:', err);
+      })
+      .finally(() => {
+        this.setData({ isLoading: false });
+        wx.hideLoading();
+      });
   },
 
   // 店铺管理
@@ -82,7 +122,7 @@ Page({
   // 去提现
   navigateToWithdraw: function() {
     wx.navigateTo({
-      url: '/pages/withdraw/index'
+      url: '../me/withdraw'
     });
   },
 

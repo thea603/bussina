@@ -182,10 +182,14 @@ const showError = (message) => {
 
 // 处理未授权情况
 const handleUnauthorized = () => {
-  // 清除本地token
+  // 清除所有相关的本地存储
   wx.removeStorageSync('token');
-  // 跳转到登录页
-  wx.navigateTo({
+  wx.removeStorageSync('userInfo');
+  wx.removeStorageSync('shopInfo');
+  wx.removeStorageSync('shopId');
+
+  // 使用 reLaunch 重新启动到登录页
+  wx.reLaunch({
     url: '/pages/login/login'
   });
 };
@@ -277,6 +281,13 @@ const api = {
     // 上传图片
     uploadImage: (filePath, formData) => {
       return uploadFile(filePath, formData);
+    },
+    // 获取店铺数据统计
+    getMetrics: (shopId) => {
+      return request({
+        url: `/v1/shops/${shopId}/metrics`,
+        method: 'GET'
+      });
     }
   },
   
@@ -449,6 +460,18 @@ const api = {
     // 获取商品销售排行
     getProductRanking: (params) => {
       return request({ url: '/stats/products', method: 'GET', data: params });
+    }
+  },
+
+  // 提现相关接口
+  withdrawals: {
+    // 获取提现列表
+    getList: (params) => {
+      return request({
+        url: '/v1/withdrawals/list',
+        method: 'GET',
+        data: params
+      });
     }
   }
 };

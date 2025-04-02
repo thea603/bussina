@@ -64,7 +64,7 @@
             <image class="icon-image" src="./images/user.png"></image>
             <text class="customer-phone">{{item.user.phone}}</text>
           </view>
-          <view class="call-button" bindtap="callCustomer" data-phone="{{item.customerPhone}}">
+          <view class="call-button"  bindtap="callCustomer" data-phone="{{item.user.phone}}">
             <image class="icon-image" src="./images/telephone-out.png"></image>
           </view>
         </view>
@@ -74,16 +74,32 @@
           <!-- 商品信息 -->
           <view class="product-info">
             <!-- 商品图片 -->
-            <view class="product-image-container">
-              <view class="product-image-placeholder"></view>
+            <view class="product-images-container">
+              <block wx:for="{{item.orderItems}}" wx:key="id" wx:for-item="orderItem" wx:if="{{index < 2}}">
+                <view class="product-image-wrapper">
+                  <view class="product-image-container">
+                    <image 
+                      wx:if="{{orderItem.product.images[0].imageUrl}}" 
+                      src="{{orderItem.product.images[0].imageUrl}}" 
+                      mode="aspectFill" 
+                      class="product-image"
+                    />
+                    <view wx:else class="product-image-placeholder"></view>
+                  </view>
+                  <view class="quantity-badge">x{{orderItem.quantity}}</view>
+                </view>
+              </block>
+              <view class="view-more" wx:if="{{item.orderItems.length > 2}}">
+                <text>查看更多</text>
+              </view>
             </view>
             
             <view class="product-details">
               <view class="product-name-row">
                 <text class="product-name">{{item.productName}}</text>
                 <!-- 订单状态标签 -->
-                <view class="inline-status {{item.status === 0 ? 'completed' : (item.status === 1 ? 'pending' : 'refunding')}}">
-                  <text>{{item.status === 0 ? '已完成' : (item.status === 1 ? '待核销' : '待退款')}}</text>
+                <view class="inline-status {{item.status === 0 ? 'pending' : (item.status === 3 ? 'refunding' : 'completed')}}">
+                  <text>{{item.status === 0 ? '待核销' : (item.status === 3 ? '待退款' : '已完成')}}</text>
                 </view>
               </view>
             </view>
@@ -111,7 +127,7 @@
         </view>
         
         <!-- 订单操作按钮 -->
-        <view class="order-actions" wx:if="{{item.status === 2}}">
+        <view class="order-actions" wx:if="{{item.status === 3}}">
           <view class="action-button reject" bindtap="rejectRefund" data-id="{{item.id}}">
             <text>拒绝退款</text>
           </view>
@@ -121,7 +137,7 @@
         </view>
         
         <!-- 核销按钮 (仅在待核销状态下显示) -->
-        <view class="order-actions" wx:if="{{item.status === 1}}">
+        <view class="order-actions" wx:if="{{item.status === 0}}">
           <view class="action-button verify" bindtap="verifyOrder" data-id="{{item.id}}">
             <icon type="scan" size="16" color="#FFFFFF"></icon>
             <text>扫码核销</text>

@@ -68,9 +68,12 @@ Page({
       shopId: shopId
     };
 
-    // 如果不是"全部"标签，添加状态筛选
+    // 只有在非"全部"标签时，才添加status参数
     if (this.data.activeTab !== 0) {
-      params.status = this.getStatusByTab(this.data.activeTab);
+      const status = this.getStatusByTab(this.data.activeTab);
+      if (status) {
+        params.status = status;
+      }
     }
 
     // 使用 api 模块发送请求
@@ -80,12 +83,11 @@ Page({
           const newOrders = res.data.items || [];
           const pagination = res.data.pagination || {};
 
-      this.setData({
+          this.setData({
             displayOrders: loadMore ? [...this.data.displayOrders, ...newOrders] : newOrders,
             hasMoreData: this.data.currentPage < pagination.totalPages,
             currentPage: loadMore ? this.data.currentPage + 1 : 2
           });
-          console.log(this.data.displayOrders,'this.data.displayOrders')
         } else {
           wx.showToast({
             title: '获取订单列表失败',
@@ -108,10 +110,10 @@ Page({
   // 根据标签获取状态值
   getStatusByTab: function(tabIndex) {
     switch(tabIndex) {
-      case 1: return "1"; // 待核销
-      case 2: return "2"; // 待退款
-      case 3: return "0"; // 已完成
-      default: return ""; // 全部
+      case 1: return "0"; // 待核销
+      case 2: return "3"; // 待退款
+      case 3: return "1"; // 已完成
+      default: return ""; // 全部，不传status参数
     }
   },
 
