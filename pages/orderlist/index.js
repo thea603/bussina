@@ -76,6 +76,13 @@ Page({
       }
     }
 
+    // 如果有搜索关键词，添加到请求参数中
+    if (this.data.searchValue) {
+      params.orderNo = this.data.searchValue;
+    }
+
+    console.log('请求参数:', params);
+
     // 使用 api 模块发送请求
     api.order.getOrderList(params)
       .then(res => {
@@ -126,10 +133,14 @@ Page({
 
   // 搜索确认
   onSearchConfirm: function(e) {
-      this.setData({
-      searchValue: e.detail.value,
+    const value = e.detail.value;
+    console.log('搜索订单:', value);
+    
+    this.setData({
+      searchValue: value,
       currentPage: 1,
-      displayOrders: []
+      displayOrders: [],
+      hasMoreData: true
     }, () => {
       this.fetchOrderList();
     });
@@ -138,11 +149,15 @@ Page({
   // 切换标签页
   switchTab: function(e) {
     const index = parseInt(e.currentTarget.dataset.index);
+    
+    // 保持搜索条件，只重置分页相关的数据
     this.setData({
       activeTab: index,
       currentPage: 1,
-      displayOrders: []
+      displayOrders: [],
+      hasMoreData: true
     }, () => {
+      // 在 setData 的回调中调用 fetchOrderList，确保状态更新后再请求
       this.fetchOrderList();
     });
   },
@@ -370,5 +385,20 @@ Page({
           icon: 'none'
         });
       });
+  },
+
+  // 复制订单号
+  copyOrderNo: function(e) {
+    const orderNo = e.currentTarget.dataset.no;
+    wx.setClipboardData({
+      data: orderNo,
+      success: function() {
+        wx.showToast({
+          title: '复制成功',
+          icon: 'success',
+          duration: 1500
+        });
+      }
+    });
   }
 }); 

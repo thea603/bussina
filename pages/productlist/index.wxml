@@ -20,7 +20,7 @@
         <icon type="search" size="14" color="#999999"></icon>
         <input 
           class="search-input" 
-          placeholder="搜索商品名称/编码" 
+          placeholder="搜索商品名称" 
           placeholder-class="search-placeholder"
           value="{{searchValue}}"
           bindinput="onSearchInput"

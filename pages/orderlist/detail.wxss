@@ -58,7 +58,6 @@
 .customer-phone {
   color: #333;
   font-size: 28rpx;
-  margin-left: 6rpx;
 }
 
 .call-button {

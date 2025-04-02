@@ -534,4 +534,15 @@
 .sort-arrow.down-active {
   color: #FF6600;
   font-weight: bold;
+}
+
+.order-no-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.copy-btn {
+  margin-left: 16rpx;
+  color: #576B95;
+  font-size: 24rpx;
 } 

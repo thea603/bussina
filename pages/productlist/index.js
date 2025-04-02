@@ -141,6 +141,11 @@ Page({
       status: this.getStatusByTab(this.data.activeTab),
       shopId: shopId
     };
+
+    // 如果有搜索关键词，添加到请求参数中
+    if (this.data.searchValue) {
+      params.name = this.data.searchValue;
+    }
     
     console.log('请求参数:', params);
     
@@ -317,12 +322,14 @@ Page({
     const value = e.detail.value;
     console.log('搜索:', value);
     
-      this.setData({
+    // 重置页面状态
+    this.setData({
       searchValue: value,
       isLoading: true,
       currentPage: 1,
-      displayProducts: [] // 清空当前显示的商品，确保显示加载中状态
-      });
+      displayProducts: [], // 清空当前显示的商品，确保显示加载中状态
+      hasMoreData: true // 重置加载更多状态
+    });
     
     // 调用接口获取数据
     this.fetchProductList();
