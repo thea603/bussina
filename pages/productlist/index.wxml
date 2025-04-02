@@ -132,7 +132,7 @@
             <view class="product-actions">
               <!-- 审核中的商品不显示操作按钮 -->
               <block wx:if="{{item.status !== 4}}">
-                <view class="action-button" bindtap="changeProductStatus" data-id="{{item.id}}" data-action="{{item.status === 3 ? 'upload' : 'remove'}}">
+                <view class="action-button" bindtap="changeProductStatus" data-id="{{item.id}}" data-action="{{item.status === 3 ? 'upload' : 'remove'}}" wx:if="{{item.status !== 4 && activeTab !== 3}}">
                   <text>{{item.status === 3 ? '上架' : '下架'}}</text>
                 </view>
                 <view class="action-button" bindtap="editProduct" data-id="{{item.id}}">

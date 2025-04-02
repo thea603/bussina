@@ -114,6 +114,39 @@ Page({
       });
   },
 
+  // 判断订单状态是否在当前标签页中
+  isOrderStatusInCurrentTab: function(status) {
+    switch(this.data.activeTab) {
+      case 0: // 全部
+        return true;
+      case 1: // 待核销
+        return status === 0;
+      case 2: // 待退款
+        return status === 3;
+      case 3: // 已完成
+        return status === 1;
+      default:
+        return false;
+    }
+  },
+
+  // 跳转到订单详情页
+  goToOrderDetail: function(e) {
+    const orderId = e.currentTarget.dataset.id;
+    const orderStatus = e.currentTarget.dataset.status;
+    
+    // 只允许待核销(0)、待退款(3)、已完成(1)的订单跳转到详情页
+    const allowedStatuses = [0, 1, 3];
+    if (!allowedStatuses.includes(Number(orderStatus))) {
+      return; // 如果不是允许的状态，不进行跳转
+    }
+    
+    console.log('跳转到订单详情:', orderId);
+    wx.navigateTo({
+      url: '/pages/orderlist/detail?id=' + orderId + '&status=' + orderStatus
+    });
+  },
+
   // 根据标签获取状态值
   getStatusByTab: function(tabIndex) {
     switch(tabIndex) {
@@ -303,17 +336,6 @@ Page({
           duration: 2000
         });
       }
-    });
-  },
-
-  // 跳转到订单详情页
-  goToOrderDetail: function(e) {
-    const orderId = e.currentTarget.dataset.id;
-    const orderStatus = e.currentTarget.dataset.status;
-    console.log('跳转到订单详情:', orderId);
-    
-    wx.navigateTo({
-      url: '/pages/orderlist/detail?id=' + orderId + '&status=' + orderStatus
     });
   },
 

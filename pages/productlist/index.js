@@ -338,7 +338,7 @@ Page({
   // 切换标签页
   switchTab: function(e) {
     const index = parseInt(e.currentTarget.dataset.index);
-    console.log('switchTab 被触发，index:', index); // 添加调试日志
+    console.log('switchTab 被触发，index:', index);
     
     // 设置排序类型，如果是已下架(2)或审核中(3)标签页，则只显示商品排序
     const newSortType = (index === 2 || index === 3) ? 0 : this.data.sortType;
@@ -355,6 +355,8 @@ Page({
       // 在 setData 的回调中调用 fetchProductList，确保状态更新后再请求
       console.log('准备请求商品列表，activeTab:', this.data.activeTab);
       this.fetchProductList();
+      // 重新获取商品状态统计数据
+      this.fetchProductStatusStats();
     });
   },
 
