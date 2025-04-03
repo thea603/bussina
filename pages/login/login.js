@@ -138,13 +138,44 @@ Page({
       })
       .then(res => {
         // 保存用户信息
+        wx.setStorageSync('token', res.data.token);
+        wx.setStorageSync('userId', res.data.user.id);
+        wx.setStorageSync('userInfo', res.data.user);
         wx.setStorageSync('wechatInfo', res.data);
         
-        // 跳转到手机登记页面
-        const phoneNumber = res.data.user?.phone || '';
-        wx.navigateTo({
-          url: `/pages/login/register?type=login&phone=${phoneNumber}`
-        });
+        // 检查店铺状态
+        return api.user.checkShop();
+      })
+      .then(shopRes => {
+        if (shopRes.data && shopRes.data.shopId) {
+          wx.setStorageSync('shopId', shopRes.data.shopId);
+          if (shopRes.data.shop) {
+            wx.setStorageSync('shopInfo', shopRes.data.shop);
+          }
+        }
+        
+        // 处理店铺状态结果
+        if (shopRes.data && shopRes.data.hasShop) {
+          if (shopRes.data.shop && shopRes.data.shop.auditStatus === 0) {
+            wx.showToast({
+              title: '店铺审核中',
+              icon: 'none',
+              duration: 2000
+            });
+          } else {
+            setTimeout(() => {
+              wx.switchTab({
+                url: '/pages/productindex/index'
+              });
+            }, 1500);
+          }
+        } else {
+          setTimeout(() => {
+            wx.redirectTo({
+              url: '/pages/shop/open'
+            });
+          }, 1500);
+        }
       })
       .catch(err => {
         console.error('登录错误:', err);

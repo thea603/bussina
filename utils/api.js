@@ -1,8 +1,6 @@
-// utils/api.js
 // API接口模拟层
 
 // API请求统一管理文件
-// 'http://hangzhou.cstext.top:4000/api',
 // 基础配置
 const config = {
   // 开发环境配置
