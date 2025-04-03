@@ -27,7 +27,8 @@ const whiteList = [
   '/user/login',
   '/user/register',
   '/v1/users/send-code',
-  '/v1/users/login'
+  '/v1/users/login',
+  '/v1/wechat-user/login'
 ];
 
 // 检查是否为白名单URL
@@ -256,6 +257,18 @@ const api = {
         data: {
           code: data.code,
           access_token: data.access_token
+        }
+      });
+    },
+    // 微信用户登录
+    wechatUserLogin: (data) => {
+      return request({ 
+        url: '/v1/wechat-user/login', 
+        method: 'POST', 
+        data: {
+          code: data.code,
+          phoneCode: data.phoneCode,
+          type: 'business'
         }
       });
     }

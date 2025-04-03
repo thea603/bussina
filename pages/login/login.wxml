@@ -23,7 +23,7 @@
       <button 
         class="btn wechat-btn" 
         open-type="getPhoneNumber"
-        bindgetphonenumber="getPhoneNumber"
+        bindgetphonenumber="getUserProfile"
       >
         <text>微信快捷登录</text>
       </button>

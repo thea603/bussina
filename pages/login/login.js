@@ -85,10 +85,10 @@ Page({
   /**
    * 登录按钮点击事件
    */
-  login: function() {
+  login() {
     wx.navigateTo({
       url: '/pages/login/register?type=login'
-    })
+    });
   },
 
   /**
@@ -97,153 +97,75 @@ Page({
   register() {
     wx.navigateTo({
       url: '/pages/login/register?type=register'
-    })
+    });
   },
 
   /**
-   * 微信登录按钮点击处理
-   */
-  handleWxLogin() {
-    // 执行微信登录流程
-    wx.showLoading({ title: '登录中...' });
-    
-    let accessToken = null;
-    let openid = null;
-    
-    // 获取OpenID
-    this.getWxLoginCode()
-      .then(code => this.getOpenId(code))
-      .then(res => {
-        if (res.code !== 0) throw new Error(res.message || '获取OpenID失败');
-        
-        // 保存openid供后续使用
-        openid = res.data.openid;
-        
-        // 保存到本地存储
-        wx.setStorageSync('openid', openid);
-        
-        // 获取AccessToken
-        return this.getAccessToken();
-      })
-      .then(tokenRes => {
-        if (tokenRes.code !== 0) throw new Error(tokenRes.message || '获取AccessToken失败');
-        
-        accessToken = tokenRes.data.access_token;
-        
-        // 获取手机号
-        return this.getWxLoginCode().then(newCode => {
-          return this.getPhoneNumberWithCode(newCode, accessToken, openid);
-        });
-      })
-      .then(phoneRes => {
-        if (phoneRes.code !== 0) {
-          // 特殊处理code无效的情况，尝试再次获取
-          if (phoneRes.message && phoneRes.message.includes('invalid code')) {
-            return this.getWxLoginCode()
-              .then(retryCode => this.getPhoneNumberWithCode(retryCode, accessToken, openid));
-          } else {
-            throw new Error(phoneRes.message || '获取手机号失败');
-          }
-        }
-        
-        // 获取到手机号后，跳转到登录页面并自动填充手机号
-        const phoneNumber = phoneRes.data.phoneNumber;
-        wx.navigateTo({
-          url: `/pages/login/register?type=login&phone=${phoneNumber}`
-        });
-        
-        wx.hideLoading();
-        return;
-      })
-      .catch(err => {
-        this.handleError('登录失败，请重试', err);
-        wx.hideLoading();
-      });
-  },
-  
-  /**
    * 微信按钮获取手机号回调
    */
-  getPhoneNumber(e) {
-    if (e.detail.errMsg === 'getPhoneNumber:ok') {
-      // 获取到手机号凭证code
-      const phoneCode = e.detail.code;
-      
-      // 显示加载提示
-      wx.showLoading({ title: '登录中...' });
-      
-      let accessToken = null;
-      let openid = null;
-      
-      // 获取OpenID
-      this.getWxLoginCode()
-        .then(code => this.getOpenId(code))
-        .then(res => {
-          if (res.code !== 0) throw new Error(res.message || '获取OpenID失败');
-          
-          // 保存openid供后续使用
-          openid = res.data.openid;
-          
-          // 保存到本地存储
-          wx.setStorageSync('openid', openid);
-          
-          // 获取AccessToken
-          return this.getAccessToken();
-        })
-        .then(tokenRes => {
-          if (tokenRes.code !== 0) throw new Error(tokenRes.message || '获取AccessToken失败');
-          
-          accessToken = tokenRes.data.access_token;
-          
-          // 使用微信回调的手机号凭证code获取手机号
-          return api.user.getPhoneNumber({
-            code: phoneCode, // 使用微信回调的手机号凭证code
-            access_token: accessToken,
-            openid: openid
-          });
-        })
-        .then(phoneRes => {
-          if (phoneRes.code !== 0) throw new Error(phoneRes.message || '获取手机号失败');
-          
-          // 获取到手机号后，跳转到登录页面并自动填充手机号
-          const phoneNumber = phoneRes.data.phoneNumber;
-          wx.navigateTo({
-            url: `/pages/login/register?type=login&phone=${phoneNumber}`
-          });
-          
-          wx.hideLoading();
-        })
-        .catch(err => {
-          this.handleError('登录失败，请重试', err);
-          wx.hideLoading();
-        });
-    } else if (e.detail.errMsg === 'getPhoneNumber:fail user deny') {
-      // 用户拒绝授权
+  getUserProfile(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
       wx.showToast({
         title: '需要授权手机号才能继续使用',
         icon: 'none'
       });
+      return;
     }
+
+    const phoneCode = e.detail.code;
+    wx.showLoading({ title: '登录中...' });
+
+    // 登录流程：获取OpenID -> 获取新code -> 调用登录接口
+    this.getWxLoginCode()
+      .then(code => this.getOpenId(code))
+      .then(res => {
+        if (!res.data?.openid) {
+          throw new Error('获取OpenID失败');
+        }
+        
+        // 保存openid
+        wx.setStorageSync('openid', res.data.openid);
+        
+        // 重新获取code
+        return this.getWxLoginCode();
+      })
+      .then(newCode => {
+        // 调用新的登录接口
+        return api.user.wechatUserLogin({
+          code: newCode,
+          phoneCode: phoneCode
+        });
+      })
+      .then(res => {
+        // 保存用户信息
+        wx.setStorageSync('wechatInfo', res.data);
+        
+        // 跳转到手机登记页面
+        const phoneNumber = res.data.user?.phone || '';
+        wx.navigateTo({
+          url: `/pages/login/register?type=login&phone=${phoneNumber}`
+        });
+      })
+      .catch(err => {
+        console.error('登录错误:', err);
+        wx.showToast({
+          title: err.message || '登录失败，请重试',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 
-  // 工具函数
-  
   /**
    * 获取微信登录凭证(code)
    */
-  getWxLoginCode: function() {
+  getWxLoginCode() {
     return new Promise((resolve, reject) => {
       wx.login({
-        success: (res) => {
-          if (res.code) {
-            resolve(res.code);
-          } else {
-            reject(new Error('获取code失败'));
-          }
-        },
-        fail: (err) => {
-          reject(err);
-        }
+        success: (res) => res.code ? resolve(res.code) : reject(new Error('获取code失败')),
+        fail: reject
       });
     });
   },
@@ -251,40 +173,8 @@ Page({
   /**
    * 获取OpenID
    */
-  getOpenId: function(code) {
-    return api.user.wxLogin({
-      code: code
-    });
-  },
-  
-  /**
-   * 获取AccessToken
-   */
-  getAccessToken: function() {
-    return api.user.getAccessToken({
-      type: 'business'
-    });
-  },
-  
-  /**
-   * 获取手机号
-   */
-  getPhoneNumberWithCode: function(code, accessToken, openid) {
-    return api.user.getPhoneNumber({
-      code: code,
-      access_token: accessToken,
-      openid: openid
-    });
-  },
-  
-  /**
-   * 处理错误
-   */
-  handleError: function(errMsg, err) {
-    wx.showToast({
-      title: errMsg,
-      icon: 'none'
-    });
+  getOpenId(code) {
+    return api.user.wxLogin({ code });
   },
 
   // 登录成功后的处理
