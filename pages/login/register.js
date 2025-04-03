@@ -43,7 +43,6 @@ Page({
     // 如果URL中包含手机号，自动填充
     if (options.phone) {
       const phone = options.phone;
-      console.log('自动填充手机号:', phone);
       this.setData({
         phone: phone
       });
@@ -54,7 +53,6 @@ Page({
       setTimeout(() => {
         // 如果手机号有效，自动发送验证码
         if (this.data.isPhoneValid && this.data.countdown === 0) {
-          console.log('自动发送验证码...');
           this.sendVerifyCode();
         }
       }, 500);
@@ -154,71 +152,51 @@ Page({
   },
 
   /**
+   * 统一的错误处理方法
+   */
+  handleError(err, customMessage) {
+    util.hideLoading();
+    util.showError(err.message || customMessage);
+  },
+
+  /**
+   * 统一的加载状态处理方法
+   */
+  showLoadingWithMask(title) {
+    wx.showLoading({
+      title: title,
+      mask: true
+    });
+  },
+
+  /**
    * 发送验证码
    */
   sendVerifyCode() {
-    // 如果正在倒计时，不允许再次发送
-    if (this.data.countdown > 0) {
-      return;
-    }
+    if (this.data.countdown > 0) return;
+    if (!this.validatePhone(this.data.phone)) return;
     
-    // 校验手机号
-    if (!this.validatePhone(this.data.phone)) {
-      return;
-    }
+    this.showLoadingWithMask('发送中...');
     
-    // 显示加载提示
-    wx.showLoading({
-      title: '发送中...',
-      mask: true
-    });
-    
-    // 调用发送验证码API
     api.user.sendVerifyCode({
       phone: this.data.phone
     }).then(res => {
-      // 先隐藏加载提示
       wx.hideLoading();
-      
-      // 开始倒计时
       this.startCountdown();
       
-      // 如果后端返回了验证码（仅用于开发环境）
       if (res.data && res.data.code) {
-        console.log('开发环境验证码:', res.data.code);
-        // 可以自动填充验证码（仅用于开发环境）
         this.setData({
           verifyCode: res.data.code
         });
       }
       
-      // 显示成功提示
-      setTimeout(() => {
-        wx.showToast({
-          title: '验证码已发送',
-          icon: 'success',
-          duration: 1500
-        });
-      }, 100);
+      wx.showToast({
+        title: '验证码已发送',
+        icon: 'success',
+        duration: 1500
+      });
     }).catch(err => {
-      // 先隐藏加载提示
-      wx.hideLoading();
-      
-      console.error('发送验证码失败:', err);
-      
-      // 显示错误提示
-      setTimeout(() => {
-        wx.showToast({
-          title: err.message || '发送验证码失败',
-          icon: 'none',
-          duration: 1500
-        });
-      }, 100);
-    }).finally(() => {
-      // 确保隐藏加载提示
-      setTimeout(() => {
-        wx.hideLoading();
-      }, 200);
+      this.handleError(err, '发送验证码失败');
     });
   },
 
@@ -261,126 +239,137 @@ Page({
    * 提交表单
    */
   submitForm() {
-    // 检查手机号和验证码是否有效
+    if (!this.validateForm()) return;
+    
+    this.showLoadingWithMask(this.data.pageType === 'login' ? '登录中...' : '注册中...');
+    
+    if (this.data.pageType === 'login') {
+      this.handleLogin();
+    } else {
+      this.handleRegister();
+    }
+  },
+
+  /**
+   * 表单验证
+   */
+  validateForm() {
     if (!this.data.isPhoneValid) {
       util.showError('请输入正确的手机号');
-      return;
+      return false;
     }
     
     if (!this.data.verifyCode) {
       util.showError('请输入验证码');
-      return;
+      return false;
     }
     
     if (!this.data.isAgreeProtocol) {
       util.showError('请阅读并同意协议');
-      return;
+      return false;
     }
     
-    // 调试日志
-    console.log('提交表单:', {
-      pageType: this.data.pageType,
+    return true;
+  },
+
+  /**
+   * 处理登录逻辑
+   */
+  handleLogin() {
+    api.user.login({
       phone: this.data.phone,
-      verifyCode: this.data.verifyCode
+      verifyCode: this.data.verifyCode,
+      userType: 2
+    }).then(res => {
+      this.saveUserData(res.data);
+      util.showSuccess('登录成功');
+      this.checkShopStatus();
+    }).catch(err => {
+      this.handleError(err, '登录失败');
     });
-    
-    // 显示加载提示
-    util.showLoading(this.data.pageType === 'login' ? '登录中...' : '注册中...');
-    
-    // 根据页面类型执行不同的操作
-    if (this.data.pageType === 'login') {
-      // 登录操作
-      api.user.login({
-        phone: this.data.phone,
-        verifyCode: this.data.verifyCode,
-        userType: 2
-      }).then(res => {
-        // 保存token和用户信息到本地存储
-        wx.setStorageSync('token', res.data.token);
-        wx.setStorageSync('userId', res.data.user.id);
-        wx.setStorageSync('userInfo', res.data.user);
-        
-        util.showSuccess('登录成功');
-        
-        // 调用检查店铺接口
-        api.user.checkShop().then(shopRes => {
-          util.hideLoading();
-          
-          // 保存店铺ID和店铺信息
-          if (shopRes.data && shopRes.data.shopId) {
-            wx.setStorageSync('shopId', shopRes.data.shopId);
-            // 新增：保存完整的店铺信息
-            if (shopRes.data.shop) {
-              wx.setStorageSync('shopInfo', shopRes.data.shop);
-              console.log('已保存店铺信息:', shopRes.data.shop);
-            }
-          }
-          
-          // 根据返回结果决定跳转路径
-          if (shopRes.data && shopRes.data.hasShop) {
-            // 如果有店铺，跳转到首页
-            setTimeout(() => {
-              wx.switchTab({
-                url: '/pages/productindex/index'
-              });
-            }, 1500);
-          } else {
-            // 如果没有店铺，跳转到开店页面
-            setTimeout(() => {
-              wx.redirectTo({
-                url: '/pages/shop/open'
-              });
-            }, 1500);
-          }
-        }).catch(err => {
-          util.hideLoading();
-          console.error('检查店铺失败:', err);
-          
-          // 显示错误提示，不自动跳转
-          util.showError(err.message || '检查店铺状态失败，请重试');
-        });
-      }).catch(err => {
-        util.hideLoading();
-        util.showError(err.message || '登录失败');
-      });
-    } else {
-      // 注册操作
-      console.log('开始注册请求，参数:', {
-        phone: this.data.phone,
-        verifyCode: this.data.verifyCode
-      });
+  },
+
+  /**
+   * 处理注册逻辑
+   */
+  handleRegister() {
+    api.user.register({
+      phone: this.data.phone,
+      verifyCode: this.data.verifyCode,
+      userType: 2
+    }).then(res => {
+      util.hideLoading();
+      this.saveUserData(res.data);
       
-      api.user.register({
-        phone: this.data.phone,
-        verifyCode: this.data.verifyCode,
-        userType: 2
-      }).then(res => {
-        console.log('注册成功，响应:', res);
-        util.hideLoading();
-        
-        // 保存token和用户信息到本地存储
-        wx.setStorageSync('token', res.data.token);
-        wx.setStorageSync('userId', res.data.user.id);
-        wx.setStorageSync('userInfo', res.data.user);
-        
-        // 显示成功提示
-        wx.showToast({
-          title: '注册成功',
-          icon: 'success',
-          duration: 1500,
-          mask: true,
-          complete: () => {
-            // 注册成功后直接跳转到开店页面
-            wx.redirectTo({
-              url: '/pages/shop/open'
-            });
-          }
-        });
-      }).catch(err => {
-        console.error('注册失败:', err);
-        util.hideLoading();
-        util.showError(err.message || '注册失败');
+      wx.showToast({
+        title: '注册成功',
+        icon: 'success',
+        duration: 1500,
+        mask: true,
+        complete: () => {
+          wx.redirectTo({
+            url: '/pages/shop/open'
+          });
+        }
       });
+    }).catch(err => {
+      this.handleError(err, '注册失败');
+    });
+  },
+
+  /**
+   * 保存用户数据
+   */
+  saveUserData(data) {
+    wx.setStorageSync('token', data.token);
+    wx.setStorageSync('userId', data.user.id);
+    wx.setStorageSync('userInfo', data.user);
+  },
+
+  /**
+   * 检查店铺状态
+   */
+  checkShopStatus() {
+    api.user.checkShop().then(shopRes => {
+      util.hideLoading();
+      
+      if (shopRes.data && shopRes.data.shopId) {
+        wx.setStorageSync('shopId', shopRes.data.shopId);
+        if (shopRes.data.shop) {
+          wx.setStorageSync('shopInfo', shopRes.data.shop);
+        }
+      }
+      
+      this.handleShopStatusResult(shopRes.data);
+    }).catch(err => {
+      this.handleError(err, '检查店铺状态失败，请重试');
+    });
+  },
+
+  /**
+   * 处理店铺状态检查结果
+   */
+  handleShopStatusResult(data) {
+    if (data && data.hasShop) {
+      if (data.shop && data.shop.auditStatus === 0) {
+        wx.showToast({
+          title: '店铺审核中',
+          icon: 'none',
+          duration: 2000
+        });
+      } else {
+        setTimeout(() => {
+          wx.switchTab({
+            url: '/pages/productindex/index'
+          });
+        }, 1500);
+      }
+    } else {
+      setTimeout(() => {
+        wx.redirectTo({
+          url: '/pages/shop/open'
+        });
+      }, 1500);
     }
   },
 

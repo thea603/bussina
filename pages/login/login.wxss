@@ -1,5 +1,24 @@
 /* pages/login/login.wxss */
 
+/* 自定义导航栏 */
+.custom-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FF6600;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-title {
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
 /* 登录页面容器，使用flex布局，垂直排列 */
 .login-container {
   display: flex;
@@ -9,6 +28,7 @@
   padding: 0 30rpx; /* 左右内边距 */
   box-sizing: border-box; /* 盒模型计算方式 */
   justify-content: space-between; /* 主轴上的对齐方式，使主体内容和底部操作区域分别位于顶部和底部 */
+  padding-top: 120rpx; /* 为自定义导航栏留出空间 */
 }
 
 /* 中间主体部分，使用flex布局，垂直排列，居中对齐 */

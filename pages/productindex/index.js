@@ -63,8 +63,9 @@ Page({
     api.product.getProductList(params)
       .then(res => {
         if (res.code === 200 && res.data && res.data.items) {
-          const newGoods = res.data.items;
-          
+          // 过滤掉 status 为 0 的商品
+          const newGoods = res.data.items.filter(item => String(item.status) !== '0');
+          console.log('过滤后的商品列表:', newGoods);
           // 如果返回的数据为空，或者已经是最后一页
           if (newGoods.length === 0 || this.data.page >= res.data.pagination.totalPages) {
             this.setData({
@@ -101,8 +102,11 @@ Page({
     const shopId = wx.getStorageSync('shopId');
     if (!shopId) {
       wx.showToast({
-        title: '获取店铺信息失败',
+        title: '获取店铺信息失败,请重新登录',
         icon: 'none'
+      });
+      wx.reLaunch({
+        url: '/pages/login/login'
       });
       return;
     }
@@ -118,12 +122,14 @@ Page({
     api.product.getProductList(params)
       .then(res => {
         if (res.code === 200 && res.data) {
-          const newGoods = res.data.items || [];
+          // 过滤掉 status 为 0 的商品
+          const newGoods = (res.data.items || []).filter(item => String(item.status) !== '0');
           const pagination = res.data.pagination || {};
-
+          
           this.setData({
             latestGoods: this.data.currentPage === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
             hasMore: this.data.currentPage < pagination.totalPages,
+            currentPage: this.data.currentPage + 1,
             loading: false
           });
         } else {
@@ -135,7 +141,6 @@ Page({
         }
       })
       .catch(err => {
-        console.error('获取商品列表失败:', err);
         this.setData({ loading: false });
         wx.showToast({
           title: '获取商品列表失败',
@@ -244,5 +249,16 @@ Page({
   handleImageError: function(e) {
     const index = e.currentTarget.dataset.index;
     // 不修改原始数据，只是在UI上显示为灰色背景
-  }
+  },
+
+  // 预览图片
+  previewImage(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url) return;
+    
+    wx.previewImage({
+      current: url, // 当前显示图片的链接
+      urls: [url] // 需要预览的图片链接列表
+    });
+  },
 }); 

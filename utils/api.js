@@ -19,90 +19,86 @@ const config = {
 const ENV = 'dev'; // 可以根据环境变量或其他方式动态设置
 const baseUrl = config[ENV].baseUrl;
 
+// 不需要token的白名单接口
+const whiteList = [
+  '/wechat/getOpenId',
+  '/wechat/getAccessToken',
+  '/wechat/getPhoneNumber',
+  '/user/login',
+  '/user/register',
+  '/v1/users/send-code',
+  '/v1/users/login'
+];
+
+// 检查是否为白名单URL
+const isWhiteListUrl = (url) => {
+  return whiteList.some(whiteUrl => url.includes(whiteUrl));
+};
+
 // 检查URL是否为HTTPS
 const isHttps = (url) => {
   return url.startsWith('https://');
 };
 
-// 统一请求方法
-const request = ({ url, method = 'GET', data = {}, header = {} }) => {
-  // 完整URL
-  const fullUrl = (typeof url === 'string' && url.startsWith('http')) ? url : `${baseUrl}${url}`;
+// 处理未授权情况
+const handleUnauthorized = () => {
+  // 获取当前页面路径
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1];
+  const url = currentPage ? currentPage.route : '';
   
-  // 判断是否为HTTPS请求
-  const useHttps = typeof fullUrl === 'string' && fullUrl.startsWith('https://');
-  
-  // 设置通用header
-  const commonHeader = {
-    'content-type': 'application/json',
-    ...header
-  };
-  
-  // 获取token（如果存在）
-  const token = wx.getStorageSync('token');
-  if (token) {
-    commonHeader['Authorization'] = 'Bearer ' + token;
+  // 如果当前不在登录页，才执行跳转
+  if (!url.includes('login')) {
+    // 清除所有相关的本地存储
+    wx.removeStorageSync('token');
+    wx.removeStorageSync('userInfo');
+    wx.removeStorageSync('shopInfo');
+    wx.removeStorageSync('shopId');
+    
+    // 直接跳转，不显示提示
+    wx.reLaunch({
+      url: '/pages/login/login'
+    });
   }
-  
-  // 调试日志
-  console.log(`[API请求] ${method} ${fullUrl}`, data);
-  
+};
+
+// 统一请求方法
+const request = (options) => {
   return new Promise((resolve, reject) => {
+    const { url, method = 'GET', data, header = {} } = options;
+    const fullUrl = baseUrl + url;
+    
+    // 合并通用header
+    const commonHeader = {
+      'content-type': 'application/json',
+      ...header
+    };
+    
+    // 如果不是白名单接口，检查token
+    if (!isWhiteListUrl(url)) {
+      const token = wx.getStorageSync('token');
+      if (!token) {
+        handleUnauthorized();
+        return Promise.reject(new Error('登录已过期，请重新登录'));
+      }
+      commonHeader['Authorization'] = 'Bearer ' + token;
+    }
+    
     wx.request({
       url: fullUrl,
       method: method,
       data: data,
       header: commonHeader,
       success: (res) => {
-        // 调试日志
-        console.log(`[API响应] ${method} ${fullUrl}`, res.statusCode, res.data);
-        
-        // 统一处理响应
+        // 处理响应
         if (res.statusCode === 200) {
-          // API可能直接返回数据，没有code字段
-          if (res.data.code !== undefined) {
-            // 有code字段的情况，code为200或0都表示成功
-            if (res.data.code === 200 || res.data.code === 0) {
-              resolve(res.data);
-            } else {
-              // 业务错误处理
-              showError(res.data.message || '请求失败');
-              reject(res.data);
-            }
-          } else {
-            // 没有code字段，直接返回数据
-            resolve({
-              code: 200,
-              message: res.data.message || '成功',
-              data: res.data
-            });
-          }
-        } else if (res.statusCode === 401) {
-          // 未授权，记录详细日志
-          console.error('[API错误] 401 Unauthorized', {
-            url: fullUrl,
-            method: method,
-            requestData: data,
-            responseData: res.data,
-            headers: commonHeader
-          });
-          
-          // 处理未授权情况
+          resolve(res.data);
+        } else if (res.statusCode === 401 || res.statusCode === 403) {
+          // 未授权或token过期
           handleUnauthorized();
-          reject({
-            code: 401,
-            message: '登录已过期，请重新登录',
-            data: res.data
-          });
+          reject(new Error('登录已过期，请重新登录'));
         } else {
-          // 其他错误
-          console.error(`[API错误] ${res.statusCode}`, res.data);
-          showError('服务器异常，请稍后再试');
-          reject({
-            code: res.statusCode,
-            message: '服务器异常',
-            data: res.data
-          });
+          reject(new Error(res.data.message || '请求失败'));
         }
       },
       fail: (err) => {
@@ -114,7 +110,11 @@ const request = ({ url, method = 'GET', data = {}, header = {} }) => {
           error: err
         });
         
-        showError('网络异常，请检查网络连接');
+        // 如果不是白名单接口，则跳转到登录页
+        if (!isWhiteListUrl(url)) {
+          handleUnauthorized();
+        }
+        
         reject({
           code: -1,
           message: '网络异常，请检查网络连接',
@@ -130,6 +130,13 @@ const uploadFile = (filePath, formData = {}) => {
   // 上传文件的URL
   const url = `${baseUrl}/v1/upload`;
   
+  // 获取token
+  const token = wx.getStorageSync('token');
+  if (!token) {
+    handleUnauthorized();
+    return Promise.reject(new Error('登录已过期，请重新登录'));
+  }
+  
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: url,
@@ -137,7 +144,7 @@ const uploadFile = (filePath, formData = {}) => {
       name: 'image',
       formData: formData,
       header: {
-        'Authorization': 'Bearer ' + (wx.getStorageSync('token') || '') // 添加Bearer前缀
+        'Authorization': 'Bearer ' + token
       },
       success: (res) => {
         if (res.statusCode === 200) {
@@ -152,45 +159,31 @@ const uploadFile = (filePath, formData = {}) => {
             }
             resolve(data);
           } else {
-            showError(data.message || '上传失败');
             reject(data);
           }
         } else if (res.statusCode === 401) {
           handleUnauthorized();
-          reject(res.data);
+          reject({
+            code: 401,
+            message: '登录已过期，请重新登录',
+            data: res.data
+          });
         } else {
-          showError('服务器异常，请稍后再试');
-          reject(res.data);
+          reject({
+            code: res.statusCode,
+            message: '服务器异常',
+            data: res.data
+          });
         }
       },
       fail: (err) => {
-        showError('网络异常，请检查网络连接');
-        reject(err);
+        reject({
+          code: -1,
+          message: '网络异常，请检查网络连接',
+          error: err
+        });
       }
     });
-  });
-};
-
-// 错误提示
-const showError = (message) => {
-  wx.showToast({
-    title: message,
-    icon: 'none',
-    duration: 2000
-  });
-};
-
-// 处理未授权情况
-const handleUnauthorized = () => {
-  // 清除所有相关的本地存储
-  wx.removeStorageSync('token');
-  wx.removeStorageSync('userInfo');
-  wx.removeStorageSync('shopInfo');
-  wx.removeStorageSync('shopId');
-
-  // 使用 reLaunch 重新启动到登录页
-  wx.reLaunch({
-    url: '/pages/login/login'
   });
 };
 
@@ -234,13 +227,14 @@ const api = {
     checkShop: () => {
       return request({ url: '/v1/users/has-shop', method: 'GET' });
     },
+    // 微信登录
     wxLogin(data) {
       return request({
-        url: '/v1/wechat/getOpenId',  // 确保这是正确的登录接口路径
+        url: '/v1/wechat/getOpenId',
         method: 'POST',
         data: {
           code: data.code,
-          type:'business'
+          type: 'business'
         }
       });
     },
@@ -261,8 +255,7 @@ const api = {
         method: 'POST',
         data: {
           code: data.code,
-          access_token: data.access_token,
-          
+          access_token: data.access_token
         }
       });
     }

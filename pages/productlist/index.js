@@ -107,8 +107,11 @@ Page({
     if (!shopId) {
       console.error('未找到店铺ID');
       wx.showToast({
-        title: '获取店铺信息失败',
+        title: '获取店铺信息失败,请重新登录',
         icon: 'none'
+      });
+      wx.reLaunch({
+        url: '/pages/login/login'
       });
       return;
     }
@@ -963,5 +966,15 @@ Page({
   onUnload() {
     console.log('页面卸载');
     this.isFirstLoad = true; // 重置首次加载标记
+  },
+
+  // 预览图片
+  previewImage(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url) return;
+    wx.previewImage({
+      current: url,
+      urls: [url]
+    });
   },
 }); 

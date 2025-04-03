@@ -1,4 +1,8 @@
 <!--pages/login/login.wxml-->
+<!-- 自定义导航栏 -->
+<view class="custom-nav" style="height: {{statusBarHeight}}px; padding-top: {{statusBarHeight}}px;">
+</view>
+
 <!-- 登录页面容器 -->
 <view class="login-container">
   <!-- 中间主体部分 -->

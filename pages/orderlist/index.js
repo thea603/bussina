@@ -51,8 +51,11 @@ Page({
     const shopId = wx.getStorageSync('shopId');
     if (!shopId) {
       wx.showToast({
-        title: '获取店铺信息失败',
+        title: '获取店铺信息失败,请重新登录',
         icon: 'none'
+      });
+      wx.reLaunch({
+        url: '/pages/login/login'
       });
       return;
     }

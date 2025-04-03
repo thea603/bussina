@@ -9,17 +9,28 @@ Page({
    */
   data: {
     // 页面数据
+    statusBarHeight: 0
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    // 页面加载时执行
+    // 获取状态栏高度
+    const systemInfo = wx.getSystemInfoSync();
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight
+    });
+    
     // 设置导航栏标题
     wx.setNavigationBarTitle({
       title: ''
     });
+    
+    // 隐藏返回首页按钮
+    if (wx.hideHomeButton) {
+      wx.hideHomeButton();
+    }
   },
 
   /**

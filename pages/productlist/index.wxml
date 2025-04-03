@@ -81,7 +81,7 @@
           </view>
           
           <!-- 商品图片 -->
-          <view class="product-image-container">
+          <view class="product-image-container" bindtap="previewImage" data-url="{{item.images[0]&&item.images[0].imageUrl}}">
             <image class="product-image" src="{{item.images[0]&&item.images[0].imageUrl}}" mode="aspectFill"></image>
             <!-- 审核中标识 -->
             <view class="review-badge" wx:if="{{item.status === 4}}">审核中</view>
