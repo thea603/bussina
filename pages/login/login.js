@@ -104,6 +104,7 @@ Page({
    * 微信按钮获取手机号回调
    */
   getUserProfile(e) {
+    // 检查手机号授权结果
     if (e.detail.errMsg !== 'getPhoneNumber:ok') {
       wx.showToast({
         title: '需要授权手机号才能继续使用',
@@ -113,69 +114,26 @@ Page({
     }
 
     const phoneCode = e.detail.code;
-    wx.showLoading({ title: '登录中...' });
+    wx.showLoading({ title: '登录中...', mask: true });
 
-    // 登录流程：获取OpenID -> 获取新code -> 调用登录接口
+    // 登录流程：获取code -> 调用登录接口
     this.getWxLoginCode()
-      .then(code => this.getOpenId(code))
-      .then(res => {
-        if (!res.data?.openid) {
-          throw new Error('获取OpenID失败');
-        }
-        
-        // 保存openid
-        wx.setStorageSync('openid', res.data.openid);
-        
-        // 重新获取code
-        return this.getWxLoginCode();
-      })
-      .then(newCode => {
-        // 调用新的登录接口
+      .then(code => {
+        // 调用登录接口
         return api.user.wechatUserLogin({
-          code: newCode,
-          phoneCode: phoneCode
+          code,
+          phoneCode
         });
       })
       .then(res => {
         // 保存用户信息
-        wx.setStorageSync('token', res.data.token);
-        wx.setStorageSync('userId', res.data.user.id);
-        wx.setStorageSync('userInfo', res.data.user);
-        wx.setStorageSync('wechatInfo', res.data);
+        this.saveUserInfo(res.data);
         
         // 检查店铺状态
         return api.user.checkShop();
       })
       .then(shopRes => {
-        if (shopRes.data && shopRes.data.shopId) {
-          wx.setStorageSync('shopId', shopRes.data.shopId);
-          if (shopRes.data.shop) {
-            wx.setStorageSync('shopInfo', shopRes.data.shop);
-          }
-        }
-        
-        // 处理店铺状态结果
-        if (shopRes.data && shopRes.data.hasShop) {
-          if (shopRes.data.shop && shopRes.data.shop.auditStatus === 0) {
-            wx.showToast({
-              title: '店铺审核中',
-              icon: 'none',
-              duration: 2000
-            });
-          } else {
-            setTimeout(() => {
-              wx.switchTab({
-                url: '/pages/productindex/index'
-              });
-            }, 1500);
-          }
-        } else {
-          setTimeout(() => {
-            wx.redirectTo({
-              url: '/pages/shop/open'
-            });
-          }, 1500);
-        }
+        this.handleShopStatus(shopRes.data);
       })
       .catch(err => {
         console.error('登录错误:', err);
@@ -196,49 +154,70 @@ Page({
     return new Promise((resolve, reject) => {
       wx.login({
         success: (res) => res.code ? resolve(res.code) : reject(new Error('获取code失败')),
-        fail: reject
+        fail: (err) => reject(new Error(err.errMsg || '获取code失败'))
       });
     });
   },
   
   /**
-   * 获取OpenID
+   * 保存用户信息
    */
-  getOpenId(code) {
-    return api.user.wxLogin({ code });
+  saveUserInfo(data) {
+    wx.setStorageSync('token', data.token);
+    wx.setStorageSync('openid', data.user.openid);
+    wx.setStorageSync('userId', data.user.id);
+    wx.setStorageSync('userInfo', data.user);
   },
-
-  // 登录成功后的处理
-  handleLoginSuccess: function(res) {
-    // 保存登录数据
-    auth.saveLoginData({
-      token: res.token,
-      openid: res.openid,
-      userId: res.userId,
-      userInfo: res.userInfo,
-      shopId: res.shopId,
-      shopInfo: res.shopInfo
-    });
-
-    // 返回上一页或跳转到首页
-    const pages = getCurrentPages();
-    if (pages.length > 0) {
-      wx.navigateBack();
+  
+  /**
+   * 处理店铺状态
+   */
+  handleShopStatus(data) {
+    if (!data) return;
+    
+    // 保存店铺信息
+    if (data.shopId) {
+      wx.setStorageSync('shopId', data.shopId);
+      if (data.shop) {
+        wx.setStorageSync('shopInfo', data.shop);
+      }
+    }
+    
+    // 处理店铺状态结果
+    if (data.hasShop) {
+      if (data.shop?.auditStatus === 0) {
+        wx.showToast({
+          title: '店铺审核中',
+          icon: 'none',
+          duration: 2000
+        });
+      } else {
+        this.navigateToMainPage();
+      }
     } else {
-      wx.switchTab({
-        url: '/pages/index/index'
-      });
+      this.navigateToShopOpen();
     }
   },
-
-  // 登录失败的处理
-  handleLoginFail: function(err) {
-    // 清除可能存在的旧登录数据
-    auth.clearLoginData();
-    
-    wx.showToast({
-      title: err.message || '登录失败，请重试',
-      icon: 'none'
-    });
+  
+  /**
+   * 跳转到主页
+   */
+  navigateToMainPage() {
+    setTimeout(() => {
+      wx.switchTab({
+        url: '/pages/productindex/index'
+      });
+    }, 1000);
+  },
+  
+  /**
+   * 跳转到开店页面
+   */
+  navigateToShopOpen() {
+    setTimeout(() => {
+      wx.redirectTo({
+        url: '/pages/shop/open'
+      });
+    }, 1000);
   }
 });
