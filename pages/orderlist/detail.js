@@ -128,9 +128,13 @@ Page({
     });
     
     // 调用拒绝退款API
-    api.order.rejectRefund(orderId, this.data.rejectReason)
+    api.order.processRefund(orderId, 'reject', this.data.rejectReason)
       .then(res => {
         if (res.code === 200) {
+          wx.showToast({
+            title: '已拒绝退款',
+            icon: 'success'
+          });
           // 刷新订单状态
           return this.getOrderDetail(orderId);
         } else {
@@ -142,7 +146,7 @@ Page({
       })
       .catch(err => {
         console.error('拒绝退款失败:', err);
-    wx.showToast({
+        wx.showToast({
           title: '网络错误，请重试',
           icon: 'none'
         });
@@ -153,7 +157,7 @@ Page({
           showRejectModal: false,
           rejectReason: ''
         });
-    });
+      });
   },
   
   // 同意退款
@@ -182,12 +186,12 @@ Page({
     });
     
     // 调用同意退款API
-    api.order.approveRefund(orderId)
+    api.order.processRefund(orderId, 'approve')
       .then(res => {
         if (res.code === 200) {
-    wx.showToast({
-      title: '退款成功',
-      icon: 'success'
+          wx.showToast({
+            title: '退款成功',
+            icon: 'success'
           });
           // 刷新订单状态
           return this.getOrderDetail(orderId);
@@ -210,7 +214,7 @@ Page({
         this.setData({
           showConfirmModal: false
         });
-    });
+      });
   },
   
   // 扫码核销

@@ -456,10 +456,12 @@ Page({
     
     api.product.getCategories().then(res => {
       wx.hideLoading();
-      console.log(res,'res');
-      if (res && res.data && res.data.categories) {
+      console.log('获取商品分类返回数据:', res);
+      
+      // 检查返回数据结构
+      if (res && res.code === 200 && res.categories && Array.isArray(res.categories)) {
         this.setData({
-          categories: res.data.categories
+          categories: res.categories
         });
         
         // 如果有待处理的分类匹配，执行它
@@ -468,6 +470,7 @@ Page({
           this.pendingCategoryMatch = null;
         }
       } else {
+        console.error('分类数据结构异常:', res);
         wx.showToast({
           title: '获取分类失败',
           icon: 'none'

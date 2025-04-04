@@ -1,4 +1,5 @@
 // API接口模拟层
+const interceptor = require('./interceptor');
 
 // API请求统一管理文件
 // 基础配置
@@ -73,31 +74,41 @@ const request = (options) => {
       ...header
     };
     
-    // 如果不是白名单接口，检查token
-    if (!isWhiteListUrl(url)) {
-      const token = wx.getStorageSync('token');
-      if (!token) {
-        handleUnauthorized();
-        return Promise.reject(new Error('登录已过期，请重新登录'));
-      }
-      commonHeader['Authorization'] = 'Bearer ' + token;
+    // 应用请求拦截器
+    let requestConfig = {
+      url,
+      fullUrl,
+      method,
+      data,
+      header: commonHeader
+    };
+    
+    try {
+      requestConfig = interceptor.requestInterceptor(requestConfig);
+    } catch (error) {
+      return reject(error);
+    }
+    
+    // 如果请求拦截器返回了Promise.reject，直接返回
+    if (requestConfig instanceof Promise) {
+      return requestConfig;
     }
     
     wx.request({
       url: fullUrl,
       method: method,
       data: data,
-      header: commonHeader,
+      header: requestConfig.header,
       success: (res) => {
-        // 处理响应
-        if (res.statusCode === 200) {
-          resolve(res.data);
-        } else if (res.statusCode === 401 || res.statusCode === 403) {
-          // 未授权或token过期
-          handleUnauthorized();
-          reject(new Error('登录已过期，请重新登录'));
-        } else {
-          reject(new Error(res.data.message || '请求失败'));
+        // 应用响应拦截器
+        try {
+          const result = interceptor.responseInterceptor({
+            ...res,
+            config: requestConfig
+          });
+          resolve(result);
+        } catch (error) {
+          reject(error);
         }
       },
       fail: (err) => {
@@ -109,16 +120,13 @@ const request = (options) => {
           error: err
         });
         
-        // 如果不是白名单接口，则跳转到登录页
-        if (!isWhiteListUrl(url)) {
-          handleUnauthorized();
+        // 应用错误拦截器
+        try {
+          const result = interceptor.errorInterceptor(err, requestConfig);
+          reject(result);
+        } catch (error) {
+          reject(error);
         }
-        
-        reject({
-          code: -1,
-          message: '网络异常，请检查网络连接',
-          error: err
-        });
       }
     });
   });
@@ -129,11 +137,25 @@ const uploadFile = (filePath, formData = {}) => {
   // 上传文件的URL
   const url = `${baseUrl}/v1/upload`;
   
-  // 获取token
-  const token = wx.getStorageSync('token');
-  if (!token) {
-    handleUnauthorized();
-    return Promise.reject(new Error('登录已过期，请重新登录'));
+  // 构建请求配置
+  let requestConfig = {
+    url: '/v1/upload',
+    fullUrl: url,
+    method: 'POST',
+    data: formData,
+    header: {}
+  };
+  
+  // 应用请求拦截器
+  try {
+    requestConfig = interceptor.requestInterceptor(requestConfig);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+  
+  // 如果请求拦截器返回了Promise.reject，直接返回
+  if (requestConfig instanceof Promise) {
+    return requestConfig;
   }
   
   return new Promise((resolve, reject) => {
@@ -142,45 +164,66 @@ const uploadFile = (filePath, formData = {}) => {
       filePath: filePath,
       name: 'image',
       formData: formData,
-      header: {
-        'Authorization': 'Bearer ' + token
-      },
+      header: requestConfig.header,
       success: (res) => {
         if (res.statusCode === 200) {
           // 注意：uploadFile的返回值是string，需要转换为对象
-          const data = JSON.parse(res.data);
-          if (data.code === 200) {
-            // 如果返回的数据中有path字段，将基础URL添加到path前面（不包含/api部分）
-            if (data.path && !data.url) {
-              // 从baseUrl中提取域名部分，去掉/api
-              const domainUrl = baseUrl.replace(/\/api$/, '');
-              data.url = domainUrl + data.path;
+          try {
+            const data = JSON.parse(res.data);
+            
+            // 应用响应拦截器
+            try {
+              interceptor.responseInterceptor({
+                statusCode: res.statusCode,
+                data: data,
+                config: requestConfig
+              });
+              
+              if (data.code === 200) {
+                // 如果返回的数据中有path字段，将基础URL添加到path前面（不包含/api部分）
+                if (data.path && !data.url) {
+                  // 从baseUrl中提取域名部分，去掉/api
+                  const domainUrl = baseUrl.replace(/\/api$/, '');
+                  data.url = domainUrl + data.path;
+                }
+                resolve(data);
+              } else {
+                reject(data);
+              }
+            } catch (error) {
+              reject(error);
             }
-            resolve(data);
-          } else {
-            reject(data);
+          } catch (e) {
+            reject({
+              code: -1,
+              message: '解析响应数据失败',
+              error: e
+            });
           }
-        } else if (res.statusCode === 401) {
-          handleUnauthorized();
-          reject({
-            code: 401,
-            message: '登录已过期，请重新登录',
-            data: res.data
-          });
         } else {
-          reject({
-            code: res.statusCode,
-            message: '服务器异常',
-            data: res.data
-          });
+          // 应用错误拦截器
+          try {
+            const error = {
+              statusCode: res.statusCode,
+              message: '上传失败',
+              data: res.data
+            };
+            
+            interceptor.errorInterceptor(error, requestConfig);
+            reject(error);
+          } catch (error) {
+            reject(error);
+          }
         }
       },
       fail: (err) => {
-        reject({
-          code: -1,
-          message: '网络异常，请检查网络连接',
-          error: err
-        });
+        // 应用错误拦截器
+        try {
+          const result = interceptor.errorInterceptor(err, requestConfig);
+          reject(result);
+        } catch (error) {
+          reject(error);
+        }
       }
     });
   });
@@ -351,7 +394,11 @@ const api = {
     },
     // 获取商品分类
     getCategories: () => {
-      return request({ url: '/v1/categories', method: 'GET' });
+      return request({ url: '/v1/categories', method: 'GET' })
+        .then(response => {
+          // 确保返回的是原始响应，不进行额外处理
+          return response;
+        });
     },
     
     // 创建商品
