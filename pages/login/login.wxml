@@ -25,6 +25,7 @@
         open-type="getPhoneNumber"
         bindgetphonenumber="getUserProfile"
       >
+        <image src="./images/WeChat.png" class="wechat-icon"></image>
         <text>微信快捷登录</text>
       </button>
   

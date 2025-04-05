@@ -24,7 +24,7 @@
       <view class="method-title">提现至</view>
       <view class="method-right">
         <view class="method-icon">
-          <image src="./images/wechat.png" class="icon-image"></image>
+          <image src="./images/WeChat.png" class="icon-image"></image>
         </view>
         <view class="method-name">{{paymentMethod}}</view>
       </view>
