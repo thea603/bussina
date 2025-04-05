@@ -80,56 +80,99 @@ Page({
 
     this.setData({ isLoading: true });
 
-    const userId = wx.getStorageSync('userId');
-    if (!userId) {
-      wx.showToast({
-        title: '获取用户信息失败',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 构建请求参数，使用完整日期
+    // 构建请求参数
     const params = {
-      page: isLoadMore ? this.data.page : 1,
-      pageSize: this.data.pageSize,
-      userId: userId,
-      startDate: this.data.currentPeriod,
-      endDate: this.data.currentPeriod
+      createdAt: this.data.currentPeriod,  // 使用日期选择器选中的日期，参数名改为createdAt
+      page: this.data.page,
+      pageSize: this.data.pageSize
     };
 
-    // 调用API
-    api.withdrawals.getList(params)
+    console.log('请求提现列表参数:', params);
+
+    // 调用API - 使用封装好的接口方法
+    api.withdrawals.getMyList(params)
       .then(res => {
-        if (res.code === 0) {
+        // 新的响应格式：res.code 为 200, 数据在 res.data 中
+        if (res.code === 0 || res.code === 200) {
+          // 从res.data中获取列表数据
+          const responseData = res.data || {};
+          const list = responseData.list || [];
+          
           // 处理数据
-          const newRecords = (res.list || []).map(item => {
-            const dateTime = this.formatDateTime(item.createdAt);
+          const newRecords = list.map(item => {
+            // 创建时间已经是格式化后的日期字符串，需要解析为标准格式
+            const createdAtParts = this.parseChineseDate(item.createdAt);
+            
             return {
               id: item.id,
               type: this.formatStatus(item.status),
               amount: item.amount,
-              date: dateTime.date,
-              time: dateTime.time,
+              date: createdAtParts.date,
+              time: createdAtParts.time || '00:00', // 如果没有时间部分，使用默认值
               status: item.status,
               reason: item.reason
             };
           });
 
+          // 处理分页逻辑
+          const total = responseData.total || 0;
+          const hasMoreData = this.data.page * this.data.pageSize < total;
+          let currentRecords = [];
+          
+          if (isLoadMore) {
+            // 加载更多时，将新数据添加到现有数据后面
+            currentRecords = this.data.records.concat(newRecords);
+          } else {
+            // 首次加载或刷新时，直接使用新数据
+            currentRecords = newRecords;
+          }
+
           this.setData({
-            records: isLoadMore ? [...this.data.records, ...newRecords] : newRecords,
-            hasMoreData: res.total > (isLoadMore ? this.data.records.length + newRecords.length : newRecords.length),
-            page: isLoadMore ? this.data.page + 1 : 2
+            records: currentRecords,
+            hasMoreData: hasMoreData,
+            isLoading: false
           });
+        } else {
+          console.error('获取提现列表响应错误:', res);
+          wx.showToast({
+            title: res.message || '获取提现记录失败',
+            icon: 'none',
+            duration: 2000
+          });
+          this.setData({ isLoading: false });
         }
       })
       .catch(err => {
         console.error('加载提现列表失败:', err);
-      })
-      .finally(() => {
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none',
+          duration: 2000
+        });
         this.setData({ isLoading: false });
-        wx.stopPullDownRefresh();
       });
+  },
+  
+  // 解析中文格式的日期（例如："2025年04月05日"）
+  parseChineseDate: function(chineseDate) {
+    if (!chineseDate) return { date: '', time: '' };
+    
+    // 提取年月日
+    const regex = /(\d{4})年(\d{2})月(\d{2})日/;
+    const match = chineseDate.match(regex);
+    
+    if (match) {
+      const year = match[1];
+      const month = match[2];
+      const day = match[3];
+      
+      return {
+        date: `${year}-${month}-${day}`,
+        time: ''  // 中文格式的日期没有时间部分
+      };
+    }
+    
+    return { date: chineseDate, time: '' };
   },
 
   // 日期选择器变化事件
@@ -162,13 +205,18 @@ Page({
       hasMoreData: true
     }, () => {
       this.loadWithdrawalList();
+      wx.stopPullDownRefresh();
     });
   },
 
   // 上拉加载更多
   onReachBottom: function() {
     if (this.data.hasMoreData && !this.data.isLoading) {
-      this.loadWithdrawalList(true);
+      this.setData({
+        page: this.data.page + 1
+      }, () => {
+        this.loadWithdrawalList(true);
+      });
     }
   }
 }) 

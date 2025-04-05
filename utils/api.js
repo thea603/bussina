@@ -523,6 +523,14 @@ const api = {
         method: 'GET',
         data: params
       });
+    },
+    // 获取我的提现列表
+    getMyList: (params) => {
+      return request({
+        url: '/v1/withdrawals/my-list',
+        method: 'GET',
+        data: params
+      });
     }
   }
 };
@@ -530,7 +538,32 @@ const api = {
 // 导出API接口
 module.exports = {
   ...api,
-  baseUrl: baseUrl
+  baseUrl: baseUrl,
+  
+  // 添加HTTP方法简便调用
+  get: (url, data, options = {}) => {
+    return request({ url, method: 'GET', data, ...options });
+  },
+  
+  post: (url, data, options = {}) => {
+    return request({ url, method: 'POST', data, ...options });
+  },
+  
+  put: (url, data, options = {}) => {
+    return request({ url, method: 'PUT', data, ...options });
+  },
+  
+  delete: (url, data, options = {}) => {
+    return request({ url, method: 'DELETE', data, ...options });
+  },
+  
+  patch: (url, data, options = {}) => {
+    return request({ url, method: 'PATCH', data, ...options });
+  },
+  
+  upload: (filePath, formData = {}) => {
+    return uploadFile(filePath, formData);
+  }
 }; 
 
 
