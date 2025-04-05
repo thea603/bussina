@@ -40,7 +40,12 @@
           <view class="image-list">
             <block wx:for="{{product.images}}" wx:key="index">
               <view class="image-item">
-                <image src="{{item.imageUrl || item}}" mode="aspectFill" bindtap="previewImage" data-src="{{item.imageUrl || item}}"></image>
+                <image 
+                  src="{{item.imageUrl || item.url || item}}" 
+                  mode="aspectFill" 
+                  bindtap="previewImage" 
+                  data-src="{{item}}"
+                />
                 <view class="delete-icon" bindtap="deleteImage" data-index="{{index}}">×</view>
               </view>
             </block>

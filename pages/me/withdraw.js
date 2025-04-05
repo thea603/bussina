@@ -4,7 +4,9 @@ Page({
   data: {
     balance: '6000.80',
     totalWithdrawn: '29387',
-    currentPeriod: '2024-07',
+    currentPeriod: '', // 初始为空，将在onLoad中设置为当前年月日(格式为YYYY-MM-DD)
+    displayDate: '', // 用于显示的格式化日期(格式为YYYY年MM月DD日)
+    maxDate: '', // 日期选择器最大日期
     records: [],
     page: 1,
     pageSize: 10,
@@ -16,7 +18,25 @@ Page({
     wx.setNavigationBarTitle({
       title: '提现'
     });
-    this.loadWithdrawalList();
+    
+    // 获取当前日期
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    
+    // 设置当前日期和最大日期
+    const currentPeriod = `${year}-${month}-${day}`;
+    const maxDate = currentPeriod; // 设置日期选择器的最大日期为当前日期
+    const displayDate = `${year}年${month}月${day}日`;
+    
+    this.setData({
+      currentPeriod: currentPeriod,
+      maxDate: maxDate,
+      displayDate: displayDate
+    }, () => {
+      this.loadWithdrawalList();
+    });
   },
 
   // 提现操作
@@ -69,13 +89,13 @@ Page({
       return;
     }
 
-    // 构建请求参数
+    // 构建请求参数，使用完整日期
     const params = {
       page: isLoadMore ? this.data.page : 1,
       pageSize: this.data.pageSize,
       userId: userId,
-      startDate: this.data.currentPeriod + '-01',
-      endDate: this.data.currentPeriod + '-01'
+      startDate: this.data.currentPeriod,
+      endDate: this.data.currentPeriod
     };
 
     // 调用API
@@ -112,40 +132,20 @@ Page({
       });
   },
 
-  // 选择账单周期
-  selectPeriod: function() {
-    // 获取当前日期
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    
-    // 设置日期选择器的初始值和范围
-    wx.showDatePicker({
-      mode: 'date',
-      format: 'yyyy-MM',
-      currentDate: this.data.currentPeriod.replace('-', '/'),
-      startDate: (year - 2) + '/' + month, // 从两年前开始
-      endDate: year + '/' + month, // 到当前月份结束
-      success: (res) => {
-        if (res.date) {
-          // 将日期格式化为 yyyy-MM
-          const date = new Date(res.date);
-          const year = date.getFullYear();
-          const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          const formattedDate = `${year}-${month}`;
-          
-          this.setData({
-            currentPeriod: formattedDate
-          });
-        }
-      }
-    });
-  },
-
   // 日期选择器变化事件
   onDateChange: function(e) {
+    const selectedDate = e.detail.value; // 格式为 YYYY-MM-DD
+    
+    // 将日期格式化为显示格式
+    const dateParts = selectedDate.split('-');
+    const year = dateParts[0];
+    const month = dateParts[1];
+    const day = dateParts[2];
+    const displayDate = `${year}年${month}月${day}日`;
+    
     this.setData({
-      currentPeriod: e.detail.value,
+      currentPeriod: selectedDate,
+      displayDate: displayDate,
       page: 1,
       records: [],
       hasMoreData: true

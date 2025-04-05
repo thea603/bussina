@@ -15,9 +15,9 @@
   <view class="bill-section">
     <view class="bill-header">
       <view class="bill-title">账单明细</view>
-      <picker mode="date" fields="month" value="{{currentPeriod}}" start="2022-01" end="2024-12" bindchange="onDateChange">
+      <picker mode="date" fields="day" value="{{currentPeriod}}" start="2022-01-01" end="{{maxDate}}" bindchange="onDateChange">
         <view class="period-selector">
-          <text>当前明细: {{currentPeriod}}</text>
+          <text>当前明细: {{displayDate}}</text>
           <view class="arrow-down"></view>
         </view>
       </picker>

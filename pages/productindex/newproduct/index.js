@@ -687,9 +687,9 @@ Page({
       .then(uploadedImages => {
         wx.hideLoading();
         
-        // 合并图片数组，确保格式正确
+        // 合并图片数组，确保只使用服务器返回的URL
         const formattedOldImages = oldImages.map(img => {
-          // 如果是对象格式，提取URL；否则直接使用字符串
+          // 如果是对象格式，只保留imageUrl；否则直接使用字符串
           return typeof img === 'object' && img.imageUrl ? img.imageUrl : img;
         });
         
@@ -730,7 +730,7 @@ Page({
           uploadProgress: progress
         });
       }, 200);
-      console.log(api,'api.baseUrl')
+      
       // 检查API基础URL是否有效
       if (!api || !api.baseUrl) {
         console.error('API对象或baseUrl未定义');
@@ -790,83 +790,42 @@ Page({
               const data = JSON.parse(res.data);
               console.log(`第${index + 1}张图片上传响应:`, data);
               
-              // 处理返回数据，提取图片URL
-              if (data.files && Array.isArray(data.files) && data.files.length > 0) {
-                // 新版API返回格式
-                data.files.forEach(file => {
-                  let imageUrl = file.path;
-                  
-                  // 如果URL不是以http开头，添加域名前缀
-                  if (imageUrl && !imageUrl.startsWith('http')) {
-                    // 从baseUrl中提取域名部分
+              // 处理返回数据，直接使用返回的url字段
+              if (data.code === 200 && data.data && Array.isArray(data.data)) {
+                // 处理API响应格式
+                data.data.forEach(item => {
+                  if (item.url) {
+                    // 直接使用返回的url字段
+                    uploadedImages.push(item.url);
+                  } else if (item.originalName) {
+                    // 如果没有url但有originalName，构造url
                     const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
                     const domain = domainMatch ? domainMatch[1] : '';
-                    imageUrl = domain + imageUrl;
-                  }
-                  
-                  if (imageUrl) {
-                    uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
+                    const imageUrl = `${domain}/uploads/${item.originalName}`;
+                    uploadedImages.push(imageUrl);
                   }
                 });
-              } else if (data.code === 200 && data.data) {
-                // 兼容旧版返回格式
-                if (Array.isArray(data.data)) {
-                  data.data.forEach(item => {
-                    let imageUrl = '';
-                    
-                    if (item.path) {
-                      imageUrl = item.path;
-                    } else if (item.url) {
-                      imageUrl = item.url;
-                    } else if (item.files && Array.isArray(item.files) && item.files.length > 0) {
-                      imageUrl = item.files[0].path || item.files[0].url;
-                    }
-                    
-                    // 如果URL不是以http开头，添加域名前缀
-                    if (imageUrl && !imageUrl.startsWith('http')) {
-                      // 从baseUrl中提取域名部分
-                      const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
-                      const domain = domainMatch ? domainMatch[1] : '';
-                      imageUrl = domain + imageUrl;
-                    }
-                    
-                    if (imageUrl) {
-                      uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
-                    }
-                  });
-                } else if (data.data.files && Array.isArray(data.data.files)) {
-                  // 如果data.files是数组
-                  data.data.files.forEach(file => {
-                    let imageUrl = file.path || file.url;
-                    
-                    // 如果URL不是以http开头，添加域名前缀
-                    if (imageUrl && !imageUrl.startsWith('http')) {
-                      // 从baseUrl中提取域名部分
-                      const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
-                      const domain = domainMatch ? domainMatch[1] : '';
-                      imageUrl = domain + imageUrl;
-                    }
-                    
-                    if (imageUrl) {
-                      uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
-                    }
-                  });
-                } else if (data.data.path || data.data.url) {
-                  // 单图情况
-                  let imageUrl = data.data.path || data.data.url;
-                  
-                  // 如果URL不是以http开头，添加域名前缀
-                  if (imageUrl && !imageUrl.startsWith('http')) {
-                    // 从baseUrl中提取域名部分
+              } else if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+                // 兼容其他可能的响应格式
+                data.files.forEach(file => {
+                  if (file.url) {
+                    // 直接使用返回的url字段
+                    uploadedImages.push(file.url);
+                  } else if (file.originalName) {
                     const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
                     const domain = domainMatch ? domainMatch[1] : '';
-                    imageUrl = domain + imageUrl;
+                    const imageUrl = `${domain}/uploads/${file.originalName}`;
+                    uploadedImages.push(imageUrl);
+                  } else if (file.path) {
+                    let imageUrl = file.path;
+                    if (imageUrl && !imageUrl.startsWith('http')) {
+                      const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
+                      const domain = domainMatch ? domainMatch[1] : '';
+                      imageUrl = domain + imageUrl;
+                    }
+                    uploadedImages.push(imageUrl);
                   }
-                  
-                  if (imageUrl) {
-                    uploadedImages.push(imageUrl); // 修改：直接使用URL字符串
-                  }
-                }
+                });
               }
               
               // 继续上传下一张图片
@@ -1016,32 +975,53 @@ Page({
   // 预览图片
   previewImage: function(e) {
     const current = e.currentTarget.dataset.src;
+    console.log('预览图片地址:', current);
     
     // 确保预览的URL列表格式正确
     const urls = this.data.product.images.map(img => {
-      let imageUrl = img.imageUrl || img;
+      // 获取图片URL
+      let imageUrl = '';
+      if (typeof img === 'string') {
+        imageUrl = img;
+      } else if (img.imageUrl) {
+        imageUrl = img.imageUrl;
+      } else if (img.url) {
+        imageUrl = img.url;
+      }
       
-      // 如果URL不是以http开头，添加域名前缀
-      if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('http') && api && api.baseUrl) {
-        // 从baseUrl中提取域名部分
+      // 确保URL是http开头
+      if (imageUrl && !imageUrl.startsWith('http') && api && api.baseUrl) {
         const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
         const domain = domainMatch ? domainMatch[1] : '';
         imageUrl = domain + imageUrl;
       }
       
+      console.log('图片预览URL:', imageUrl);
       return imageUrl;
-    });
+    }).filter(url => url); // 过滤掉空URL
     
-    // 同样处理当前选中的图片URL
+    if (urls.length === 0) {
+      wx.showToast({
+        title: '没有可预览的图片',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 处理当前选中的图片URL
     let currentUrl = current;
-    if (currentUrl && typeof currentUrl === 'string' && !currentUrl.startsWith('http') && api && api.baseUrl) {
+    if (typeof currentUrl === 'object') {
+      currentUrl = currentUrl.imageUrl || currentUrl.url || '';
+    }
+    
+    if (currentUrl && !currentUrl.startsWith('http') && api && api.baseUrl) {
       const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
       const domain = domainMatch ? domainMatch[1] : '';
       currentUrl = domain + currentUrl;
     }
     
     wx.previewImage({
-      current: currentUrl,
+      current: currentUrl || urls[0], // 如果current无效，使用第一张图片
       urls: urls
     });
   },
@@ -1104,19 +1084,18 @@ Page({
     // 获取店铺ID
     const shopId = wx.getStorageSync('shopId');
     
-    // 准备图片数据 - 修改为直接使用URL字符串数组格式
+    // 准备图片数据 - 只传递URL字符串
     const formattedImages = this.data.product.images.map(img => {
-      let imageUrl = img.imageUrl || img;
-      
-      // 如果URL不是以http开头，添加域名前缀
-      if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('http') && api && api.baseUrl) {
-        const domainMatch = api.baseUrl.match(/^(https?:\/\/[^\/]+)/);
-        const domain = domainMatch ? domainMatch[1] : '';
-        imageUrl = domain + imageUrl;
+      // 处理不同格式的图片数据，只返回URL字符串
+      if (typeof img === 'string') {
+        return img;
+      } else if (img.imageUrl) {
+        return img.imageUrl;
+      } else if (img.url) {
+        return img.url;
       }
-      
-      return imageUrl; // 直接返回URL字符串，不包装成对象
-    });
+      return '';
+    }).filter(url => url); // 过滤掉空URL
     
     // 转换日期格式为ISO格式
     let promotionStart = '';
@@ -1143,7 +1122,7 @@ Page({
       name: this.data.product.name,
       description: this.data.product.description || '',
       shopId: shopId || '',
-      images: formattedImages,
+      images: formattedImages, // 直接使用URL数组
       sellingPrice: Number(this.data.product.sellingPrice),
       originalPrice: Number(this.data.product.originalPrice),
       rewardAmount: Number(this.data.product.rewardAmount),

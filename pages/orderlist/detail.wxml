@@ -10,7 +10,7 @@
     <view class="customer-section" bindtap="callCustomer" data-phone="{{order.user.phone}}">
       <view class="section-header">
         <image class="icon-image" src="./images/user.png"></image>
-        <text class="customer-phone">{{order.user.username || ''}}</text>
+        <text class="customer-phone">{{order.user.nickname || ''}}</text>
         <text class="customer-phone">{{order.user.phone || ''}}</text>
       </view>
       <view class="call-button">
