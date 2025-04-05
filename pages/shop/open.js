@@ -221,19 +221,19 @@ Page({
               wx.setStorageSync('shopId', res.data.shopId);
             }
             
-            // 显示成功提示并跳转到首页
+            // 显示成功提示并跳转到登录页
             wx.showToast({
-              title: '提交成功',
-              icon: 'success',
-              duration: 1500,
+              title: '店铺审核已提交，请稍后重新登录',
+              icon: 'none',
+              duration: 2000,
               mask: true,
               complete: () => {
-                // 成功后直接跳转到首页(productindex/index)
+                // 成功后直接跳转到登录页
                 setTimeout(() => {
-                  wx.switchTab({
-                    url: '/pages/productindex/index'
+                  wx.navigateTo({
+                    url: '/pages/login/login'
                   });
-                }, 1500);
+                }, 2000);
               }
             });
           } else {

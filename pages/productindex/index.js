@@ -51,7 +51,7 @@ Page({
     const params = {
       page: this.data.page,
       pageSize: 20,
-      status: 1
+      status: 1  // 明确指定只获取状态为1的商品
     };
     
     if (shopId) {
@@ -63,8 +63,8 @@ Page({
     api.product.getProductList(params)
       .then(res => {
         if (res.code === 200 && res.data && res.data.items) {
-          // 过滤掉 status 为 0 的商品
-          const newGoods = res.data.items.filter(item => String(item.status) !== '0');
+          // 确保只获取状态为1的商品
+          const newGoods = res.data.items.filter(item => String(item.status) === '1');
           console.log('过滤后的商品列表:', newGoods);
           // 如果返回的数据为空，或者已经是最后一页
           if (newGoods.length === 0 || this.data.page >= res.data.pagination.totalPages) {
@@ -116,14 +116,15 @@ Page({
       page: this.data.currentPage,
       limit: 10,
       shopId: shopId,
+      status: 1  // 明确指定只获取状态为1的商品
     };
 
     const api = require('../../utils/api');
     api.product.getProductList(params)
       .then(res => {
         if (res.code === 200 && res.data) {
-          // 过滤掉 status 为 0 的商品
-          const newGoods = (res.data.items || []).filter(item => String(item.status) !== '0');
+          // 确保只获取状态为1的商品
+          const newGoods = (res.data.items || []).filter(item => String(item.status) === '1');
           const pagination = res.data.pagination || {};
           
           this.setData({

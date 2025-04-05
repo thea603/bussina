@@ -108,13 +108,66 @@ Page({
           let promotionEnd = '';
           
           if (productData.promotionStart) {
-            const startDate = new Date(productData.promotionStart);
+            // 尝试解析不同格式的日期
+            let startDate;
+            if (typeof productData.promotionStart === 'string') {
+              // 处理ISO格式的日期字符串 (例如: "2024-07-15T23:59:59Z")
+              // 或其他可能的日期格式
+              startDate = new Date(productData.promotionStart);
+              
+              // 检查日期是否有效
+              if (isNaN(startDate.getTime())) {
+                console.error('无效的开始日期格式:', productData.promotionStart);
+                // 尝试自定义解析
+                const dateMatch = productData.promotionStart.match(/(\d{4})-(\d{2})-(\d{2})/);
+                if (dateMatch) {
+                  startDate = new Date(dateMatch[1], parseInt(dateMatch[2])-1, dateMatch[3]);
+                } else {
+                  startDate = new Date(); // 使用当前日期作为后备
+                }
+              }
+            } else {
+              // 如果是时间戳
+              startDate = new Date(productData.promotionStart);
+            }
+            
+            // 格式化为 "YYYY年MM月DD日"
             promotionStart = `${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日`;
+            console.log('格式化后的开始日期:', promotionStart);
           }
           
           if (productData.promotionEnd) {
-            const endDate = new Date(productData.promotionEnd);
+            // 尝试解析不同格式的日期
+            let endDate;
+            if (typeof productData.promotionEnd === 'string') {
+              // 处理ISO格式的日期字符串
+              endDate = new Date(productData.promotionEnd);
+              
+              // 检查日期是否有效
+              if (isNaN(endDate.getTime())) {
+                console.error('无效的结束日期格式:', productData.promotionEnd);
+                // 尝试自定义解析
+                const dateMatch = productData.promotionEnd.match(/(\d{4})-(\d{2})-(\d{2})/);
+                if (dateMatch) {
+                  endDate = new Date(dateMatch[1], parseInt(dateMatch[2])-1, dateMatch[3]);
+                } else {
+                  // 使用开始日期加7天作为后备
+                  endDate = new Date();
+                  if (promotionStart) {
+                    const dateParts = promotionStart.replace(/年|月/g, '-').replace(/日/g, '').split('-');
+                    endDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                    endDate.setDate(endDate.getDate() + 7);
+                  }
+                }
+              }
+            } else {
+              // 如果是时间戳
+              endDate = new Date(productData.promotionEnd);
+            }
+            
+            // 格式化为 "YYYY年MM月DD日"
             promotionEnd = `${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日`;
+            console.log('格式化后的结束日期:', promotionEnd);
           }
           
           // 在商品分类列表中查找匹配的分类
