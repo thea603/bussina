@@ -1,265 +1,296 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     statusBarHeight: 20, // 默认值，会在onLoad中获取实际高度
     latestGoods: [],
     loading: false,
     page: 1,
+    pageSize: 20,
     hasMore: true,
-    shopName: '', // 添加店铺名称数据
-    currentPage: 1 // 新增currentPage数据
+    shopName: '',
+    shopId: ''
   },
 
   onLoad: function(options) {
-    // 从本地存储获取店铺信息
-    const shopInfo = wx.getStorageSync('shopInfo');
-    if (shopInfo && shopInfo.name) {
-      this.setData({
-        shopName: shopInfo.name
-      });
-    }
+    this.initData();
+  },
+
+  onShow: function() {
+    this.refreshProductList();
+  },
+
+  /**
+   * 初始化页面数据
+   */
+  initData: function() {
+    // 获取店铺信息
+    this.getShopInfo();
+    
     // 获取状态栏高度
     const systemInfo = wx.getSystemInfoSync();
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight
     });
-    // 加载商品数据
-    this.fetchGoodsList();
+    
+    // 布局计算
+    this.calculateLayout();
   },
 
-  onShow: function() {
-    // 每次页面显示时重新获取商品列表
-    this.setData({
-      currentPage: 1,  // 重置页码
-      latestGoods: [], // 清空现有商品列表
-      hasMore: true,   // 重置加载更多状态
-      loading: true    // 显示加载状态
-    }, () => {
-      // 重新获取商品列表
-      this.fetchLatestGoods();
-    });
-  },
-
-  // 获取商品列表数据
-  fetchGoodsList: function() {
-    if (this.data.loading || !this.data.hasMore) return;
-    
-    this.setData({ loading: true });
-    
-    const api = require('../../utils/api');
+  /**
+   * 从本地存储获取店铺信息
+   */
+  getShopInfo: function() {
+    const shopInfo = wx.getStorageSync('shopInfo');
     const shopId = wx.getStorageSync('shopId');
     
-    const params = {
-      page: this.data.page,
-      pageSize: 20,
-      status: 1  // 明确指定只获取状态为1的商品
-    };
-    
-    if (shopId) {
-      params.shopId = shopId;
+    if (shopInfo && shopInfo.name) {
+      this.setData({
+        shopName: shopInfo.name,
+        shopId: shopId
+      });
     }
-    
-    console.log('请求商品列表参数:', params);
-    
-    api.product.getProductList(params)
-      .then(res => {
-        if (res.code === 200 && res.data && res.data.items) {
-          // 确保只获取状态为1的商品
-          const newGoods = res.data.items.filter(item => String(item.status) === '1');
-          console.log('过滤后的商品列表:', newGoods);
-          // 如果返回的数据为空，或者已经是最后一页
-          if (newGoods.length === 0 || this.data.page >= res.data.pagination.totalPages) {
-            this.setData({
-              hasMore: false
-            });
-          }
-          
-          // 将新数据追加到现有数据中
-          this.setData({
-            latestGoods: this.data.page === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
-            page: this.data.page + 1
-          });
-        } else {
-          wx.showToast({
-            title: '获取商品列表失败',
-            icon: 'none'
-          });
-        }
-      })
-      .catch(err => {
-        console.error('请求商品列表失败:', err);
-        wx.showToast({
-          title: '网络错误，请重试',
-          icon: 'none'
-        });
-      })
-      .finally(() => {
-        this.setData({ loading: false });
-      });
   },
 
-  // 获取最新商品列表
-  fetchLatestGoods: function() {
-    const shopId = wx.getStorageSync('shopId');
-    if (!shopId) {
-      wx.showToast({
-        title: '获取店铺信息失败,请重新登录',
-        icon: 'none'
-      });
-      wx.reLaunch({
-        url: '/pages/login/login'
-      });
-      return;
-    }
-
-    // 构建请求参数
-    const params = {
-      page: this.data.currentPage,
-      limit: 10,
-      shopId: shopId,
-      status: 1  // 明确指定只获取状态为1的商品
-    };
-
-    const api = require('../../utils/api');
-    api.product.getProductList(params)
-      .then(res => {
-        if (res.code === 200 && res.data) {
-          // 确保只获取状态为1的商品
-          const newGoods = (res.data.items || []).filter(item => String(item.status) === '1');
-          const pagination = res.data.pagination || {};
-          
-          this.setData({
-            latestGoods: this.data.currentPage === 1 ? newGoods : [...this.data.latestGoods, ...newGoods],
-            hasMore: this.data.currentPage < pagination.totalPages,
-            currentPage: this.data.currentPage + 1,
-            loading: false
-          });
-        } else {
-          this.setData({ loading: false });
-          wx.showToast({
-            title: '获取商品列表失败',
-            icon: 'none'
-          });
-        }
-      })
-      .catch(err => {
-        this.setData({ loading: false });
-        wx.showToast({
-          title: '获取商品列表失败',
-          icon: 'none'
-        });
-      });
-  },
-
-  // 下拉刷新
-  onPullDownRefresh: function() {
-    this.setData({
-      latestGoods: [],
-      page: 1,
-      hasMore: true
-    });
-    this.fetchGoodsList();
-    wx.stopPullDownRefresh();
-  },
-  
-  // 上拉加载更多
-  onReachBottom: function() {
-    this.fetchGoodsList();
-  },
-
-  onReady: function() {
-    // 在页面渲染完成后计算固定区域的高度
+  /**
+   * 计算页面布局尺寸
+   */
+  calculateLayout: function() {
     setTimeout(() => {
       const query = wx.createSelectorQuery();
       query.select('.fixed-content').boundingClientRect();
       query.exec((res) => {
         if (res[0]) {
-          // 获取系统信息，计算可用高度
           const systemInfo = wx.getSystemInfoSync();
           const windowHeight = systemInfo.windowHeight;
           const fixedHeight = res[0].height;
           
           this.setData({
-            fixedContentHeight: res[0].height,
-            scrollHeight: windowHeight - res[0].height - 30 // 减去30px，为底部留出更多空间
+            fixedContentHeight: fixedHeight,
+            scrollHeight: windowHeight - fixedHeight - 30 // 为底部留出额外空间
           });
         }
       });
-    }, 100); // 延迟100ms确保页面已渲染
+    }, 100);
   },
 
-  // 导航到数字核销页面
+  /**
+   * 刷新商品列表
+   */
+  refreshProductList: function() {
+    this.setData({
+      page: 1,
+      latestGoods: [],
+      hasMore: true,
+      loading: false
+    }, () => {
+      this.fetchProductList();
+    });
+  },
+
+  /**
+   * 获取商品列表
+   */
+  fetchProductList: function() {
+    if (this.data.loading || !this.data.hasMore) return;
+    
+    const shopId = this.data.shopId || wx.getStorageSync('shopId');
+    
+    if (!shopId) {
+      this.handleNoShopId();
+      return;
+    }
+    
+    this.setData({ loading: true });
+    
+    const params = {
+      page: this.data.page,
+      pageSize: this.data.pageSize,
+      shopId: shopId,
+      status: 1  // 仅获取状态为1（上架）的商品
+    };
+    
+    console.log('请求商品列表参数:', params);
+    
+    api.product.getProductList(params)
+      .then(res => this.handleProductListSuccess(res))
+      .catch(err => this.handleProductListError(err))
+      .finally(() => {
+        this.setData({ loading: false });
+      });
+  },
+
+  /**
+   * 处理无店铺ID的情况
+   */
+  handleNoShopId: function() {
+    wx.showToast({
+      title: '获取店铺信息失败，请重新登录',
+      icon: 'none',
+      duration: 2000
+    });
+    
+    // 延迟跳转，让用户有时间看到提示
+    setTimeout(() => {
+      wx.reLaunch({
+        url: '/pages/login/login'
+      });
+    }, 1500);
+  },
+
+  /**
+   * 处理商品列表请求成功
+   */
+  handleProductListSuccess: function(res) {
+    if (res.code === 200 && res.data) {
+      // 确保只获取状态为1的商品
+      const newGoods = (res.data.items || []).filter(item => String(item.status) === '1');
+      const pagination = res.data.pagination || {};
+      
+      // 处理分页逻辑
+      const hasMore = this.data.page < pagination.totalPages;
+      const isFirstPage = this.data.page === 1;
+      const updatedGoods = isFirstPage ? newGoods : [...this.data.latestGoods, ...newGoods];
+      
+      this.setData({
+        latestGoods: updatedGoods,
+        hasMore: hasMore,
+        page: this.data.page + 1
+      });
+      
+      // 如果返回数据为空且是第一页
+      if (newGoods.length === 0 && isFirstPage) {
+        console.log('没有符合条件的商品');
+      }
+    } else {
+      this.showErrorToast('获取商品列表失败');
+    }
+  },
+
+  /**
+   * 处理商品列表请求失败
+   */
+  handleProductListError: function(err) {
+    console.error('请求商品列表失败:', err);
+    this.showErrorToast('网络错误，请重试');
+  },
+
+  /**
+   * 显示错误提示
+   */
+  showErrorToast: function(message) {
+    wx.showToast({
+      title: message,
+      icon: 'none',
+      duration: 2000
+    });
+  },
+
+  /**
+   * 下拉刷新
+   */
+  onPullDownRefresh: function() {
+    this.refreshProductList();
+    wx.stopPullDownRefresh();
+  },
+  
+  /**
+   * 上拉加载更多
+   */
+  onReachBottom: function() {
+    this.fetchProductList();
+  },
+
+  /**
+   * 页面准备就绪
+   */
+  onReady: function() {
+    this.calculateLayout();
+  },
+
+  /**
+   * 导航到数字核销页面
+   */
   navigateToDigitalVerify: function() {
     wx.navigateTo({
       url: '/pages/productindex/verify/digital'
     });
   },
 
-  // 导航到扫码核销页面
+  /**
+   * 导航到扫码核销页面
+   */
   navigateToScanVerify: function() {
     wx.scanCode({
       success: (res) => {
-        // 处理扫码结果
         console.log('扫码结果:', res);
-        
-        // 将扫码结果传递给数字核销页面
         wx.navigateTo({
-          url: `/pages/productindex/verify/digital?code=${res.result}`
+          url: `/pages/productindex/verify/digital?code=${encodeURIComponent(res.result)}`
         });
       },
       fail: (err) => {
         console.error('扫码失败:', err);
-        // 可以在这里添加扫码失败的处理逻辑，例如提示用户
-        wx.showToast({
-          title: '扫码取消或失败',
-          icon: 'none',
-          duration: 2000
-        });
+        if (err.errMsg !== 'scanCode:fail cancel') {
+          this.showErrorToast('扫码失败，请重试');
+        }
       }
     });
   },
 
-  // 导航到添加商品页面
+  /**
+   * 导航到添加商品页面
+   */
   navigateToAddGoods: function() {
     wx.navigateTo({
       url: '/pages/productindex/newproduct/index'
     });
   },
 
-  // 显示更多选项
+  /**
+   * 显示更多选项
+   */
   showMoreOptions: function() {
     wx.showActionSheet({
       itemList: ['店铺设置', '消息通知', '帮助中心'],
-      success: function(res) {
-        console.log(res.tapIndex);
-        // 根据点击的选项执行相应操作
+      success: (res) => {
+        const index = res.tapIndex;
+        switch (index) {
+          case 0:
+            wx.navigateTo({ url: '/pages/settings/index' });
+            break;
+          case 1:
+            wx.navigateTo({ url: '/pages/message/index' });
+            break;
+          case 2:
+            wx.navigateTo({ url: '/pages/help/index' });
+            break;
+        }
       }
     });
   },
   
-  // 扫码
-  scanCode: function() {
-    wx.scanCode({
-      success: (res) => {
-        console.log(res);
-        // 处理扫码结果
-      }
-    });
-  },
-
-  // 处理图片加载错误
+  /**
+   * 处理图片加载错误
+   */
   handleImageError: function(e) {
     const index = e.currentTarget.dataset.index;
-    // 不修改原始数据，只是在UI上显示为灰色背景
+    // 记录错误但不修改原始数据，UI上显示为灰色背景
+    console.warn(`商品图片加载失败, 索引: ${index}`);
   },
 
-  // 预览图片
-  previewImage(e) {
+  /**
+   * 预览图片
+   */
+  previewImage: function(e) {
     const url = e.currentTarget.dataset.url;
-    if (!url) return;
+    if (!url) {
+      console.warn('预览图片失败：无效的图片URL');
+      return;
+    }
     
     wx.previewImage({
-      current: url, // 当前显示图片的链接
-      urls: [url] // 需要预览的图片链接列表
+      current: url,
+      urls: [url]
     });
-  },
+  }
 }); 

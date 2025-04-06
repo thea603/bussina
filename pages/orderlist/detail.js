@@ -135,8 +135,11 @@ Page({
             title: '已拒绝退款',
             icon: 'success'
           });
-          // 刷新订单状态
-          return this.getOrderDetail(orderId);
+          
+          // 延迟跳转回订单列表页面
+          setTimeout(() => {
+            wx.navigateBack();
+          }, 1500);
         } else {
           wx.showToast({
             title: res.message || '操作失败',
@@ -193,8 +196,11 @@ Page({
             title: '退款成功',
             icon: 'success'
           });
-          // 刷新订单状态
-          return this.getOrderDetail(orderId);
+          
+          // 延迟跳转回订单列表页面
+          setTimeout(() => {
+            wx.navigateBack();
+          }, 1500);
         } else {
           wx.showToast({
             title: res.message || '操作失败',

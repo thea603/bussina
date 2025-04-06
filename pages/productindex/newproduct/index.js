@@ -103,72 +103,13 @@ Page({
         if (res.code === 200 && res.data) {
           const productData = res.data;
           
-          // 格式化日期
-          let promotionStart = '';
-          let promotionEnd = '';
+          // 直接使用后端返回的已格式化日期
+          // 后端返回的格式: "2025年04月05日"
+          const promotionStart = productData.promotionStart || '';
+          const promotionEnd = productData.promotionEnd || '';
           
-          if (productData.promotionStart) {
-            // 尝试解析不同格式的日期
-            let startDate;
-            if (typeof productData.promotionStart === 'string') {
-              // 处理ISO格式的日期字符串 (例如: "2024-07-15T23:59:59Z")
-              // 或其他可能的日期格式
-              startDate = new Date(productData.promotionStart);
-              
-              // 检查日期是否有效
-              if (isNaN(startDate.getTime())) {
-                console.error('无效的开始日期格式:', productData.promotionStart);
-                // 尝试自定义解析
-                const dateMatch = productData.promotionStart.match(/(\d{4})-(\d{2})-(\d{2})/);
-                if (dateMatch) {
-                  startDate = new Date(dateMatch[1], parseInt(dateMatch[2])-1, dateMatch[3]);
-                } else {
-                  startDate = new Date(); // 使用当前日期作为后备
-                }
-              }
-            } else {
-              // 如果是时间戳
-              startDate = new Date(productData.promotionStart);
-            }
-            
-            // 格式化为 "YYYY年MM月DD日"
-            promotionStart = `${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日`;
-            console.log('格式化后的开始日期:', promotionStart);
-          }
-          
-          if (productData.promotionEnd) {
-            // 尝试解析不同格式的日期
-            let endDate;
-            if (typeof productData.promotionEnd === 'string') {
-              // 处理ISO格式的日期字符串
-              endDate = new Date(productData.promotionEnd);
-              
-              // 检查日期是否有效
-              if (isNaN(endDate.getTime())) {
-                console.error('无效的结束日期格式:', productData.promotionEnd);
-                // 尝试自定义解析
-                const dateMatch = productData.promotionEnd.match(/(\d{4})-(\d{2})-(\d{2})/);
-                if (dateMatch) {
-                  endDate = new Date(dateMatch[1], parseInt(dateMatch[2])-1, dateMatch[3]);
-                } else {
-                  // 使用开始日期加7天作为后备
-                  endDate = new Date();
-                  if (promotionStart) {
-                    const dateParts = promotionStart.replace(/年|月/g, '-').replace(/日/g, '').split('-');
-                    endDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-                    endDate.setDate(endDate.getDate() + 7);
-                  }
-                }
-              }
-            } else {
-              // 如果是时间戳
-              endDate = new Date(productData.promotionEnd);
-            }
-            
-            // 格式化为 "YYYY年MM月DD日"
-            promotionEnd = `${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日`;
-            console.log('格式化后的结束日期:', promotionEnd);
-          }
+          console.log('后端返回的开始日期:', promotionStart);
+          console.log('后端返回的结束日期:', promotionEnd);
           
           // 在商品分类列表中查找匹配的分类
           let categoryName = '';
@@ -458,19 +399,23 @@ Page({
     
     // 格式化日期为 "YYYY年MM月DD日"
     const year = this.data.tempDate.getFullYear();
-    const month = this.data.tempDate.getMonth() + 1;
-    const day = this.data.tempDate.getDate();
+    const month = (this.data.tempDate.getMonth() + 1).toString().padStart(2, '0'); // 确保是两位数
+    const day = this.data.tempDate.getDate().toString().padStart(2, '0'); // 确保是两位数
     const formattedDate = `${year}年${month}月${day}日`;
+    
+    console.log('日期选择器 - 已格式化日期:', formattedDate);
     
     // 根据当前标签页更新对应的日期
     if (this.data.datePickerTab === 'start') {
       this.setData({
         'product.promotionStart': formattedDate
       });
+      console.log('已设置开始日期:', formattedDate);
     } else {
       this.setData({
         'product.promotionEnd': formattedDate
       });
+      console.log('已设置结束日期:', formattedDate);
     }
   },
   
@@ -1128,6 +1073,10 @@ Page({
   // 执行表单提交
   doSubmitForm: function() {
     console.log('按钮已激活，继续执行');
+    console.log('提交表单时的日期数据:', {
+      promotionStart: this.data.product.promotionStart,
+      promotionEnd: this.data.product.promotionEnd
+    });
     
     // 显示加载中
     wx.showLoading({
@@ -1150,24 +1099,80 @@ Page({
       return '';
     }).filter(url => url); // 过滤掉空URL
     
-    // 转换日期格式为ISO格式
+    // 转换日期格式为ISO-8601格式，但使用UTC+8时区（北京时间）
     let promotionStart = '';
     let promotionEnd = '';
     
     if (this.data.product.promotionStart) {
-      const startDateParts = this.data.product.promotionStart.replace(/年|月/g, '-').replace(/日/g, '').split('-');
-      const startYear = parseInt(startDateParts[0]);
-      const startMonth = parseInt(startDateParts[1]).toString().padStart(2, '0');
-      const startDay = parseInt(startDateParts[2]).toString().padStart(2, '0');
-      promotionStart = `${startYear}-${startMonth}-${startDay}T23:59:59Z`;
+      console.log('原始开始日期:', this.data.product.promotionStart, typeof this.data.product.promotionStart);
+      // 解析中文日期格式 "2025年04月05日"
+      const startMatch = this.data.product.promotionStart.match(/(\d{4})年(\d{2})月(\d{2})日/);
+      console.log('日期匹配结果:', startMatch);
+      
+      if (startMatch) {
+        const startYear = startMatch[1];
+        const startMonth = startMatch[2];
+        const startDay = startMatch[3];
+        
+        // 创建UTC+8的时间字符串（北京时间）
+        promotionStart = `${startYear}-${startMonth}-${startDay}T00:00:00+08:00`;
+        console.log('活动开始日期(北京时间ISO格式):', promotionStart);
+      } else {
+        // 尝试其他日期格式
+        console.log('无法使用正则匹配日期，尝试其他方法');
+        const dateStr = this.data.product.promotionStart.replace(/年|月/g, '-').replace(/日/g, '');
+        console.log('转换后的日期字符串:', dateStr);
+        
+        // 尝试将转换后的字符串转为ISO格式
+        try {
+          const parts = dateStr.split('-');
+          if (parts.length >= 3) {
+            const year = parts[0];
+            const month = parts[1].padStart(2, '0');
+            const day = parts[2].padStart(2, '0');
+            promotionStart = `${year}-${month}-${day}T00:00:00+08:00`;
+            console.log('备用方法处理后的开始日期:', promotionStart);
+          }
+        } catch (error) {
+          console.error('解析日期失败:', error);
+        }
+      }
     }
     
     if (this.data.product.promotionEnd) {
-      const endDateParts = this.data.product.promotionEnd.replace(/年|月/g, '-').replace(/日/g, '').split('-');
-      const endYear = parseInt(endDateParts[0]);
-      const endMonth = parseInt(endDateParts[1]).toString().padStart(2, '0');
-      const endDay = parseInt(endDateParts[2]).toString().padStart(2, '0');
-      promotionEnd = `${endYear}-${endMonth}-${endDay}T23:59:59Z`;
+      console.log('原始结束日期:', this.data.product.promotionEnd, typeof this.data.product.promotionEnd);
+      // 解析中文日期格式 "2025年04月06日"
+      const endMatch = this.data.product.promotionEnd.match(/(\d{4})年(\d{2})月(\d{2})日/);
+      console.log('日期匹配结果:', endMatch);
+      
+      if (endMatch) {
+        const endYear = endMatch[1];
+        const endMonth = endMatch[2];
+        const endDay = endMatch[3];
+        
+        // 创建UTC+8的时间字符串（北京时间）
+        promotionEnd = `${endYear}-${endMonth}-${endDay}T23:59:59+08:00`;
+        console.log('活动结束日期(北京时间ISO格式):', promotionEnd);
+      } else {
+        // 尝试其他日期格式
+        console.log('无法使用正则匹配日期，尝试其他方法');
+        const dateStr = this.data.product.promotionEnd.replace(/年|月/g, '-').replace(/日/g, '');
+        console.log('转换后的日期字符串:', dateStr);
+        
+        // 尝试将转换后的字符串转为ISO格式
+        try {
+          const parts = dateStr.split('-');
+          if (parts.length >= 3) {
+            const year = parts[0];
+            const month = parts[1].padStart(2, '0');
+            const day = parts[2].padStart(2, '0');
+            promotionEnd = `${year}-${month}-${day}T23:59:59+08:00`;
+            console.log('备用方法处理后的结束日期:', promotionEnd);
+          }
+        } catch (error) {
+          console.error('解析日期失败:', error);
+        }
+      }
     }
     
     // 准备提交的数据
@@ -1182,18 +1187,25 @@ Page({
       categoryId: this.data.product.categoryId,
       specification: this.data.product.specification,
       stock: parseInt(this.data.product.stock) || 0,
-      promotionStart: promotionStart,
-      promotionEnd: promotionEnd
+      promotionStart: promotionStart || null, // 确保使用null而不是空字符串
+      promotionEnd: promotionEnd || null      // 确保使用null而不是空字符串
     };
     
-    console.log('提交商品数据:', productData);
+    // 记录最终提交的数据
+    console.log('最终提交的商品数据:', JSON.stringify(productData, null, 2));
     
     // 根据是否为编辑模式选择不同的API方法
-    const apiMethod = this.data.isEdit ? 
-      api.product.updateProduct(this.data.productId, productData) : 
-      api.product.createProduct(productData);
+    let apiPromise;
+    if (this.data.isEdit && this.data.productId) {
+      console.log('执行编辑操作，商品ID:', this.data.productId);
+      apiPromise = api.product.updateProduct(this.data.productId, productData);
+    } else {
+      console.log('执行新增操作');
+      apiPromise = api.product.createProduct(productData);
+    }
     
-    apiMethod.then(res => {
+    // 处理API请求结果
+    apiPromise.then(res => {
       wx.hideLoading();
       
       if (res && (res.code === 0 || res.code === 200)) {
@@ -1246,5 +1258,11 @@ Page({
     value = value.toString().replace(/[^\d.]/g, '');
     const number = parseFloat(value);
     return isNaN(number) ? 0 : number;
+  },
+
+  // 格式化中文日期为标准格式 "YYYY-MM-DD"
+  formatChineseDate: function(chineseDate) {
+    if (!chineseDate) return '';
+    return chineseDate.replace(/年|月/g, '-').replace(/日/g, '');
   }
 }) 
