@@ -82,41 +82,44 @@ Page({
 
     // 构建请求参数
     const params = {
-      createdAt: this.data.currentPeriod,  // 使用日期选择器选中的日期，参数名改为createdAt
       page: this.data.page,
-      pageSize: this.data.pageSize
+      limit: 10,
+      recordType: 2,
+      startDate: this.data.currentPeriod,
+      endDate: this.data.currentPeriod,
+      shopId: wx.getStorageSync('shopId')
     };
 
-    console.log('请求提现列表参数:', params);
+    console.log('请求账单明细参数:', params);
 
-    // 调用API - 使用封装好的接口方法
-    api.withdrawals.getMyList(params)
+    // 调用API获取店铺账单
+    api.get('/v1/billing/shop', params)
       .then(res => {
-        // 新的响应格式：res.code 为 200, 数据在 res.data 中
+        // 新的响应格式：res.code 为 0, 数据在 res.data 中
         if (res.code === 0 || res.code === 200) {
           // 从res.data中获取列表数据
           const responseData = res.data || {};
-          const list = responseData.list || [];
+          const list = responseData.items || [];
           
           // 处理数据
           const newRecords = list.map(item => {
-            // 创建时间已经是格式化后的日期字符串，需要解析为标准格式
-            const createdAtParts = this.parseChineseDate(item.createdAt);
+            // 处理日期时间格式
+            const dateTimeObj = this.formatDateTime(item.createdAt);
             
             return {
               id: item.id,
-              type: this.formatStatus(item.status),
+              type: item.type || '提现',
               amount: item.amount,
-              date: createdAtParts.date,
-              time: createdAtParts.time || '00:00', // 如果没有时间部分，使用默认值
+              date: dateTimeObj.date,
+              time: dateTimeObj.time,
               status: item.status,
-              reason: item.reason
+              reason: item.remark || ''
             };
           });
 
           // 处理分页逻辑
           const total = responseData.total || 0;
-          const hasMoreData = this.data.page * this.data.pageSize < total;
+          const hasMoreData = this.data.page * 10 < total;
           let currentRecords = [];
           
           if (isLoadMore) {
@@ -133,9 +136,9 @@ Page({
             isLoading: false
           });
         } else {
-          console.error('获取提现列表响应错误:', res);
+          console.error('获取账单明细响应错误:', res);
           wx.showToast({
-            title: res.message || '获取提现记录失败',
+            title: res.message || '获取账单明细失败',
             icon: 'none',
             duration: 2000
           });
@@ -143,7 +146,7 @@ Page({
         }
       })
       .catch(err => {
-        console.error('加载提现列表失败:', err);
+        console.error('加载账单明细失败:', err);
         wx.showToast({
           title: '网络错误，请重试',
           icon: 'none',

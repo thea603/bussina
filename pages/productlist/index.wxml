@@ -110,7 +110,7 @@
               </view>
               <view class="stat-item">
                 <text class="stat-label">销量</text>
-                <text class="stat-value">{{item.sales}}</text>
+                <text class="stat-value">{{item.sales || 0}}</text>
               </view>
             </view>
             

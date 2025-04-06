@@ -249,5 +249,19 @@ Page({
         });
       }
     });
+  },
+  
+  // 预览图片
+  previewImage: function(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url) {
+      console.warn('预览图片失败：无效的图片URL');
+      return;
+    }
+    
+    wx.previewImage({
+      current: url, // 当前显示图片的URL
+      urls: [url]   // 需要预览的图片URL列表
+    });
   }
 }); 

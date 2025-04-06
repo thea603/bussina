@@ -84,6 +84,8 @@
                       src="{{orderItem.product.images[0].imageUrl}}" 
                       mode="aspectFill" 
                       class="product-image"
+                      catchtap="previewImage" 
+                      data-url="{{orderItem.product.images[0].imageUrl}}"
                     />
                     <view wx:else class="product-image-placeholder"></view>
                   </view>

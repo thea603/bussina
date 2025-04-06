@@ -48,6 +48,8 @@ Page({
 
     // 获取店铺统计数据
     this.fetchShopMetrics();
+    // 获取店铺余额
+    this.fetchShopBalance();
   },
 
   onShow: function() {
@@ -58,7 +60,32 @@ Page({
         shopInfo
       });
       this.fetchShopMetrics();
+      this.fetchShopBalance();
     }
+  },
+
+  // 获取店铺余额
+  fetchShopBalance: function() {
+    const shopId = wx.getStorageSync('shopId');
+    if (!shopId) {
+      console.error('获取店铺ID失败');
+      return;
+    }
+
+    api.get('/v1/billing/shop-balance', { shopId })
+      .then(res => {
+        if ((res.code === 0 || res.code === 200) && res.data) {
+          this.setData({
+            balance: res.data.balance.toFixed(2)
+          });
+          console.log('获取店铺余额成功:', res.data.balance);
+        } else {
+          console.error('获取店铺余额失败:', res.message);
+        }
+      })
+      .catch(err => {
+        console.error('获取店铺余额请求失败:', err);
+      });
   },
 
   // 获取店铺统计数据
